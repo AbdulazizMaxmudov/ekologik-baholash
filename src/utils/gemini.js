@@ -29,7 +29,7 @@ export async function evaluateProject(file) {
     config: {
       systemInstruction: SYSTEM_PROMPT,
       responseMimeType: 'application/json',
-      temperature: 0.1,
+      temperature: 0,
     },
   })
 

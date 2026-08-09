@@ -114,8 +114,9 @@ function CriterionRow({ item }) {
 
 function ResultView({ result, onReset }) {
   const { project_identification: pi, evaluation_matrix: matrix, summary } = result
-  const tc  = totalColor(summary.total_score)
-  const pct = summary.total_score
+  const displayScore = Math.min(Math.round(summary.total_score), 95)
+  const tc  = totalColor(displayScore)
+  const pct = displayScore
 
   return (
     <div className="space-y-5">
@@ -139,7 +140,7 @@ function ResultView({ result, onReset }) {
             {pi?.developer_name && <p className="text-xs text-slate-500">{pi.developer_name}</p>}
           </div>
           <div className={`flex-shrink-0 w-24 h-24 rounded-full ring-4 ${tc.ring} flex flex-col items-center justify-center`}>
-            <span className={`text-3xl font-bold ${tc.text}`}>{summary.total_score}</span>
+            <span className={`text-3xl font-bold ${tc.text}`}>{displayScore}</span>
             <span className="text-xs text-slate-500">/ 100</span>
           </div>
         </div>
