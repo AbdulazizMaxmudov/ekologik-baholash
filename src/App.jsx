@@ -5,6 +5,8 @@ import Sidebar from './components/Sidebar'
 import CompaniesPage from './pages/CompaniesPage'
 import CompanyDetailPage from './pages/CompanyDetailPage'
 import AiPage from './pages/AiPage'
+import ArizalarPage from './pages/ArizalarPage'
+import AiAssistantPage from './pages/AiAssistantPage'
 
 export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -27,13 +29,15 @@ export default function App() {
             >
               <Menu className="w-5 h-5" />
             </button>
-            <span className="text-white font-bold text-sm">Eco Reyting</span>
+            <span className="text-white font-bold text-sm">ECO EXPERT AI</span>
           </header>
           <main className="flex-1 overflow-y-auto">
             <Routes>
               <Route path="/" element={<CompaniesPage />} />
               <Route path="/company/:id" element={<CompanyDetailPage />} />
               <Route path="/ai-baholash" element={<AiPage />} />
+              <Route path="/arizalar" element={<ArizalarPage />} />
+              <Route path="/ai-assistant" element={<AiAssistantPage />} />
             </Routes>
           </main>
         </div>

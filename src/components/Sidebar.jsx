@@ -1,6 +1,13 @@
 import { NavLink, useLocation } from 'react-router-dom'
-import { Leaf, Bot } from 'lucide-react'
+import { Leaf, Bot, ClipboardList, Sparkles } from 'lucide-react'
 import logoMarkaz from '../assets/logo_Markaz.png'
+
+const linkClass = ({ isActive }) =>
+  `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+    isActive
+      ? 'bg-emerald-500 text-white'
+      : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+  }`
 
 export default function Sidebar({ isOpen, onClose }) {
   const location = useLocation()
@@ -13,12 +20,27 @@ export default function Sidebar({ isOpen, onClose }) {
       <div className="flex items-center gap-3 px-4 py-4 border-b border-slate-700">
         <img src={logoMarkaz} alt="Markaz logo" className="w-10 h-10 object-contain flex-shrink-0" />
         <div>
-          <p className="text-white font-bold text-sm leading-tight">Eco Reyting</p>
+          <p className="text-white font-bold text-sm leading-tight">ECO EXPERT AI</p>
         </div>
       </div>
 
       {/* Nav */}
       <nav className="flex-1 px-3 py-4 space-y-1">
+        <NavLink to="/arizalar" onClick={onClose} className={linkClass}>
+          <ClipboardList className="w-4 h-4 flex-shrink-0" />
+          <span>Arizalar</span>
+        </NavLink>
+
+        <NavLink to="/ai-baholash" onClick={onClose} className={linkClass}>
+          <Bot className="w-4 h-4 flex-shrink-0" />
+          <span>AI baholash</span>
+        </NavLink>
+
+        <NavLink to="/ai-assistant" onClick={onClose} className={linkClass}>
+          <Sparkles className="w-4 h-4 flex-shrink-0" />
+          <span>AI Assistant</span>
+        </NavLink>
+
         <NavLink
           to="/"
           onClick={onClose}
@@ -32,21 +54,6 @@ export default function Sidebar({ isOpen, onClose }) {
         >
           <Leaf className="w-4 h-4 flex-shrink-0" />
           <span>Loyihachi korxonalar</span>
-        </NavLink>
-
-        <NavLink
-          to="/ai-baholash"
-          onClick={onClose}
-          className={({ isActive }) =>
-            `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-              isActive
-                ? 'bg-emerald-500 text-white'
-                : 'text-slate-400 hover:bg-slate-800 hover:text-white'
-            }`
-          }
-        >
-          <Bot className="w-4 h-4 flex-shrink-0" />
-          <span>AI baholash</span>
         </NavLink>
       </nav>
 

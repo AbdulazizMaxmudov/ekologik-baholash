@@ -95,6 +95,9 @@ CRITICAL RULE: Soxta ma'lumot, qalbaki laboratoriya hujjati aniqlansa — loyiha
     "category_explanation": "100 - Yashil; 80 - II/III toifa; 50 va past - Sariq",
     "main_deficiencies": ["Kamchilik 1", "Kamchilik 2"]
   }
-}`
+}
 
-export const USER_MESSAGE = "Quyidagi PDF loyiha hujjatini ko'rsatilgan mezonlar asosida baholab, faqat JSON formatida natija bering."
+## 4. QATʼIY QOIDA — BALLARNI TEKSHIRISH
+summary.total_score QIYMATI evaluation_matrix massividagi barcha assigned_score qiymatlarining ANIQ ARIFMETIK YIG'INDISIGA teng bo'lishi SHART va u hech qachon 100 dan oshmasligi kerak. JSON javobini yubormasdan oldin bu yig'indini o'zingiz qayta hisoblab, mos kelishini tekshiring.`
+
+export const USER_MESSAGE = "Quyida davlat ekologik ekspertizasi uchun taqdim etilgan ARIZA hujjati va unga ilova qilingan barcha loyiha hujjatlari (texnik shartlar, ZVOS, genplan va h.k.) berilgan. Barcha hujjatlarni birgalikda, bir-biriga bog'liq holda sinchiklab tahlil qilib, ko'rsatilgan mezonlar asosida baholang va faqat JSON formatida natija bering."
