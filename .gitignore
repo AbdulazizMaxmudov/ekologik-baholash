@@ -17,6 +17,9 @@ dist
 dist-ssr
 *.local
 
+# Standalone reference project (own git repo, not part of this one)
+geojson_uz
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

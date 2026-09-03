@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from 'react-router-dom'
-import { Leaf, Bot, ClipboardList, Sparkles } from 'lucide-react'
+import { Leaf, Bot, ClipboardList, Sparkles, Map } from 'lucide-react'
 import logoMarkaz from '../assets/logo_Markaz.png'
 
 const linkClass = ({ isActive }) =>
@@ -54,6 +54,11 @@ export default function Sidebar({ isOpen, onClose }) {
         >
           <Leaf className="w-4 h-4 flex-shrink-0" />
           <span>Loyihachi korxonalar</span>
+        </NavLink>
+
+        <NavLink to="/xarita" onClick={onClose} className={linkClass}>
+          <Map className="w-4 h-4 flex-shrink-0" />
+          <span>Xarita</span>
         </NavLink>
       </nav>
 
