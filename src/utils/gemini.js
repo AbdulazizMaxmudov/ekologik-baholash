@@ -81,7 +81,7 @@ export async function evaluateProject(source, onProgress = () => {}) {
     config: {
       systemInstruction: SYSTEM_PROMPT,
       responseMimeType: 'application/json',
-      temperature: 0.1,
+      temperature: 0,
     },
   })
 
@@ -100,11 +100,11 @@ export async function evaluateProject(source, onProgress = () => {}) {
 
 // Gemini ba'zan evaluation_matrix'dagi ballar yig'indisiga mos kelmaydigan
 // summary.total_score qaytaradi. Haqiqiy jamini har doim matritsadan o'zimiz
-// hisoblab, 0-100 oralig'ida ushlaymiz.
+// hisoblab, 0-95 oralig'ida ushlaymiz (100 ball hech qachon berilmaydi).
 function normalizeScore(result) {
   const matrix = Array.isArray(result?.evaluation_matrix) ? result.evaluation_matrix : []
   const sum = matrix.reduce((s, m) => s + (Number(m.assigned_score) || 0), 0)
-  const total = Math.max(0, Math.min(Math.round(sum * 10) / 10, 100))
+  const total = Math.max(0, Math.min(Math.round(sum * 10) / 10, 95))
   result.summary = { ...(result.summary || {}), total_score: total }
   return result
 }
