@@ -15,7 +15,7 @@ function totalColor(score) {
   return               { ring: 'ring-red-400',       text: 'text-red-600',     label: 'Qizil'   }
 }
 
-function UploadZone({ file, onFile, onClear }) {
+export function UploadZone({ file, onFile, onClear }) {
   const inputRef = useRef()
   const [drag, setDrag] = useState(false)
 

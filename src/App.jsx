@@ -6,6 +6,7 @@ import CompaniesPage from './pages/CompaniesPage'
 import CompanyDetailPage from './pages/CompanyDetailPage'
 import AiPage from './pages/AiPage'
 import ArizalarPage from './pages/ArizalarPage'
+import XulosalarPage from './pages/XulosalarPage'
 import AiAssistantPage from './pages/AiAssistantPage'
 import XaritaPage from './pages/XaritaPage'
 
@@ -38,6 +39,7 @@ export default function App() {
               <Route path="/company/:id" element={<CompanyDetailPage />} />
               <Route path="/ai-baholash" element={<AiPage />} />
               <Route path="/arizalar" element={<ArizalarPage />} />
+              <Route path="/xulosalar" element={<XulosalarPage />} />
               <Route path="/ai-assistant" element={<AiAssistantPage />} />
               <Route path="/xarita" element={<XaritaPage />} />
             </Routes>

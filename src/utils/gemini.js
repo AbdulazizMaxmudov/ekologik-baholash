@@ -6,7 +6,7 @@ import { extractAttachmentLinks } from './pdfLinks'
 const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY })
 
 // `source` is either a File (user upload) or a string (direct file URL).
-async function sourceToArrayBuffer(source) {
+export async function sourceToArrayBuffer(source) {
   if (typeof source === 'string') {
     const res = await axios.get(source, { responseType: 'arraybuffer', timeout: 60000 })
     return res.data
@@ -14,7 +14,7 @@ async function sourceToArrayBuffer(source) {
   return source.arrayBuffer()
 }
 
-function arrayBufferToBase64(buffer) {
+export function arrayBufferToBase64(buffer) {
   let binary = ''
   const bytes = new Uint8Array(buffer)
   const chunkSize = 0x8000
@@ -24,7 +24,7 @@ function arrayBufferToBase64(buffer) {
   return btoa(binary)
 }
 
-function detectMimeType(buffer) {
+export function detectMimeType(buffer) {
   const bytes = new Uint8Array(buffer.slice(0, 4))
   if (bytes[0] === 0x25 && bytes[1] === 0x50 && bytes[2] === 0x44 && bytes[3] === 0x46) return 'application/pdf' // %PDF
   if (bytes[0] === 0xff && bytes[1] === 0xd8) return 'image/jpeg'
