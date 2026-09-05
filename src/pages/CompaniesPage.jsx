@@ -72,7 +72,7 @@ export default function CompaniesPage() {
   const [search, setSearch]     = useState('')
   const [inputVal, setInputVal] = useState('')
   const [loading, setLoading]   = useState(true)
-  const [activeTab, setActiveTab] = useState('list')
+  const [activeTab, setActiveTab] = useState('dashboard')
   const [sortBy, setSortBy]     = useState('total')
   const [page, setPage]         = useState(1)
   const navigate = useNavigate()
@@ -97,8 +97,8 @@ export default function CompaniesPage() {
       {/* Tabs */}
       <div className="flex items-center gap-1 bg-slate-200 p-1 rounded-lg w-fit mb-6">
         {[
-          { key: 'list',      icon: <List className="w-4 h-4" />,     label: "Loyihachilar ro'yxati" },
           { key: 'dashboard', icon: <BarChart3 className="w-4 h-4" />, label: 'Dashboard' },
+          { key: 'list',      icon: <List className="w-4 h-4" />,     label: "Loyihachilar ro'yxati" },
         ].map(t => (
           <button key={t.key} onClick={() => setActiveTab(t.key)}
             className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${

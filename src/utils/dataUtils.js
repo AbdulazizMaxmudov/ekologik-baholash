@@ -3,9 +3,8 @@ let _cache = null
 
 async function loadData() {
   if (_cache) return _cache
-  const res = await fetch('/companies.json')
-  const json = await res.json()
-  _cache = json.companies
+  const res = await fetch('/new-companies.json')
+  _cache = await res.json()
   return _cache
 }
 
@@ -115,11 +114,30 @@ export async function getCompanyProjects(pin) {
   }
 }
 
-// ─── Dashboard ───────────────────────────────────────────────────────────────
-export async function getDashboardData() {
+// ─── Loyihachilar reytingi (toifalar bo'yicha taqsimot) ─────────────────────
+const TIER_ORDER = ['AAA', 'AA', 'A', 'BBB', 'BB', 'B', 'CCC', 'CC', 'C']
+
+function getTierKey(score) {
+  if (score >= 94) return 'AAA'
+  if (score >= 87) return 'AA'
+  if (score >= 81) return 'A'
+  if (score >= 71) return 'BBB'
+  if (score >= 61) return 'BB'
+  if (score >= 51) return 'B'
+  if (score >= 34) return 'CCC'
+  if (score >= 17) return 'CC'
+  return 'C'
+}
+
+function getTierGroup(tier) {
+  if (['AAA', 'AA', 'A'].includes(tier)) return 'A'
+  if (['BBB', 'BB', 'B'].includes(tier)) return 'B'
+  return 'C'
+}
+
+export async function getLoyihachilarRating() {
   const records = await loadData()
 
-  // Group by consultant
   const grouped = {}
   for (const r of records) {
     const pin = r.consultant_pin
@@ -127,20 +145,22 @@ export async function getDashboardData() {
     grouped[pin].push(r)
   }
 
-  // Chart 1: Companies by avg rating range (×10 scale)
-  const ratingDist = { 'Past (0-40)': 0, "O'rta (40-70)": 0, 'Yuqori (70-100)': 0 }
+  const counts = Object.fromEntries(TIER_ORDER.map(t => [t, 0]))
   for (const items of Object.values(grouped)) {
     const ratings = items.map(i => parseInt(i.expert_rating)).filter(n => !isNaN(n))
     const avg = ratings.length ? (ratings.reduce((a, b) => a + b, 0) / ratings.length) * 10 : 0
-    if (avg >= 70) ratingDist['Yuqori (70-100)']++
-    else if (avg >= 40) ratingDist["O'rta (40-70)"]++
-    else ratingDist['Past (0-40)']++
+    counts[getTierKey(avg)]++
   }
-  const chart1 = [
-    { name: 'Past (0-40)',    value: ratingDist['Past (0-40)'],    color: '#ef4444' },
-    { name: "O'rta (40-70)", value: ratingDist["O'rta (40-70)"], color: '#f59e0b' },
-    { name: 'Yuqori (70-100)', value: ratingDist['Yuqori (70-100)'], color: '#10b981' },
-  ]
+
+  return {
+    total: Object.keys(grouped).length,
+    tiers: TIER_ORDER.map(key => ({ key, group: getTierGroup(key), count: counts[key] })),
+  }
+}
+
+// ─── Dashboard ───────────────────────────────────────────────────────────────
+export async function getDashboardData() {
+  const records = await loadData()
 
   // Chart 2: By material type
   const mtCount = {}
@@ -162,16 +182,5 @@ export async function getDashboardData() {
     .sort((a, b) => (b[1].ijobiy + b[1].salbiy) - (a[1].ijobiy + a[1].salbiy))
     .map(([name, v]) => ({ name, ...v }))
 
-  // Chart 4: Monthly trend
-  const monthCount = {}
-  for (const r of records) {
-    const d = r.conclusion_date ?? ''
-    if (d.length >= 7) {
-      const m = d.slice(0, 7)
-      monthCount[m] = (monthCount[m] ?? 0) + 1
-    }
-  }
-  const chart4 = Object.entries(monthCount).sort().slice(-8).map(([month, count]) => ({ month, count }))
-
-  return { chart1_rating: chart1, chart2_material: chart2, chart3_toifa: chart3, chart4_monthly: chart4 }
+  return { chart2_material: chart2, chart3_toifa: chart3 }
 }
