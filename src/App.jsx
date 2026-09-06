@@ -9,6 +9,7 @@ import ArizalarPage from './pages/ArizalarPage'
 import XulosalarPage from './pages/XulosalarPage'
 import AiAssistantPage from './pages/AiAssistantPage'
 import XaritaPage from './pages/XaritaPage'
+import AiTaqqoslashPage from './pages/AiTaqqoslashPage'
 
 export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -42,6 +43,7 @@ export default function App() {
               <Route path="/xulosalar" element={<XulosalarPage />} />
               <Route path="/ai-assistant" element={<AiAssistantPage />} />
               <Route path="/xarita" element={<XaritaPage />} />
+              <Route path="/ai-taqqoslash" element={<AiTaqqoslashPage />} />
             </Routes>
           </main>
         </div>

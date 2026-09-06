@@ -1,35 +1,15 @@
-import { useEffect, useState, useRef, useMemo } from 'react';
-import { MapContainer, TileLayer, GeoJSON, Marker, Popup, useMapEvents, useMap } from 'react-leaflet';
+import { useState, useRef, useEffect, useMemo, Fragment } from 'react';
+import { MapContainer, TileLayer, GeoJSON, Polygon, CircleMarker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { EnvironmentOutlined, PlusOutlined, AimOutlined } from '@ant-design/icons';
-import { renderToString } from 'react-dom/server';
-import { Modal, Form, Input, Select, InputNumber, Collapse, Button, message } from 'antd';
-
-// Map click handler komponenti
-const MapClickHandler = ({ onMapClick }) => {
-  useMapEvents({
-    click: (e) => {
-      onMapClick(e.latlng);
-    }
-  });
-  return null;
-};
-
-// Map zoom controller komponenti
-const MapZoomController = ({ bounds, center }) => {
-  const map = useMap();
-
-  useEffect(() => {
-    if (bounds) {
-      map.fitBounds(bounds, { padding: [20, 20] });
-    } else if (center) {
-      map.setView(center, 8);
-    }
-  }, [bounds, center, map]);
-
-  return null;
-};
+import { PlusOutlined } from '@ant-design/icons';
+import { Button, Input, message } from 'antd';
+import WindVelocityLayer from '../components/WindVelocityLayer';
+import WindHeatmapLayer from '../components/WindHeatmapLayer';
+import { fetchUzbekistanWindGrid } from '../utils/wind';
+import AddKorxonaModal from '../components/AddKorxonaModal';
+import { korxonalarSeed } from '../data/korxonalar';
+import { TASHLANMA_KATEGORIYALARI } from '../data/tashlanmaTurlari';
 
 // Konteyner o'lchami o'zgarganda (ekran/oyna kengligi, sidebar) Leaflet
 // tayl'arini qayta o'lchashga majburlaydi — aks holda xarita bo'sh/buzilgan
@@ -59,9 +39,6 @@ const MapAutoResize = () => {
   return null;
 };
 
-// Import fake data (konvert qilingan)
-import fakeData from '../data/xaritaFakeData.json';
-
 // Import GeoJSON data
 import regions from '../utils/uzbekistanGeoJson/data/regions.js';
 import qoraqalpogiston from '../utils/uzbekistanGeoJson/data/qoraqalpogiston.js';
@@ -78,80 +55,11 @@ import surxondaryo from '../utils/uzbekistanGeoJson/data/surxondaryo.js';
 import toshkent from '../utils/uzbekistanGeoJson/data/toshkent.js';
 import xorazm from '../utils/uzbekistanGeoJson/data/xorazm.js';
 
-// Fake data dan viloyat va tumanlar bo'yicha hisoblash
-const calculateRegionCounts = () => {
-  const counts = {};
-  fakeData.forEach(item => {
-    const region = item.viloyati;
-    counts[region] = (counts[region] || 0) + 1;
-  });
-  return counts;
-};
-
-const calculateDistrictCounts = (regionName) => {
-  const counts = {};
-  fakeData.filter(item => item.viloyati === regionName).forEach(item => {
-    const district = item.tumani;
-    counts[district] = (counts[district] || 0) + 1;
-  });
-  return counts;
-};
-
-const regionCounts = calculateRegionCounts();
-
-// GeoJSON feature markazini hisoblash
-const getFeatureCenter = (feature) => {
-  const bounds = L.geoJSON(feature).getBounds();
-  const center = bounds.getCenter();
-  return [center.lat, center.lng];
-};
-
-// Ariza xolati rangini olish
-const getStatusColor = (status) => {
-  switch (status) {
-    case 'ijobiy': return '#22c55e'; // yashil
-    case 'salbiy': return '#ef4444'; // qizil
-    case 'yaroqsiz': return '#eab308'; // sariq
-    default: return '#6b7280'; // kulrang
-  }
-};
-
-// Custom marker icon yaratish
-const createMarkerIcon = (status, size = 24) => {
-  const color = getStatusColor(status);
-  const iconHtml = renderToString(
-    <EnvironmentOutlined style={{ fontSize: `${size}px`, color: color }} />
-  );
-
-  return L.divIcon({
-    html: `<div style="display: flex; align-items: center; justify-content: center;">${iconHtml}</div>`,
-    className: 'custom-marker-icon',
-    iconSize: [size, size],
-    iconAnchor: [size / 2, size],
-    popupAnchor: [0, -size]
-  });
-};
-
 // Data structure from data.js
 const data = {
   regions: {
     path: regions,
     name: "regions",
-    regionsData: [
-      { name: "qoraqalpogiston", value: regionCounts['qoraqalpogiston'] || 0 },
-      { name: "xorazm", value: regionCounts['xorazm'] || 0 },
-      { name: "navoiy", value: regionCounts['navoiy'] || 0 },
-      { name: "buxoro", value: regionCounts['buxoro'] || 0 },
-      { name: "qashqadaryo", value: regionCounts['qashqadaryo'] || 0 },
-      { name: "surxondaryo", value: regionCounts['surxondaryo'] || 0 },
-      { name: "samarqand", value: regionCounts['samarqand'] || 0 },
-      { name: "jizzax", value: regionCounts['jizzax'] || 0 },
-      { name: "sirdaryo", value: regionCounts['sirdaryo'] || 0 },
-      { name: "toshkent", value: regionCounts['toshkent'] || 0 },
-      { name: "namangan", value: regionCounts['namangan'] || 0 },
-      { name: "fargona", value: regionCounts['fargona'] || 0 },
-      { name: "andijon", value: regionCounts['andijon'] || 0 },
-    ],
   },
   qoraqalpogiston: {
     name: "qoraqalpogiston",
@@ -423,17 +331,6 @@ const getFirstWordLowercase = (str) => {
   return name;
 };
 
-const getColor = (d) => {
-  return d > 1000 ? "#800026"
-    : d > 500 ? "#BD0026"
-    : d > 200 ? "#E31A1C"
-    : d > 100 ? "#FC4E2A"
-    : d > 50 ? "#FD8D3C"
-    : d > 20 ? "#FEB24C"
-    : d > 10 ? "#FED976"
-    : "#bdbbba";
-};
-
 export default function XaritaPage() {
   const [currentPath, setCurrentPath] = useState(data.regions);
   const [hoveredRegion, setHoveredRegion] = useState(null);
@@ -458,222 +355,84 @@ export default function XaritaPage() {
   const [selectedDistrict, setSelectedDistrict] = useState(null); // tanlangan tuman feature
   const [selectedDistrictName, setSelectedDistrictName] = useState(null); // tanlangan tuman nomi (breadcrumb uchun)
 
-  // Filter state lari
-  const [filterToifa, setFilterToifa] = useState("");
-  const [filterBand, setFilterBand] = useState("");
-  const [filterMaterial, setFilterMaterial] = useState("");
-  const [filterArizaXolati, setFilterArizaXolati] = useState("");
-  const [filterSanoat, setFilterSanoat] = useState("");
+  // Korxonalar (namunaviy + qo'lda qo'shilganlar) va "Yangi korxona qo'shish" modali
+  const [korxonalar, setKorxonalar] = useState(korxonalarSeed);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
-  // Modal state
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [form] = Form.useForm();
-  const [selectedViloyat, setSelectedViloyat] = useState("");
-  const [selectedTuman, setSelectedTuman] = useState("");
-  const [pickedCoords, setPickedCoords] = useState(null);
-  const [modalMapBounds, setModalMapBounds] = useState(null);
-  const [modalMapGeoJSON, setModalMapGeoJSON] = useState(null);
-
-  // Lokal qo'shilgan arizalar (xaritada ko'rsatish uchun)
-  const [localArizalar, setLocalArizalar] = useState([]);
-
-  // Sanoat turlari ro'yxati
-  const sanoatTurlari = [
-    "Sement ishlab chiqarish korxonalari.",
-    "Mashinasozlik sanoati (aviasozlik, vagonsozlik, avtomobil, traktor, motor ishlab chiqarish va boshqalar).",
-    "Teri-ko'nchilik korxonalari.",
-    "Qora va rangli metallurgiya zavodlari.",
-    "Qurilish sanoati korxonalari, asbest va sement ishlab chiqarish bundan mustasno.",
-    "Neft va gaz quduqlarini qazish va jihozlash.",
-    "Yoqilg'i resurslarini (neft, gaz, ko'mir va boshqalar) qidirish, razvedka qilish va qazib olish.",
-    "Kimyo komplekslari va zavodlari.",
-    "Yoqilg'i resurslarini (neft, gaz, ko'mir va boshqalar) qidirish, razvedka qilish, qazib olish va quduqlarni jihozlash ishlari.",
-    "Aeroportlar",
-    "Suv omborlari va to'g'onlar.",
-    "Sement ishlab chiqarish.",
-    "Ruda va kimyoviy xom ashyoni qazib olish konlari, qazib olishda hosil bo'ladigan konlarni rekultivatsiya qilish ishlari."
-  ];
-
-  // Material turlari ro'yxati
-  const materialTurlari = ["ATTAL", "ATTA", "ATB", "ICHH", "OCHM", "TCHM", "CHCHM", "EOTA"];
-
-  // Toifalar ro'yxati
-  const toifalar = ["I", "II", "III", "IV"];
-
-  // Ariza xolatlari
-  const arizaXolatlari = [
-    { value: "ijobiy", label: "Ijobiy hulosa berilgan" },
-    { value: "salbiy", label: "Salbiy hulosa berilgan" },
-    { value: "yaroqsiz", label: "Qayta ishlashga yaroqsiz" }
-  ];
-
-  // Chiqindilar maydonlari
-  const chiqindilarFields = [
-    { name: "azot_ikki_oksidi_azot_dioksidi", label: "Azot dioksidi (NO₂)" },
-    { name: "azot_oksidi", label: "Azot oksidi (NO)" },
-    { name: "akrilonitril", label: "Akrilonitril" },
-    { name: "akrolein", label: "Akrolein" },
-    { name: "benzoy_alьdegid_benzalьdegid", label: "Benzaldegid" },
-    { name: "moyli_alьdegid", label: "Moyli aldegid" },
-    { name: "alyuminiy_oksidi", label: "Alyuminiy oksidi" },
-    { name: "ammiak", label: "Ammiak (NH₃)" },
-    { name: "ammoniy_nitrat_ammiakli_selitra", label: "Ammoniy nitrat" },
-    { name: "ammoniy_sulьfat", label: "Ammoniy sulfat" },
-    { name: "ammoniy_xlorid", label: "Ammoniy xlorid" },
-    { name: "ammofos", label: "Ammofos" },
-    { name: "malein_angidrid_buglar_aerozolь", label: "Malein angidrid" },
-    { name: "oltingugurt_angidrid_oltingugurt_gazi_oltingugurt_ikki_oksidi", label: "Oltingugurt dioksidi (SO₂)" },
-    { name: "sirka_angidridi", label: "Sirka angidridi" },
-    { name: "fosfor_angidrid", label: "Fosfor angidrid" },
-    { name: "ftalen_angidrid_buglar_aerozolь", label: "Ftalen angidrid" },
-    { name: "anilin", label: "Anilin" },
-    { name: "atsetalьdegid", label: "Atsetaldegid" },
-    { name: "atseton", label: "Atseton" },
-    { name: "atsetilen", label: "Atsetilen" },
-    { name: "atsetofenon", label: "Atsetofenon" },
-    { name: "bariyli_karbonat_kislota_bariyga_qayta_hisoblaganda", label: "Bariy karbonati" },
-    { name: "oqsil_maъdanli_qoshimchasi_bmd", label: "Oqsil-ma'danli qo'shimcha" },
-    { name: "oqsil_vitaminli_kontsentrat_changining_oqsili", label: "Oqsil-vitaminli kontsentrat" }
-  ];
-
-  // Modal ochish/yopish
-  const showModal = () => {
-    setIsModalOpen(true);
+  const handleAddKorxona = (newKorxona) => {
+    setKorxonalar((prev) => [...prev, newKorxona]);
   };
 
-  const handleCancel = () => {
-    setIsModalOpen(false);
-    form.resetFields();
-    setSelectedViloyat("");
-    setSelectedTuman("");
-    setPickedCoords(null);
-    setModalMapBounds(null);
-    setModalMapGeoJSON(null);
+  // INN yoki nomi bo'yicha korxonani qidirib, xaritada shu joyga fokus qilish
+  const handleSearchKorxona = (query) => {
+    const q = query.trim().toLowerCase();
+    if (!q) return;
+
+    const found = korxonalar.find(
+      (k) => k.inn.toLowerCase().includes(q) || k.nomi.toLowerCase().includes(q)
+    );
+
+    if (!found) {
+      message.warning("Korxona topilmadi");
+      return;
+    }
+
+    const bounds = L.polygon(found.hudud).getBounds();
+
+    // Qidirilgan korxona joriy ko'rinishda (masalan boshqa viloyat/tuman
+    // tanlangan bo'lsa) ko'rinmay qolishi mumkin — respublika darajasiga
+    // qaytarib, so'ng aynan shu hudud chegarasiga fokuslanamiz.
+    setCurrentPath(data.regions);
+    setCurrentLevel("regions");
+    setParentRegion(null);
+    setSelectedDistrict(null);
+    setSelectedDistrictName(null);
+    setMapKey((prev) => prev + 1);
+
+    setTimeout(() => {
+      if (mapRef.current) {
+        mapRef.current.fitBounds(bounds, { padding: [100, 100], maxZoom: 15 });
+      }
+    }, 150);
+
+    message.success(`Topildi: ${found.nomi}`);
   };
 
-  // Forma yuborilganda
-  const handleSubmit = (values) => {
-    // Yangi buyurtma raqami generatsiya qilish (fakeData + localArizalar)
-    const allData = [...fakeData, ...localArizalar];
-    const maxBuyurtmaRaqami = Math.max(...allData.map(item => item.buyurtma_raqami), 0);
-    const newBuyurtmaRaqami = maxBuyurtmaRaqami + 1;
+  // Real vaqtdagi shamol oqimi qatlami (Windy uslubida)
+  const [windEnabled, setWindEnabled] = useState(false);
+  const [windData, setWindData] = useState(null);
 
-    // Chiqindilar uchun default qiymatlar
-    const chiqindilarDefaults = {};
-    chiqindilarFields.forEach(field => {
-      chiqindilarDefaults[field.name] = values[field.name] || 0;
-    });
+  // Shamol yoqilganda ma'lumotni bir marta yuklab, keyin har 15 daqiqada yangilaymiz.
+  // Ma'lumot fetchUzbekistanWindGrid() ichida keshlanadi, shuning uchun bu yerdan
+  // qayta-qayta chaqirilishi (masalan viloyat/tuman almashtirilganda MapContainer
+  // qayta mount bo'lgani uchun emas, chunki bu effekt map'ga bog'liq emas) muammo
+  // tug'dirmaydi.
+  useEffect(() => {
+    if (!windEnabled) {
+      setWindData(null);
+      return;
+    }
 
-    const newAriza = {
-      buyurtma_raqami: newBuyurtmaRaqami,
-      buyurtmachi_nomi: values.buyurtmachi_nomi,
-      stir_jshshir: values.stir_jshshir,
-      toifasi: values.toifasi,
-      bandi: values.bandi,
-      viloyati: values.viloyati,
-      tumani: values.tumani,
-      material_turi: values.material_turi,
-      ekspertiza_kordinata_x: values.ekspertiza_kordinata_x || 64.5736,
-      ekspertiza_kordinata_y: values.ekspertiza_kordinata_y || 41.3812,
-      ekspert_tashkilot: values.ekspert_tashkilot || "",
-      korib_chiqish_muddati: values.korib_chiqish_muddati || 0,
-      ekspert_fish: values.ekspert_fish || "",
-      xulosa_raqami: values.xulosa_raqami || "",
-      xulosa_sanasi: values.xulosa_sanasi || 0,
-      xulosa_amal_qilish_muddati: values.xulosa_amal_qilish_muddati || 0,
-      ariza_xolati: values.ariza_xolati,
-      sanoat_nomi: values.sanoat_nomi,
-      ...chiqindilarDefaults
+    let cancelled = false;
+
+    const load = () => {
+      fetchUzbekistanWindGrid()
+        .then((data) => {
+          if (!cancelled) setWindData(data);
+        })
+        .catch((err) => {
+          if (!cancelled) message.error(err.message);
+        });
     };
 
-    // Yangi arizani local state ga qo'shish
-    setLocalArizalar(prev => [...prev, newAriza]);
+    load();
+    const intervalId = setInterval(load, 15 * 60 * 1000);
 
-    console.log("Yangi ariza qo'shildi:", newAriza);
-    message.success(`Ariza muvaffaqiyatli qo'shildi! (Buyurtma №: ${newBuyurtmaRaqami})`);
-
-    handleCancel();
-  };
-
-  // Viloyat o'zgarganda tumanlarni yangilash va xaritani zoom qilish
-  const handleViloyatChange = (value) => {
-    setSelectedViloyat(value);
-    setSelectedTuman("");
-    form.setFieldValue('tumani', undefined);
-    setPickedCoords(null);
-
-    // Viloyat GeoJSON ni topish va zoom qilish
-    if (value && regions) {
-      const regionFeature = regions.features.find(f =>
-        getFirstWordLowercase(f.properties.name) === value
-      );
-      if (regionFeature) {
-        const bounds = L.geoJSON(regionFeature).getBounds();
-        setModalMapBounds(bounds);
-        setModalMapGeoJSON({
-          type: "FeatureCollection",
-          features: [regionFeature]
-        });
-      }
-    } else {
-      setModalMapBounds(null);
-      setModalMapGeoJSON(null);
-    }
-  };
-
-  // Tuman o'zgarganda xaritani zoom qilish
-  const handleTumanChange = (value) => {
-    setSelectedTuman(value);
-    setPickedCoords(null);
-
-    // Tuman GeoJSON ni topish va zoom qilish
-    if (value && selectedViloyat && data[selectedViloyat]) {
-      const regionGeoJSON = data[selectedViloyat].path;
-      const districtFeature = regionGeoJSON.features.find(f =>
-        getFirstWordLowercase(f.properties.name) === value
-      );
-      if (districtFeature) {
-        const bounds = L.geoJSON(districtFeature).getBounds();
-        setModalMapBounds(bounds);
-        setModalMapGeoJSON({
-          type: "FeatureCollection",
-          features: [districtFeature]
-        });
-      }
-    } else if (selectedViloyat) {
-      // Tumanni tozalaganda viloyatga qaytish
-      handleViloyatChange(selectedViloyat);
-    }
-  };
-
-  // Xaritadan koordinata tanlash
-  const handleMapClick = (latlng) => {
-    setPickedCoords(latlng);
-    form.setFieldsValue({
-      ekspertiza_kordinata_x: parseFloat(latlng.lng.toFixed(6)),
-      ekspertiza_kordinata_y: parseFloat(latlng.lat.toFixed(6))
-    });
-    message.success(`Koordinatalar tanlandi: ${latlng.lat.toFixed(6)}, ${latlng.lng.toFixed(6)}`);
-  };
-
-  // Tanlangan viloyatning tumanlari
-  const getModalDistrictsList = () => {
-    if (selectedViloyat && data[selectedViloyat]?.subData) {
-      return data[selectedViloyat].subData.map(d => d.name);
-    }
-    return [];
-  };
-
-  // Tanlangan koordinata uchun marker icon
-  const pickedMarkerIcon = L.divIcon({
-    html: `<div style="display: flex; align-items: center; justify-content: center;">
-      ${renderToString(<EnvironmentOutlined style={{ fontSize: '28px', color: '#ef4444' }} />)}
-    </div>`,
-    className: 'custom-marker-icon',
-    iconSize: [28, 28],
-    iconAnchor: [14, 28],
-    popupAnchor: [0, -28]
-  });
+    return () => {
+      cancelled = true;
+      clearInterval(intervalId);
+    };
+  }, [windEnabled]);
 
   // Viloyatlar ro'yxati (Select uchun)
   const regionsList = Object.keys(data).filter(key => key !== "regions");
@@ -759,38 +518,25 @@ export default function XaritaPage() {
   };
 
   const getTheValue = (name) => {
-    let filteredData = [...fakeData, ...localArizalar];
-
-    if (filterToifa) filteredData = filteredData.filter(item => item.toifasi === filterToifa);
-    if (filterBand !== "") filteredData = filteredData.filter(item => item.bandi === parseInt(filterBand));
-    if (filterMaterial) filteredData = filteredData.filter(item => item.material_turi === filterMaterial);
-    if (filterArizaXolati) filteredData = filteredData.filter(item => item.ariza_xolati === filterArizaXolati);
-    if (filterSanoat) filteredData = filteredData.filter(item => item.sanoat_nomi === filterSanoat);
-
     if (currentLevel === "regions") {
       // Viloyatdagi korxonalar soni
-      return filteredData.filter(item => item.viloyati === name).length;
+      return korxonalar.filter(item => item.viloyat === name).length;
     } else if (currentLevel === "region" || currentLevel === "district") {
       // Tumandagi korxonalar soni
       const regionName = currentLevel === "region" ? currentPath.name : parentRegion;
-      return filteredData.filter(item =>
-        item.viloyati === regionName && item.tumani === name
+      return korxonalar.filter(item =>
+        item.viloyat === regionName && item.tuman === name
       ).length;
     }
     return 0;
   };
 
-  const style = (feature) => {
-    let name = getFirstWordLowercase(feature.properties.name);
-    const value = getTheValue(name);
-
+  const style = () => {
     return {
       weight: 2,
       opacity: 1,
-      color: "#75706f",
-      dashArray: "3",
-      fillOpacity: 0.7,
-      fillColor: getColor(value),
+      color: "#334155",
+      fillOpacity: 0,
     };
   };
 
@@ -812,10 +558,10 @@ export default function XaritaPage() {
       mouseover: (e) => {
         const layer = e.target;
         layer.setStyle({
-          weight: 5,
-          color: "#666",
-          dashArray: "",
-          fillOpacity: 0.7,
+          weight: 3,
+          color: "#059669",
+          fillColor: "#059669",
+          fillOpacity: 0.12,
         });
         layer.bringToFront();
         setHoveredRegion({
@@ -825,7 +571,7 @@ export default function XaritaPage() {
       },
       mouseout: (e) => {
         const layer = e.target;
-        layer.setStyle(style(feature));
+        layer.setStyle(style());
         setHoveredRegion(null);
       },
       click: (e) => {
@@ -895,216 +641,60 @@ export default function XaritaPage() {
     }
   };
 
-  // Legend qo'shish useEffect
-  useEffect(() => {
-    if (!mapRef.current) return;
-
-    const grades = [0, 10, 20, 50, 100, 200, 500, 1000];
-    const legend = L.control({ position: "bottomright" });
-
-    legend.onAdd = function () {
-      const div = L.DomUtil.create("div", "info legend");
-      const labels = [];
-
-      for (let i = 0; i < grades.length; i++) {
-        const from = grades[i];
-        const to = grades[i + 1];
-
-        labels.push(
-          `<i style="background:${getColor(from + 1)}; width: 18px; height: 18px; float: left; margin-right: 8px; opacity: 0.7;"></i> ${from}${to ? `&ndash;${to}` : "+"}`
-        );
-      }
-
-      div.innerHTML = labels.join("<br>");
-      div.style.cssText = `
-        padding: 6px 8px;
-        font: 14px/16px Arial, Helvetica, sans-serif;
-        background: white;
-        background: rgba(255, 255, 255, 0.8);
-        box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-        border-radius: 5px;
-        line-height: 18px;
-        color: #555;
-      `;
-      return div;
-    };
-
-    legend.addTo(mapRef.current);
-
-    return () => {
-      legend.remove();
-    };
-  }, [mapKey]);
-
-
-  // Markerlar uchun ma'lumotlarni tayyorlash (fakeData + localArizalar)
-  const markersData = useMemo(() => {
-    // fakeData va localArizalar ni birlashtirish
-    const allData = [...fakeData, ...localArizalar];
-    let filteredData = allData;
-
-    // Joriy ko'rinishga qarab filter qilish (viloyat/tuman)
+  // Joriy ko'rinishga (respublika/viloyat/tuman) mos korxonalar ro'yxati
+  const visibleKorxonalar = useMemo(() => {
     if (currentLevel === "region" && parentRegion) {
-      filteredData = filteredData.filter(item => item.viloyati === parentRegion);
-    } else if (currentLevel === "district" && parentRegion && selectedDistrictName) {
-      filteredData = filteredData.filter(item =>
-        item.viloyati === parentRegion && item.tumani === selectedDistrictName
+      return korxonalar.filter(item => item.viloyat === parentRegion);
+    }
+    if (currentLevel === "district" && parentRegion && selectedDistrictName) {
+      return korxonalar.filter(item =>
+        item.viloyat === parentRegion && item.tuman === selectedDistrictName
       );
     }
+    return korxonalar;
+  }, [korxonalar, currentLevel, parentRegion, selectedDistrictName]);
 
-    // Toifa bo'yicha filter
-    if (filterToifa) {
-      filteredData = filteredData.filter(item => item.toifasi === filterToifa);
-    }
-
-    // Band bo'yicha filter
-    if (filterBand !== "") {
-      filteredData = filteredData.filter(item => item.bandi === parseInt(filterBand));
-    }
-
-    // Material turi bo'yicha filter
-    if (filterMaterial) {
-      filteredData = filteredData.filter(item => item.material_turi === filterMaterial);
-    }
-
-    // Ariza xolati bo'yicha filter
-    if (filterArizaXolati) {
-      filteredData = filteredData.filter(item => item.ariza_xolati === filterArizaXolati);
-    }
-
-    // Sanoat turi bo'yicha filter
-    if (filterSanoat) {
-      filteredData = filteredData.filter(item => item.sanoat_nomi === filterSanoat);
-    }
-
-    // Har bir item uchun real koordinatalardan foydalanish
-    return filteredData.map((item, index) => {
-      // Real koordinatalar mavjud bo'lsa ishlatamiz
-      // ekspertiza_kordinata_x = longitude, ekspertiza_kordinata_y = latitude
-      let coords = [41.3812, 64.5736]; // default
-
-      if (item.ekspertiza_kordinata_y && item.ekspertiza_kordinata_x) {
-        coords = [item.ekspertiza_kordinata_y, item.ekspertiza_kordinata_x];
-      }
-
-      return {
-        ...item,
-        id: `${item.buyurtma_raqami}-${index}`,
-        coords,
-        isLocal: localArizalar.some(la => la.buyurtma_raqami === item.buyurtma_raqami) // yangi qo'shilganlarni belgilash
-      };
-    });
-  }, [currentLevel, parentRegion, selectedDistrictName, filterToifa, filterBand, filterMaterial, filterArizaXolati, filterSanoat, localArizalar]);
-
-  // Statistika va chiqindilar yig'indisini hisoblash
+  // Statistika va tashlanma yig'indilarini hisoblash
   const statistics = useMemo(() => {
-    const data = markersData;
+    let atmosferaKorxonalar = 0;
+    let suvKorxonalar = 0;
+    let chiqindiKorxonalar = 0;
+    const categoryTotals = {};
 
-    // Ariza holati bo'yicha hisoblash
-    const counts = {
-      total: data.length,
-      ijobiy: data.filter(d => d.ariza_xolati === 'ijobiy').length,
-      salbiy: data.filter(d => d.ariza_xolati === 'salbiy').length,
-      yaroqsiz: data.filter(d => d.ariza_xolati === 'yaroqsiz').length
-    };
+    visibleKorxonalar.forEach((korxona) => {
+      let hasChiqindi = false;
 
-    // Chiqindilar (emissions) maydonlari
-    const emissionFields = [
-      'azot_ikki_oksidi_azot_dioksidi',
-      'azot_oksidi',
-      'akrilonitril',
-      'akrolein',
-      'benzoy_alьdegid_benzalьdegid',
-      'moyli_alьdegid',
-      'alyuminiy_oksidi',
-      'ammiak',
-      'ammoniy_nitrat_ammiakli_selitra',
-      'ammoniy_sulьfat',
-      'ammoniy_xlorid',
-      'ammofos',
-      'malein_angidrid_buglar_aerozolь',
-      'oltingugurt_angidrid_oltingugurt_gazi_oltingugurt_ikki_oksidi',
-      'sirka_angidridi',
-      'fosfor_angidrid',
-      'ftalen_angidrid_buglar_aerozolь',
-      'anilin',
-      'atsetalьdegid',
-      'atseton',
-      'atsetilen',
-      'atsetofenon',
-      'bariyli_karbonat_kislota_bariyga_qayta_hisoblaganda',
-      'oqsil_maъdanli_qoshimchasi_bmd',
-      'oqsil_vitaminli_kontsentrat_changining_oqsili'
-    ];
+      TASHLANMA_KATEGORIYALARI.forEach((cat) => {
+        const entries = korxona.tashlanmalar?.[cat.key] || [];
+        if (entries.length === 0) return;
 
-    // Chiqindilar nomlarini chiroyli qilish
-    const emissionLabels = {
-      'azot_ikki_oksidi_azot_dioksidi': 'Azot dioksidi (NO₂)',
-      'azot_oksidi': 'Azot oksidi (NO)',
-      'akrilonitril': 'Akrilonitril',
-      'akrolein': 'Akrolein',
-      'benzoy_alьdegid_benzalьdegid': 'Benzaldegid',
-      'moyli_alьdegid': 'Moyli aldegid',
-      'alyuminiy_oksidi': 'Alyuminiy oksidi',
-      'ammiak': 'Ammiak (NH₃)',
-      'ammoniy_nitrat_ammiakli_selitra': 'Ammoniy nitrat',
-      'ammoniy_sulьfat': 'Ammoniy sulfat',
-      'ammoniy_xlorid': 'Ammoniy xlorid',
-      'ammofos': 'Ammofos',
-      'malein_angidrid_buglar_aerozolь': 'Malein angidrid',
-      'oltingugurt_angidrid_oltingugurt_gazi_oltingugurt_ikki_oksidi': 'Oltingugurt dioksidi (SO₂)',
-      'sirka_angidridi': 'Sirka angidridi',
-      'fosfor_angidrid': 'Fosfor angidrid',
-      'ftalen_angidrid_buglar_aerozolь': 'Ftalen angidrid',
-      'anilin': 'Anilin',
-      'atsetalьdegid': 'Atsetaldegid',
-      'atseton': 'Atseton',
-      'atsetilen': 'Atsetilen',
-      'atsetofenon': 'Atsetofenon',
-      'bariyli_karbonat_kislota_bariyga_qayta_hisoblaganda': 'Bariy karbonati',
-      'oqsil_maъdanli_qoshimchasi_bmd': 'Oqsil-ma\'danli qo\'shimcha',
-      'oqsil_vitaminli_kontsentrat_changining_oqsili': 'Oqsil-vitaminli kontsentrat'
-    };
+        if (cat.key === 'atmosfera') atmosferaKorxonalar += 1;
+        else if (cat.key === 'suv_foydalanish') suvKorxonalar += 1;
+        else hasChiqindi = true;
 
-    // Har bir chiqindi turi bo'yicha yig'indini hisoblash
-    const emissions = {};
-    emissionFields.forEach(field => {
-      const sum = data.reduce((acc, item) => acc + (Number(item[field]) || 0), 0);
-      if (sum > 0) {
-        emissions[field] = {
-          label: emissionLabels[field] || field,
-          value: sum
-        };
-      }
+        entries.forEach((entry) => {
+          const unit = cat.units[0];
+          const amount = Number(entry[unit.field]) || 0;
+          if (!categoryTotals[cat.key]) {
+            categoryTotals[cat.key] = { label: cat.label, unitLabel: unit.label, value: 0 };
+          }
+          categoryTotals[cat.key].value += amount;
+        });
+      });
+
+      if (hasChiqindi) chiqindiKorxonalar += 1;
     });
 
-    return { counts, emissions };
-  }, [markersData]);
-
-  // Filter block komponenti
-  const FilterBlock = ({ title, children }) => (
-    <div style={{
-      background: 'white',
-      borderRadius: '12px',
-      border: '1px solid #e2e8f0',
-      marginBottom: '1rem',
-      overflow: 'hidden'
-    }}>
-      <div style={{
-        background: '#f8fafc',
-        padding: '0.75rem 1rem',
-        borderBottom: '1px solid #e2e8f0',
-        fontWeight: '600',
-        fontSize: '0.9rem',
-        color: '#334155'
-      }}>
-        {title}
-      </div>
-      <div style={{ padding: '1rem' }}>
-        {children}
-      </div>
-    </div>
-  );
+    return {
+      counts: {
+        total: visibleKorxonalar.length,
+        atmosfera: atmosferaKorxonalar,
+        suv: suvKorxonalar,
+        chiqindi: chiqindiKorxonalar,
+      },
+      categoryTotals,
+    };
+  }, [visibleKorxonalar]);
 
   return (
     <div style={{
@@ -1125,9 +715,9 @@ export default function XaritaPage() {
         overflow: 'hidden',
         padding: '0.75rem'
       }}>
-        {/* CHAP - NATIJALAR (3x) */}
+        {/* CHAP - NATIJALAR */}
         <div style={{
-          flex: 3.3,
+          flex: 3,
           display: 'flex',
           flexDirection: 'column',
           background: 'white',
@@ -1167,7 +757,7 @@ export default function XaritaPage() {
                 <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#2563eb' }}>
                   {statistics.counts.total}
                 </div>
-                <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Umumiy korxonalar ro'yxati</div>
+                <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Jami korxonalar</div>
               </div>
               <div style={{
                 padding: '0.75rem',
@@ -1176,9 +766,20 @@ export default function XaritaPage() {
                 textAlign: 'center'
               }}>
                 <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#22c55e' }}>
-                  {statistics.counts.ijobiy}
+                  {statistics.counts.atmosfera}
                 </div>
-                <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Ijobiy hulosa olgan korxonalar</div>
+                <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Atmosferaga tashlanma tashlayotgan korxonalar</div>
+              </div>
+              <div style={{
+                padding: '0.75rem',
+                background: '#eff6ff',
+                borderRadius: '8px',
+                textAlign: 'center'
+              }}>
+                <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#0284c7' }}>
+                  {statistics.counts.suv}
+                </div>
+                <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Suv resurslaridan foydalanadigan korxonalar</div>
               </div>
               <div style={{
                 padding: '0.75rem',
@@ -1187,20 +788,9 @@ export default function XaritaPage() {
                 textAlign: 'center'
               }}>
                 <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#ef4444' }}>
-                  {statistics.counts.salbiy}
+                  {statistics.counts.chiqindi}
                 </div>
-                <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Salbiy hulosa olgan korxonalar</div>
-              </div>
-              <div style={{
-                padding: '0.75rem',
-                background: '#fefce8',
-                borderRadius: '8px',
-                textAlign: 'center'
-              }}>
-                <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#eab308' }}>
-                  {statistics.counts.yaroqsiz}
-                </div>
-                <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Qayta ishlashga yaroqsiz korxonalar</div>
+                <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Chiqindi hosil qiladigan korxonalar (oqova, xavfli, maishiy)</div>
               </div>
             </div>
           </div>
@@ -1209,7 +799,7 @@ export default function XaritaPage() {
           <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
             <div style={{ display: 'flex', gap: '0.25rem', padding: '0.75rem 1rem 0' }}>
               {[
-                { key: 'chiqindilar', label: "Chiqindilar (tonna)" },
+                { key: 'chiqindilar', label: "Tashlanmalar" },
                 { key: 'korxonalar', label: "Korxonalar ro'yxati" },
               ].map(tab => (
                 <button
@@ -1234,18 +824,18 @@ export default function XaritaPage() {
 
             <div style={{ flex: 1, overflow: 'auto', padding: '0.75rem 1rem 1rem' }}>
               {bottomPanelTab === 'chiqindilar' ? (
-                Object.keys(statistics.emissions).length === 0 ? (
+                Object.keys(statistics.categoryTotals).length === 0 ? (
                   <div style={{
                     textAlign: 'center',
                     padding: '2rem',
                     color: '#94a3b8',
                     fontSize: '0.85rem'
                   }}>
-                    Chiqindi ma'lumotlari mavjud emas
+                    Tashlanma ma'lumotlari mavjud emas
                   </div>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                    {Object.entries(statistics.emissions).map(([key, { label, value }]) => (
+                    {Object.entries(statistics.categoryTotals).map(([key, { label, unitLabel, value }]) => (
                       <div
                         key={key}
                         style={{
@@ -1255,25 +845,27 @@ export default function XaritaPage() {
                           padding: '0.5rem 0.75rem',
                           background: '#f8fafc',
                           borderRadius: '6px',
-                          fontSize: '0.8rem'
+                          fontSize: '0.8rem',
+                          gap: '0.5rem'
                         }}
                       >
                         <span style={{ color: '#475569' }}>{label}</span>
                         <span style={{
+                          flexShrink: 0,
                           fontWeight: '600',
                           color: '#1e293b',
                           background: '#e2e8f0',
                           padding: '2px 8px',
                           borderRadius: '4px'
                         }}>
-                          {value.toLocaleString()}
+                          {value.toLocaleString()} {unitLabel}
                         </span>
                       </div>
                     ))}
                   </div>
                 )
               ) : (
-                markersData.length === 0 ? (
+                visibleKorxonalar.length === 0 ? (
                   <div style={{
                     textAlign: 'center',
                     padding: '2rem',
@@ -1284,7 +876,7 @@ export default function XaritaPage() {
                   </div>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                    {markersData.map(item => (
+                    {visibleKorxonalar.map(item => (
                       <div
                         key={item.id}
                         style={{
@@ -1302,14 +894,14 @@ export default function XaritaPage() {
                           width: '8px',
                           height: '8px',
                           borderRadius: '50%',
-                          background: getStatusColor(item.ariza_xolati)
+                          background: '#ef4444'
                         }} />
                         <div style={{ minWidth: 0 }}>
                           <p style={{ margin: 0, color: '#1e293b', fontWeight: '500', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                            {item.buyurtmachi_nomi}
+                            {item.nomi}
                           </p>
                           <p style={{ margin: 0, color: '#94a3b8', fontSize: '0.72rem' }}>
-                            {formatName(item.viloyati)}, {formatName(item.tumani)}
+                            INN: {item.inn} · {formatName(item.viloyat)}, {formatName(item.tuman)}
                           </p>
                         </div>
                       </div>
@@ -1321,9 +913,9 @@ export default function XaritaPage() {
           </div>
         </div>
 
-        {/* O'RTA - XARITA (6x) */}
+        {/* O'RTA - XARITA */}
         <div style={{
-          flex: 6,
+          flex: 9,
           display: 'flex',
           flexDirection: 'column',
           background: 'white',
@@ -1384,20 +976,47 @@ export default function XaritaPage() {
               )}
               </div>
 
-              {/* Yangi ariza qo'shish tugmasi */}
-              <Button
-                type="primary"
-                icon={<PlusOutlined />}
-                onClick={showModal}
-                style={{
-                  background: '#059669',
-                  borderColor: '#059669',
-                  borderRadius: '6px',
-                  fontWeight: '500'
-                }}
-              >
-                Yangi ariza
-              </Button>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                {/* INN yoki nomi bo'yicha korxona qidirish */}
+                <Input.Search
+                  placeholder="INN yoki korxona nomi bo'yicha qidirish"
+                  allowClear
+                  onSearch={handleSearchKorxona}
+                  style={{ width: '260px' }}
+                />
+
+                {/* Shamol oqimi qatlamini yoqish/o'chirish */}
+                <Button
+                  type={windEnabled ? 'primary' : 'default'}
+                  onClick={() => setWindEnabled((prev) => !prev)}
+                  style={windEnabled ? {
+                    background: '#0284c7',
+                    borderColor: '#0284c7',
+                    borderRadius: '6px',
+                    fontWeight: '500'
+                  } : {
+                    borderRadius: '6px',
+                    fontWeight: '500'
+                  }}
+                >
+                  Shamol oqimi {windEnabled ? 'yoqilgan' : "o'chirilgan"}
+                </Button>
+
+                {/* Yangi korxona qo'shish tugmasi */}
+                <Button
+                  type="primary"
+                  icon={<PlusOutlined />}
+                  onClick={() => setIsAddModalOpen(true)}
+                  style={{
+                    background: '#059669',
+                    borderColor: '#059669',
+                    borderRadius: '6px',
+                    fontWeight: '500'
+                  }}
+                >
+                  Yangi korxona qo'shish
+                </Button>
+              </div>
             </div>
           </div>
 
@@ -1435,357 +1054,173 @@ export default function XaritaPage() {
                 url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
                 maxZoom={19}
               />
+              <WindHeatmapLayer enabled={windEnabled} data={windData} />
+              <WindVelocityLayer enabled={windEnabled} data={windData} />
               <GeoJSON
-                key={`${filterToifa}-${filterBand}-${filterMaterial}-${filterArizaXolati}-${filterSanoat}`}
                 data={currentLevel === "district" ? selectedDistrict : currentPath.path}
                 style={style}
                 onEachFeature={onEachFeature}
               />
 
-              {/* Korxona markerlari */}
-              {markersData.map((item) => (
-                <Marker
-                  key={item.id}
-                  position={item.coords}
-                  icon={createMarkerIcon(
-                    item.ariza_xolati,
-                    currentLevel === "district" ? 32 : currentLevel === "region" ? 28 : 24
-                  )}
-                >
-                  <Popup>
-                    <div style={{ minWidth: '250px', maxWidth: '300px' }}>
-                      <h4 style={{ margin: '0 0 8px', color: '#1e293b', fontSize: '14px' }}>
-                        {item.buyurtmachi_nomi}
-                      </h4>
-                      <div style={{ fontSize: '12px', color: '#64748b', lineHeight: '1.6' }}>
-                        <p style={{ margin: '4px 0' }}>
-                          <strong>Buyurtma №:</strong> {item.buyurtma_raqami}
-                        </p>
-                        <p style={{ margin: '4px 0' }}>
-                          <strong>STIR/JSHSHIR:</strong> {item.stir_jshshir}
-                        </p>
-                        <p style={{ margin: '4px 0' }}>
-                          <strong>Joylashuv:</strong> {formatName(item.viloyati)}, {formatName(item.tumani)}
-                        </p>
-                        <p style={{ margin: '4px 0' }}>
-                          <strong>Toifa:</strong> {item.toifasi} | <strong>Band:</strong> {item.bandi}
-                        </p>
-                        <p style={{ margin: '4px 0' }}>
-                          <strong>Material:</strong> {item.material_turi}
-                        </p>
-                        <p style={{ margin: '4px 0' }}>
-                          <strong>Sanoat:</strong> {item.sanoat_nomi}
-                        </p>
-                        <p style={{ margin: '4px 0' }}>
-                          <strong>Ekspert:</strong> {item.ekspert_fish}
-                        </p>
-                        <p style={{ margin: '4px 0' }}>
-                          <strong>Xulosa №:</strong> {item.xulosa_raqami}
-                        </p>
-                      </div>
-                      <p style={{
-                        margin: '10px 0 0',
-                        padding: '4px 10px',
-                        borderRadius: '4px',
-                        display: 'inline-block',
-                        fontSize: '11px',
-                        fontWeight: '600',
-                        color: 'white',
-                        background: getStatusColor(item.ariza_xolati)
-                      }}>
-                        {item.ariza_xolati === 'ijobiy' ? 'Ijobiy hulosa berilgan' :
-                         item.ariza_xolati === 'salbiy' ? 'Salbiy hulosa berilgan' :
-                         'Qayta ishlashga yaroqsiz'}
-                      </p>
-                    </div>
-                  </Popup>
-                </Marker>
-              ))}
+              {/* Korxonalar — hudud chegarasi (poligon) + markaziy nuqta */}
+              {visibleKorxonalar.map((item) => {
+                const center = L.polygon(item.hudud).getBounds().getCenter();
+                return (
+                  <Fragment key={item.id}>
+                    <Polygon
+                      positions={item.hudud}
+                      pathOptions={{ color: '#ef4444', weight: 2, dashArray: '6 6', fillColor: '#ef4444', fillOpacity: 0.15 }}
+                    />
+                    <CircleMarker
+                      center={center}
+                      radius={currentLevel === "district" ? 8 : currentLevel === "region" ? 6 : 4}
+                      pathOptions={{ color: '#ef4444', weight: 2, fillColor: '#ffffff', fillOpacity: 1 }}
+                    >
+                      <Popup maxWidth={340} minWidth={280}>
+                        <div style={{ fontSize: '12px' }}>
+                          <div style={{
+                            background: '#059669',
+                            color: 'white',
+                            padding: '6px 10px',
+                            borderRadius: '6px',
+                            marginBottom: '8px'
+                          }}>
+                            <div style={{ fontSize: '9px', opacity: 0.85, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                              Korxona pasporti
+                            </div>
+                            <div style={{ fontSize: '13px', fontWeight: 700, lineHeight: 1.3 }}>
+                              {item.nomi}
+                            </div>
+                          </div>
+
+                          <div style={{
+                            display: 'grid',
+                            gridTemplateColumns: '1fr 1fr',
+                            gap: '2px 10px',
+                            fontSize: '11px',
+                            color: '#475569',
+                            marginBottom: '8px'
+                          }}>
+                            <div><strong>INN:</strong> {item.inn}</div>
+                            <div><strong>Hudud:</strong> {formatName(item.viloyat)}, {formatName(item.tuman)}</div>
+                          </div>
+
+                          <hr style={{ border: 'none', borderTop: '1px solid #e2e8f0', margin: '6px 0' }} />
+
+                          {TASHLANMA_KATEGORIYALARI.map((cat) => {
+                            const entries = item.tashlanmalar?.[cat.key] || [];
+                            if (entries.length === 0) return null;
+                            return (
+                              <div key={cat.key} style={{ marginBottom: '8px' }}>
+                                <div style={{ fontSize: '11px', fontWeight: 600, color: '#059669', marginBottom: '3px' }}>
+                                  {cat.label}
+                                </div>
+                                {entries.map((entry, idx) => (
+                                  <div
+                                    key={idx}
+                                    style={{
+                                      display: 'flex',
+                                      justifyContent: 'space-between',
+                                      gap: '8px',
+                                      fontSize: '11px',
+                                      color: '#334155',
+                                      padding: '2px 0',
+                                      borderBottom: idx < entries.length - 1 ? '1px dashed #f1f5f9' : 'none'
+                                    }}
+                                  >
+                                    <span>{entry[cat.optionsField]}</span>
+                                    <span style={{ fontWeight: 600, whiteSpace: 'nowrap', color: '#1e293b' }}>
+                                      {cat.units.map(u => `${entry[u.field] ?? 0} ${u.label}`).join(' / ')}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </Popup>
+                    </CircleMarker>
+                  </Fragment>
+                );
+              })}
             </MapContainer>
           </div>
         </div>
 
-        {/* O'NG - FILTERLAR (2x) */}
-        <div style={{
-          flex: 2.2,
-          display: 'flex',
-          flexDirection: 'column',
-          background: 'white',
-          borderRadius: '12px',
-          overflow: 'hidden',
-          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
-        }}>
-          <div style={{
-            padding: '0.75rem 1rem',
-            background: '#f8fafc',
-            borderBottom: '1px solid #e2e8f0',
-            fontWeight: '600',
-            fontSize: '0.9rem',
-            color: '#334155'
-          }}>
-            Filterlar
-          </div>
-          <div style={{ flex: 1, overflow: 'auto', padding: '0.75rem' }}>
-        {/* Joylashuv bo'yicha filterlar */}
-        <FilterBlock title="Joylashuv bo'yicha">
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {/* Viloyat Select */}
-            <div>
-              <label style={{
-                display: 'block',
-                fontSize: '0.875rem',
-                color: '#64748b',
-                marginBottom: '0.5rem'
-              }}>
-                Viloyat
-              </label>
-              <select
-                value={parentRegion || ""}
-                onChange={(e) => handleRegionSelect(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '0.75rem 1rem',
-                  borderRadius: '8px',
-                  border: '1px solid #cbd5e1',
-                  background: 'white',
-                  fontSize: '0.9rem',
-                  cursor: 'pointer',
-                  outline: 'none',
-                  transition: 'border-color 0.2s'
-                }}
-              >
-                <option value="">Barcha viloyatlar</option>
-                {regionsList.map(region => (
-                  <option key={region} value={region}>
-                    {formatName(region)} viloyati
-                  </option>
-                ))}
-              </select>
-            </div>
+      </div>
 
-            {/* Tuman Select */}
-            <div>
-              <label style={{
-                display: 'block',
-                fontSize: '0.875rem',
-                color: '#64748b',
-                marginBottom: '0.5rem'
-              }}>
-                Tuman/Shahar
-              </label>
-              <select
-                value={selectedDistrictName || ""}
-                onChange={(e) => handleDistrictSelect(e.target.value)}
-                disabled={!parentRegion}
-                style={{
-                  width: '100%',
-                  padding: '0.75rem 1rem',
-                  borderRadius: '8px',
-                  border: '1px solid #cbd5e1',
-                  background: parentRegion ? 'white' : '#f1f5f9',
-                  fontSize: '0.9rem',
-                  cursor: parentRegion ? 'pointer' : 'not-allowed',
-                  outline: 'none',
-                  transition: 'border-color 0.2s',
-                  color: parentRegion ? '#1e293b' : '#94a3b8'
-                }}
-              >
-                <option value="">{parentRegion ? "Barcha tumanlar" : "Avval viloyat tanlang"}</option>
-                {getDistrictsList().map(district => (
-                  <option key={district} value={district}>
-                    {formatName(district)} tumani
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-        </FilterBlock>
+      {/* PASTKI GORIZONTAL FILTERLAR PANELI */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'flex-end',
+        gap: '1rem',
+        flexWrap: 'wrap',
+        background: 'white',
+        borderRadius: '12px',
+        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+        margin: '0 0.75rem 0.75rem',
+        padding: '0.75rem 1rem'
+      }}>
+        <div style={{ minWidth: '200px', flex: '1 1 200px' }}>
+          <label style={{ display: 'block', fontSize: '0.8rem', color: '#64748b', marginBottom: '0.4rem' }}>
+            Viloyat
+          </label>
+          <select
+            value={parentRegion || ""}
+            onChange={(e) => handleRegionSelect(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '0.6rem 1rem',
+              borderRadius: '8px',
+              border: '1px solid #cbd5e1',
+              background: 'white',
+              fontSize: '0.9rem',
+              cursor: 'pointer',
+              outline: 'none'
+            }}
+          >
+            <option value="">Barcha viloyatlar</option>
+            {regionsList.map(region => (
+              <option key={region} value={region}>
+                {formatName(region)} viloyati
+              </option>
+            ))}
+          </select>
+        </div>
 
-        {/* Asosiy Filterlar */}
-        <FilterBlock title="Asosiy Filterlar">
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {/* Toifasi bo'yicha */}
-            <div>
-              <label style={{
-                display: 'block',
-                fontSize: '0.875rem',
-                color: '#64748b',
-                marginBottom: '0.5rem'
-              }}>
-                Toifasi bo'yicha
-              </label>
-              <select
-                value={filterToifa}
-                onChange={(e) => setFilterToifa(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '0.75rem 1rem',
-                  borderRadius: '8px',
-                  border: '1px solid #cbd5e1',
-                  background: 'white',
-                  fontSize: '0.9rem',
-                  cursor: 'pointer',
-                  outline: 'none'
-                }}
-              >
-                <option value="">Barchasi</option>
-                <option value="I">I - toifa</option>
-                <option value="II">II - toifa</option>
-                <option value="III">III - toifa</option>
-                <option value="IV">IV - toifa</option>
-              </select>
-            </div>
+        <div style={{ minWidth: '200px', flex: '1 1 200px' }}>
+          <label style={{ display: 'block', fontSize: '0.8rem', color: '#64748b', marginBottom: '0.4rem' }}>
+            Tuman/Shahar
+          </label>
+          <select
+            value={selectedDistrictName || ""}
+            onChange={(e) => handleDistrictSelect(e.target.value)}
+            disabled={!parentRegion}
+            style={{
+              width: '100%',
+              padding: '0.6rem 1rem',
+              borderRadius: '8px',
+              border: '1px solid #cbd5e1',
+              background: parentRegion ? 'white' : '#f1f5f9',
+              fontSize: '0.9rem',
+              cursor: parentRegion ? 'pointer' : 'not-allowed',
+              outline: 'none',
+              color: parentRegion ? '#1e293b' : '#94a3b8'
+            }}
+          >
+            <option value="">{parentRegion ? "Barcha tumanlar" : "Avval viloyat tanlang"}</option>
+            {getDistrictsList().map(district => (
+              <option key={district} value={district}>
+                {formatName(district)} tumani
+              </option>
+            ))}
+          </select>
+        </div>
 
-            {/* Bandi bo'yicha */}
-            <div>
-              <label style={{
-                display: 'block',
-                fontSize: '0.875rem',
-                color: '#64748b',
-                marginBottom: '0.5rem'
-              }}>
-                Bandi bo'yicha
-              </label>
-              <select
-                value={filterBand}
-                onChange={(e) => setFilterBand(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '0.75rem 1rem',
-                  borderRadius: '8px',
-                  border: '1px solid #cbd5e1',
-                  background: 'white',
-                  fontSize: '0.9rem',
-                  cursor: 'pointer',
-                  outline: 'none'
-                }}
-              >
-                <option value="">Barchasi</option>
-                {[...Array(60)].map((_, i) => (
-                  <option key={i} value={i}>{i}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* Material Turi bo'yicha */}
-            <div>
-              <label style={{
-                display: 'block',
-                fontSize: '0.875rem',
-                color: '#64748b',
-                marginBottom: '0.5rem'
-              }}>
-                Material Turi bo'yicha
-              </label>
-              <select
-                value={filterMaterial}
-                onChange={(e) => setFilterMaterial(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '0.75rem 1rem',
-                  borderRadius: '8px',
-                  border: '1px solid #cbd5e1',
-                  background: 'white',
-                  fontSize: '0.9rem',
-                  cursor: 'pointer',
-                  outline: 'none'
-                }}
-              >
-                <option value="">Barchasi</option>
-                <option value="ATTAL">ATTAL</option>
-                <option value="ATTA">ATTA</option>
-                <option value="ATB">ATB</option>
-                <option value="ICHH">ICHH</option>
-                <option value="OCHM">OCHM</option>
-                <option value="TCHM">TCHM</option>
-                <option value="CHCHM">CHCHM</option>
-                <option value="EOTA">EOTA</option>
-              </select>
-            </div>
-          </div>
-        </FilterBlock>
-
-        {/* Qo'shimcha filterlar */}
-        <FilterBlock title="Qo'shimcha filterlar">
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {/* Ariza xolati bo'yicha */}
-            <div>
-              <label style={{
-                display: 'block',
-                fontSize: '0.875rem',
-                color: '#64748b',
-                marginBottom: '0.5rem'
-              }}>
-                Ariza xolati bo'yicha
-              </label>
-              <select
-                value={filterArizaXolati}
-                onChange={(e) => setFilterArizaXolati(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '0.75rem 1rem',
-                  borderRadius: '8px',
-                  border: '1px solid #cbd5e1',
-                  background: 'white',
-                  fontSize: '0.9rem',
-                  cursor: 'pointer',
-                  outline: 'none'
-                }}
-              >
-                <option value="">Barchasi</option>
-                <option value="ijobiy">Ijobiy hulosa berilgan</option>
-                <option value="yaroqsiz">Qayta ishlashga yaroqsiz</option>
-                <option value="salbiy">Salbiy hulosa berilgan</option>
-              </select>
-            </div>
-
-            {/* Sanoat turi bo'yicha */}
-            <div>
-              <label style={{
-                display: 'block',
-                fontSize: '0.875rem',
-                color: '#64748b',
-                marginBottom: '0.5rem'
-              }}>
-                Sanoat turi bo'yicha
-              </label>
-              <select
-                value={filterSanoat}
-                onChange={(e) => setFilterSanoat(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '0.75rem 1rem',
-                  borderRadius: '8px',
-                  border: '1px solid #cbd5e1',
-                  background: 'white',
-                  fontSize: '0.8rem',
-                  cursor: 'pointer',
-                  outline: 'none'
-                }}
-              >
-                <option value="">Barchasi</option>
-                {sanoatTurlari.map((sanoat, index) => (
-                  <option key={index} value={sanoat}>
-                    {sanoat.length > 50 ? sanoat.substring(0, 50) + '...' : sanoat}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-        </FilterBlock>
-
-        {/* Tozalash tugmasi */}
         <button
-          onClick={() => {
-            setFilterToifa("");
-            setFilterBand("");
-            setFilterMaterial("");
-            setFilterArizaXolati("");
-            setFilterSanoat("");
-          }}
+          onClick={backToRegions}
           style={{
-            width: '100%',
-            padding: '0.75rem',
+            padding: '0.6rem 1.25rem',
             background: '#f1f5f9',
             color: '#64748b',
             border: '1px solid #e2e8f0',
@@ -1793,7 +1228,6 @@ export default function XaritaPage() {
             fontSize: '0.9rem',
             fontWeight: '500',
             cursor: 'pointer',
-            marginBottom: '0.5rem',
             transition: 'background 0.2s'
           }}
           onMouseEnter={(e) => e.target.style.background = '#e2e8f0'}
@@ -1801,405 +1235,17 @@ export default function XaritaPage() {
         >
           Filterlarni tozalash
         </button>
-          </div>
-        </div>
       </div>
 
-      {/* Yangi ariza qo'shish modali */}
-      <Modal
-        title={
-          <div style={{
-            fontSize: '1.1rem',
-            fontWeight: '600',
-            color: '#059669',
-            borderBottom: '2px solid #059669',
-            paddingBottom: '0.5rem'
-          }}>
-            Yangi ariza qo'shish
-          </div>
-        }
-        open={isModalOpen}
-        onCancel={handleCancel}
-        footer={null}
-        width={800}
-        style={{ top: 20 }}
-        styles={{ body: { maxHeight: '75vh', overflowY: 'auto', padding: '1rem' } }}
-      >
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleSubmit}
-          initialValues={{
-            bandi: 0,
-            ekspertiza_kordinata_x: 64.5736,
-            ekspertiza_kordinata_y: 41.3812
-          }}
-        >
-          {/* 1-bo'lim: Asosiy ma'lumotlar */}
-          <div style={{
-            background: '#f8fafc',
-            padding: '1rem',
-            borderRadius: '8px',
-            marginBottom: '1rem',
-            border: '1px solid #e2e8f0'
-          }}>
-            <h4 style={{ margin: '0 0 1rem', color: '#334155', fontSize: '0.95rem' }}>
-              Asosiy ma'lumotlar
-            </h4>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-              <Form.Item
-                name="buyurtmachi_nomi"
-                label="Buyurtmachi nomi"
-                rules={[{ required: true, message: "Buyurtmachi nomini kiriting!" }]}
-              >
-                <Input placeholder="Korxona yoki shaxs nomi" />
-              </Form.Item>
-
-              <Form.Item
-                name="stir_jshshir"
-                label="STIR / JSHSHIR"
-                rules={[{ required: true, message: "STIR/JSHSHIR kiriting!" }]}
-              >
-                <InputNumber
-                  style={{ width: '100%' }}
-                  placeholder="Masalan: 305137061"
-                  controls={false}
-                />
-              </Form.Item>
-
-              <Form.Item
-                name="viloyati"
-                label="Viloyat"
-                rules={[{ required: true, message: "Viloyatni tanlang!" }]}
-              >
-                <Select
-                  placeholder="Viloyatni tanlang"
-                  onChange={handleViloyatChange}
-                  showSearch
-                  optionFilterProp="children"
-                >
-                  {regionsList.map(region => (
-                    <Select.Option key={region} value={region}>
-                      {formatName(region)} viloyati
-                    </Select.Option>
-                  ))}
-                </Select>
-              </Form.Item>
-
-              <Form.Item
-                name="tumani"
-                label="Tuman/Shahar"
-                rules={[{ required: true, message: "Tumanni tanlang!" }]}
-              >
-                <Select
-                  placeholder={selectedViloyat ? "Tumanni tanlang" : "Avval viloyat tanlang"}
-                  disabled={!selectedViloyat}
-                  showSearch
-                  optionFilterProp="children"
-                  onChange={handleTumanChange}
-                  value={selectedTuman || undefined}
-                >
-                  {getModalDistrictsList().map(district => (
-                    <Select.Option key={district} value={district}>
-                      {formatName(district)}
-                    </Select.Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </div>
-
-            {/* Xaritadan koordinata tanlash */}
-            <div style={{ marginTop: '1rem' }}>
-              <label style={{
-                display: 'block',
-                fontSize: '0.875rem',
-                color: '#64748b',
-                marginBottom: '0.5rem'
-              }}>
-                <AimOutlined style={{ marginRight: '0.5rem' }} />
-                Koordinatalarni xaritadan tanlang (viloyat/tuman tanlagandan keyin)
-              </label>
-              <div style={{
-                height: '250px',
-                borderRadius: '8px',
-                overflow: 'hidden',
-                border: '2px solid #e2e8f0',
-                position: 'relative'
-              }}>
-                {!selectedViloyat ? (
-                  <div style={{
-                    height: '100%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    background: '#f1f5f9',
-                    color: '#94a3b8'
-                  }}>
-                    Avval viloyat tanlang
-                  </div>
-                ) : (
-                  <MapContainer
-                    center={[41.3812, 64.5736]}
-                    zoom={6}
-                    style={{ width: '100%', height: '100%' }}
-                  >
-                    <MapAutoResize />
-                    <TileLayer
-                      url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
-                      maxZoom={19}
-                    />
-                    <MapClickHandler onMapClick={handleMapClick} />
-                    <MapZoomController bounds={modalMapBounds} />
-
-                    {/* Tanlangan viloyat/tuman chegarasi */}
-                    {modalMapGeoJSON && (
-                      <GeoJSON
-                        key={JSON.stringify(modalMapGeoJSON)}
-                        data={modalMapGeoJSON}
-                        style={{
-                          weight: 2,
-                          opacity: 1,
-                          color: '#2563eb',
-                          fillOpacity: 0.1,
-                          fillColor: '#2563eb'
-                        }}
-                      />
-                    )}
-
-                    {/* Tanlangan koordinata markeri */}
-                    {pickedCoords && (
-                      <Marker
-                        position={[pickedCoords.lat, pickedCoords.lng]}
-                        icon={pickedMarkerIcon}
-                      />
-                    )}
-                  </MapContainer>
-                )}
-
-                {/* Koordinatalar ko'rsatkichi */}
-                {pickedCoords && (
-                  <div style={{
-                    position: 'absolute',
-                    bottom: '8px',
-                    left: '8px',
-                    background: 'rgba(255,255,255,0.95)',
-                    padding: '4px 8px',
-                    borderRadius: '4px',
-                    fontSize: '0.75rem',
-                    color: '#2563eb',
-                    fontWeight: '500',
-                    zIndex: 1000,
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
-                  }}>
-                    Lat: {pickedCoords.lat.toFixed(6)}, Lng: {pickedCoords.lng.toFixed(6)}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Yashirin koordinata inputlari (form uchun) */}
-            <div style={{ display: 'none' }}>
-              <Form.Item name="ekspertiza_kordinata_x">
-                <InputNumber />
-              </Form.Item>
-              <Form.Item name="ekspertiza_kordinata_y">
-                <InputNumber />
-              </Form.Item>
-            </div>
-          </div>
-
-          {/* 2-bo'lim: Toifa va klassifikatsiya */}
-          <div style={{
-            background: '#f8fafc',
-            padding: '1rem',
-            borderRadius: '8px',
-            marginBottom: '1rem',
-            border: '1px solid #e2e8f0'
-          }}>
-            <h4 style={{ margin: '0 0 1rem', color: '#334155', fontSize: '0.95rem' }}>
-              Toifa va klassifikatsiya
-            </h4>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-              <Form.Item
-                name="toifasi"
-                label="Toifasi"
-                rules={[{ required: true, message: "Toifani tanlang!" }]}
-              >
-                <Select placeholder="Toifani tanlang">
-                  {toifalar.map(toifa => (
-                    <Select.Option key={toifa} value={toifa}>
-                      {toifa} - toifa
-                    </Select.Option>
-                  ))}
-                </Select>
-              </Form.Item>
-
-              <Form.Item
-                name="bandi"
-                label="Bandi"
-                rules={[{ required: true, message: "Bandni tanlang!" }]}
-              >
-                <Select placeholder="Bandni tanlang" showSearch>
-                  {[...Array(60)].map((_, i) => (
-                    <Select.Option key={i} value={i}>
-                      {i}
-                    </Select.Option>
-                  ))}
-                </Select>
-              </Form.Item>
-
-              <Form.Item
-                name="material_turi"
-                label="Material turi"
-                rules={[{ required: true, message: "Material turini tanlang!" }]}
-              >
-                <Select placeholder="Material turini tanlang">
-                  {materialTurlari.map(material => (
-                    <Select.Option key={material} value={material}>
-                      {material}
-                    </Select.Option>
-                  ))}
-                </Select>
-              </Form.Item>
-
-              <Form.Item
-                name="ariza_xolati"
-                label="Ariza holati"
-                rules={[{ required: true, message: "Ariza holatini tanlang!" }]}
-              >
-                <Select placeholder="Ariza holatini tanlang">
-                  {arizaXolatlari.map(xolat => (
-                    <Select.Option key={xolat.value} value={xolat.value}>
-                      {xolat.label}
-                    </Select.Option>
-                  ))}
-                </Select>
-              </Form.Item>
-
-              <Form.Item
-                name="sanoat_nomi"
-                label="Sanoat turi"
-                rules={[{ required: true, message: "Sanoat turini tanlang!" }]}
-                style={{ gridColumn: '1 / -1' }}
-              >
-                <Select placeholder="Sanoat turini tanlang" showSearch optionFilterProp="children">
-                  {sanoatTurlari.map((sanoat, index) => (
-                    <Select.Option key={index} value={sanoat}>
-                      {sanoat}
-                    </Select.Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </div>
-          </div>
-
-          {/* 3-bo'lim: Ekspertiza ma'lumotlari */}
-          <div style={{
-            background: '#f8fafc',
-            padding: '1rem',
-            borderRadius: '8px',
-            marginBottom: '1rem',
-            border: '1px solid #e2e8f0'
-          }}>
-            <h4 style={{ margin: '0 0 1rem', color: '#334155', fontSize: '0.95rem' }}>
-              Ekspertiza ma'lumotlari
-            </h4>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-              <Form.Item
-                name="ekspert_tashkilot"
-                label="Ekspert tashkilot"
-              >
-                <Input placeholder="Masalan: ANDIJON VILOYATI FILIALI" />
-              </Form.Item>
-
-              <Form.Item
-                name="ekspert_fish"
-                label="Ekspert F.I.SH"
-              >
-                <Input placeholder="Masalan: T.SULTONOV" />
-              </Form.Item>
-
-              <Form.Item
-                name="xulosa_raqami"
-                label="Xulosa raqami"
-              >
-                <Input placeholder="Masalan: 01-02/03-27" />
-              </Form.Item>
-
-              <Form.Item
-                name="korib_chiqish_muddati"
-                label="Ko'rib chiqish muddati (kun)"
-              >
-                <InputNumber style={{ width: '100%' }} placeholder="0" min={0} />
-              </Form.Item>
-
-              <Form.Item
-                name="xulosa_sanasi"
-                label="Xulosa sanasi (kun)"
-              >
-                <InputNumber style={{ width: '100%' }} placeholder="0" min={0} />
-              </Form.Item>
-
-              <Form.Item
-                name="xulosa_amal_qilish_muddati"
-                label="Xulosa amal qilish muddati (kun)"
-              >
-                <InputNumber style={{ width: '100%' }} placeholder="0" min={0} />
-              </Form.Item>
-            </div>
-          </div>
-
-          {/* 4-bo'lim: Chiqindilar (Collapse) */}
-          <Collapse
-            style={{ marginBottom: '1rem' }}
-            items={[
-              {
-                key: '1',
-                label: (
-                  <span style={{ fontWeight: '500', color: '#334155' }}>
-                    Chiqindilar ma'lumotlari (ixtiyoriy)
-                  </span>
-                ),
-                children: (
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.75rem' }}>
-                    {chiqindilarFields.map(field => (
-                      <Form.Item
-                        key={field.name}
-                        name={field.name}
-                        label={<span style={{ fontSize: '0.8rem' }}>{field.label}</span>}
-                        style={{ marginBottom: '0.5rem' }}
-                      >
-                        <InputNumber
-                          style={{ width: '100%' }}
-                          placeholder="0"
-                          min={0}
-                          size="small"
-                        />
-                      </Form.Item>
-                    ))}
-                  </div>
-                )
-              }
-            ]}
-          />
-
-          {/* Submit tugmalari */}
-          <div style={{
-            display: 'flex',
-            justifyContent: 'flex-end',
-            gap: '0.75rem',
-            paddingTop: '1rem',
-            borderTop: '1px solid #e2e8f0'
-          }}>
-            <Button onClick={handleCancel}>
-              Bekor qilish
-            </Button>
-            <Button type="primary" htmlType="submit" style={{ background: '#059669' }}>
-              Saqlash
-            </Button>
-          </div>
-        </Form>
-      </Modal>
+      {/* Yangi korxona qo'shish modali */}
+      <AddKorxonaModal
+        open={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onSubmit={handleAddKorxona}
+        regionsGeoJson={regions}
+        regionsData={data}
+        regionsList={regionsList}
+      />
 
       {/* Custom tooltip va marker styles */}
       <style>{`

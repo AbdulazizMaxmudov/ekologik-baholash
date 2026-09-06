@@ -16,6 +16,7 @@
     "antd": "^6.6.2",
     "axios": "^1.19.0",
     "leaflet": "^1.9.4",
+    "leaflet-velocity": "^2.1.4",
     "lucide-react": "^1.30.0",
     "pdfjs-dist": "^4.10.38",
     "react": "^19.2.8",

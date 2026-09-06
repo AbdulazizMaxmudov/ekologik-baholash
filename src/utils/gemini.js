@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { GoogleGenAI } from '@google/genai'
 import { SYSTEM_PROMPT, USER_MESSAGE } from './prompt'
+import { COMPARE_SYSTEM_PROMPT, COMPARE_USER_MESSAGE } from './comparePrompt'
 import { extractAttachmentLinks } from './pdfLinks'
 
 const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY })
@@ -37,7 +38,11 @@ async function fetchAttachment(url) {
   return { mimeType: detectMimeType(res.data), data: arrayBufferToBase64(res.data) }
 }
 
-export async function evaluateProject(source, onProgress = () => {}) {
+// Ariza PDF'ini o'qib, base64'ga o'girib, ichidagi ilova havolalarini
+// (loyiha hujjatlari) topib yuklab, Gemini uchun bitta `parts` massivini
+// tayyorlaydi. `evaluateProject` va `compareArizalar` ikkalasi ham shu
+// mantiqni ishlatadi.
+async function buildDocumentParts(source, onProgress = () => {}) {
   onProgress({ stage: 'reading' })
   const buffer = await sourceToArrayBuffer(source)
   const mainMimeType = detectMimeType(buffer)
@@ -51,18 +56,24 @@ export async function evaluateProject(source, onProgress = () => {}) {
     attachments = []
   }
 
-  const attachmentParts = []
+  const parts = [{ inlineData: { mimeType: mainMimeType, data: base64Data } }]
   for (let i = 0; i < attachments.length; i++) {
     onProgress({ stage: 'downloading', total: attachments.length, done: i })
     try {
       const { mimeType, data } = await fetchAttachment(attachments[i].url)
-      attachmentParts.push({ text: `Ilova hujjat: ${attachments[i].label}` })
-      attachmentParts.push({ inlineData: { mimeType, data } })
+      parts.push({ text: `Ilova hujjat: ${attachments[i].label}` })
+      parts.push({ inlineData: { mimeType, data } })
     } catch {
       // Ilovani yuklab bo'lmasa, tahlilni davom ettiramiz
     }
   }
   onProgress({ stage: 'downloading', total: attachments.length, done: attachments.length })
+
+  return parts
+}
+
+export async function evaluateProject(source, onProgress = () => {}) {
+  const documentParts = await buildDocumentParts(source, onProgress)
 
   onProgress({ stage: 'analyzing' })
   const response = await ai.models.generateContent({
@@ -73,8 +84,7 @@ export async function evaluateProject(source, onProgress = () => {}) {
         parts: [
           { text: USER_MESSAGE },
           { text: 'Asosiy ariza hujjati:' },
-          { inlineData: { mimeType: mainMimeType, data: base64Data } },
-          ...attachmentParts,
+          ...documentParts,
         ],
       },
     ],
@@ -96,6 +106,44 @@ export async function evaluateProject(source, onProgress = () => {}) {
   }
 
   return normalizeScore(result)
+}
+
+// Bitta korxonaning ikki turli davrdagi arizasini (masalan hozirgi va
+// avvalgi) o'zaro solishtirib, ular orasidagi nomuvofiqliklarni topadi.
+export async function compareArizalar(sourceA, sourceB, onProgress = () => {}) {
+  const partsA = await buildDocumentParts(sourceA, (p) => onProgress({ ...p, which: 'A' }))
+  const partsB = await buildDocumentParts(sourceB, (p) => onProgress({ ...p, which: 'B' }))
+
+  onProgress({ stage: 'analyzing' })
+  const response = await ai.models.generateContent({
+    model: 'gemini-2.5-flash',
+    contents: [
+      {
+        role: 'user',
+        parts: [
+          { text: COMPARE_USER_MESSAGE },
+          { text: '1-ARIZA hujjati va ilovalari:' },
+          ...partsA,
+          { text: '2-ARIZA hujjati va ilovalari:' },
+          ...partsB,
+        ],
+      },
+    ],
+    config: {
+      systemInstruction: COMPARE_SYSTEM_PROMPT,
+      responseMimeType: 'application/json',
+      temperature: 0,
+    },
+  })
+
+  const text = response.text ?? ''
+  try {
+    return JSON.parse(text)
+  } catch {
+    const match = text.match(/\{[\s\S]*\}/)
+    if (match) return JSON.parse(match[0])
+    throw new Error('AI javobi JSON formatida emas')
+  }
 }
 
 // Gemini ba'zan evaluation_matrix'dagi ballar yig'indisiga mos kelmaydigan
