@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { Menu } from 'lucide-react'
 import Sidebar from './components/Sidebar'
 import CompaniesPage from './pages/CompaniesPage'
@@ -10,12 +10,29 @@ import XulosalarPage from './pages/XulosalarPage'
 import AiAssistantPage from './pages/AiAssistantPage'
 import XaritaPage from './pages/XaritaPage'
 import AiTaqqoslashPage from './pages/AiTaqqoslashPage'
+import PresentationPage from './pages/PresentationPage'
 
 export default function App() {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-
   return (
     <BrowserRouter>
+      <AppLayout />
+    </BrowserRouter>
+  )
+}
+
+function AppLayout() {
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const location = useLocation()
+
+  if (location.pathname === '/taqdimot') {
+    return (
+      <Routes>
+        <Route path="/taqdimot" element={<PresentationPage />} />
+      </Routes>
+    )
+  }
+
+  return (
       <div className="flex h-screen bg-slate-100 overflow-hidden">
         {sidebarOpen && (
           <div
@@ -48,6 +65,5 @@ export default function App() {
           </main>
         </div>
       </div>
-    </BrowserRouter>
   )
 }
