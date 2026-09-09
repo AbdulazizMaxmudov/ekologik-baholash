@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { Menu } from 'lucide-react'
 import Sidebar from './components/Sidebar'
+import DashboardPage from './pages/DashboardPage'
 import CompaniesPage from './pages/CompaniesPage'
 import CompanyDetailPage from './pages/CompanyDetailPage'
 import AiPage from './pages/AiPage'
@@ -53,7 +54,8 @@ function AppLayout() {
           </header>
           <main className="flex-1 overflow-y-auto">
             <Routes>
-              <Route path="/" element={<CompaniesPage />} />
+              <Route path="/" element={<DashboardPage />} />
+              <Route path="/loyihachilar" element={<CompaniesPage />} />
               <Route path="/company/:id" element={<CompanyDetailPage />} />
               <Route path="/ai-baholash" element={<AiPage />} />
               <Route path="/arizalar" element={<ArizalarPage />} />

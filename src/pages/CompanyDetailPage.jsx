@@ -78,7 +78,7 @@ export default function CompanyDetailPage() {
   if (!data) return (
     <div className="flex flex-col items-center justify-center h-full text-slate-400">
       <p className="mb-3">Korxona topilmadi</p>
-      <button onClick={() => navigate('/')} className="text-emerald-500 text-sm hover:underline">Orqaga</button>
+      <button onClick={() => navigate('/loyihachilar')} className="text-emerald-500 text-sm hover:underline">Orqaga</button>
     </div>
   )
 
@@ -90,7 +90,7 @@ export default function CompanyDetailPage() {
 
   return (
     <div className="p-4 md:p-6">
-      <button onClick={() => navigate('/')}
+      <button onClick={() => navigate('/loyihachilar')}
         className="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-800 transition-colors mb-5 group">
         <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
         Loyihachilar ro'yxatiga qaytish

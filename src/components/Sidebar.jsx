@@ -1,4 +1,4 @@
-import { NavLink, useLocation } from 'react-router-dom'
+import { Link, NavLink, useLocation } from 'react-router-dom'
 import { Leaf, Bot, ClipboardList, Sparkles, Map, FileCheck2, GitCompareArrows, Presentation } from 'lucide-react'
 import logoMarkaz from '../assets/logo_Markaz.png'
 
@@ -12,17 +12,17 @@ const linkClass = ({ isActive }) =>
 export default function Sidebar({ isOpen, onClose }) {
   const location = useLocation()
   const isCompanies =
-    location.pathname === '/' || location.pathname.startsWith('/company/')
+    location.pathname === '/loyihachilar' || location.pathname.startsWith('/company/')
 
   return (
     <aside className={`fixed inset-y-0 left-0 z-50 w-56 flex-shrink-0 bg-slate-900 flex flex-col h-full transition-transform duration-200 md:relative md:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
-      {/* Logo */}
-      <div className="flex items-center gap-3 px-4 py-4 border-b border-slate-700">
+      {/* Logo — boshqaruv paneliga (bosh sahifa) olib boradi */}
+      <Link to="/" onClick={onClose} className="flex items-center gap-3 px-4 py-4 border-b border-slate-700 hover:bg-slate-800 transition-colors">
         <img src={logoMarkaz} alt="Markaz logo" className="w-10 h-10 object-contain flex-shrink-0" />
         <div>
           <p className="text-white font-bold text-sm leading-tight">ECO EXPERT AI</p>
         </div>
-      </div>
+      </Link>
 
       {/* Nav */}
       <nav className="flex-1 px-3 py-4 space-y-1">
@@ -52,7 +52,7 @@ export default function Sidebar({ isOpen, onClose }) {
         </NavLink>
 
         <NavLink
-          to="/"
+          to="/loyihachilar"
           onClick={onClose}
           className={() =>
             `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${

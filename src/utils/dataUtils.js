@@ -182,5 +182,5 @@ export async function getDashboardData() {
     .sort((a, b) => (b[1].ijobiy + b[1].salbiy) - (a[1].ijobiy + a[1].salbiy))
     .map(([name, v]) => ({ name, ...v }))
 
-  return { chart2_material: chart2, chart3_toifa: chart3 }
+  return { total: records.length, chart2_material: chart2, chart3_toifa: chart3 }
 }
