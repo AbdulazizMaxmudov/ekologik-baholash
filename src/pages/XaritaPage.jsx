@@ -3,12 +3,14 @@ import { MapContainer, TileLayer, GeoJSON, Polygon, CircleMarker, Popup, useMap 
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { PlusOutlined } from '@ant-design/icons';
-import { Button, Input, message } from 'antd';
+import { Button, Input, message, Drawer, Switch } from 'antd';
+import { Layers } from 'lucide-react';
 import WindVelocityLayer from '../components/WindVelocityLayer';
 import WindHeatmapLayer from '../components/WindHeatmapLayer';
 import { fetchUzbekistanWindGrid } from '../utils/wind';
 import AddKorxonaModal from '../components/AddKorxonaModal';
 import { korxonalarSeed } from '../data/korxonalar';
+import { tashkentKorxonalari } from '../data/tashkentKorxonalari';
 import { TASHLANMA_KATEGORIYALARI } from '../data/tashlanmaTurlari';
 
 // Konteyner o'lchami o'zgarganda (ekran/oyna kengligi, sidebar) Leaflet
@@ -39,6 +41,35 @@ const MapAutoResize = () => {
   return null;
 };
 
+// "Xarita qatlamlari" drawer'idagi bitta qatlam qatori (rangli belgi + nom +
+// yoqish/o'chirish tugmasi). Shamol, o'rmon fondi va qo'shimcha qatlamlar
+// uchun umumiy ko'rinish.
+const LayerToggleRow = ({ color, label, description, checked, loading, onChange }) => (
+  <div
+    style={{
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: '0.75rem',
+      padding: '0.6rem 0.75rem',
+      border: '1px solid #e2e8f0',
+      borderRadius: '10px',
+      background: checked ? '#f8fafc' : 'white',
+    }}
+  >
+    <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', minWidth: 0 }}>
+      <span style={{ width: 10, height: 10, borderRadius: '50%', background: color, flexShrink: 0 }} />
+      <div style={{ minWidth: 0 }}>
+        <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#1e293b' }}>{label}</div>
+        {description && (
+          <div style={{ fontSize: '0.72rem', color: '#64748b' }}>{description}</div>
+        )}
+      </div>
+    </div>
+    <Switch checked={checked} loading={loading} onChange={onChange} />
+  </div>
+);
+
 // Import GeoJSON data
 import regions from '../utils/uzbekistanGeoJson/data/regions.js';
 import qoraqalpogiston from '../utils/uzbekistanGeoJson/data/qoraqalpogiston.js';
@@ -54,6 +85,41 @@ import sirdaryo from '../utils/uzbekistanGeoJson/data/sirdaryo.js';
 import surxondaryo from '../utils/uzbekistanGeoJson/data/surxondaryo.js';
 import toshkent from '../utils/uzbekistanGeoJson/data/toshkent.js';
 import xorazm from '../utils/uzbekistanGeoJson/data/xorazm.js';
+
+// `toshkent.js` — Toshkent VILOYATI uchun tumanlar GeoJSON fayli — Toshkent
+// SHAHRINING 11 ta shahar tumani (Bektemir, Sergeli va h.k.) poligonlarini
+// ham o'z ichiga oladi, chunki manba fayl ikkalasini ham bitta hujjatda
+// bergan. Toshkent shahri respublikada alohida ma'muriy birlik (viloyat
+// emas), shuning uchun uni xaritada alohida "viloyat" sifatida ko'rsatish
+// va uning tumanlarini Toshkent viloyati tumanlari bilan aralashtirmaslik
+// uchun shu yerda ikkiga ajratamiz.
+const TOSHKENT_SHAHAR_TUMAN_NOMLARI = new Set([
+  "Bektemir", "Sergeli", "Chilanzar", "Uchtepa", "Yakkasaray", "Almazar",
+  "Shaykhantokhur", "Yunusabad", "Yashnobod", "Mirabad", "Mirzo Ulugbek",
+]);
+
+const toshkentShahriPath = {
+  type: "FeatureCollection",
+  features: toshkent.features.filter((f) => TOSHKENT_SHAHAR_TUMAN_NOMLARI.has(f.properties.name)),
+};
+
+const toshkentViloyatiPath = {
+  type: "FeatureCollection",
+  // "Toshkent sh." — butun shahar chegarasining o'zi (bitta yaxlit
+  // GeometryCollection) — bu tuman emas, shuning uchun viloyat tumanlari
+  // ro'yxatidan ham chiqarib tashlanadi.
+  features: toshkent.features.filter(
+    (f) => f.properties.name !== "Toshkent sh." && !TOSHKENT_SHAHAR_TUMAN_NOMLARI.has(f.properties.name)
+  ),
+};
+
+// Ba'zi hududlarning to'liq nomi "<Nom> viloyati" qolipiga to'g'ri
+// kelmaydi (Toshkent shahri viloyat emas, Qoraqalpog'iston esa respublika) —
+// shu kalitlar uchun aniq nom, qolganlari uchun formatName(key)+" viloyati"
+// ishlatiladi (regionDisplayName() da, pastda).
+const REGION_DISPLAY_NAMES = {
+  toshkentshahri: "Toshkent shahri",
+};
 
 // Data structure from data.js
 const data = {
@@ -272,7 +338,7 @@ const data = {
   },
   toshkent: {
     name: "toshkent",
-    path: toshkent,
+    path: toshkentViloyatiPath,
     subData: [
       { name: "bekabad", value: 0 },
       { name: "urtachirchik", value: 0 },
@@ -283,20 +349,9 @@ const data = {
       { name: "akkurgan", value: 0 },
       { name: "pskent", value: 0 },
       { name: "almalik", value: 0 },
-      { name: "bektemir", value: 0 },
-      { name: "sergeli", value: 0 },
       { name: "yangiyul", value: 0 },
-      { name: "chilanzar", value: 0 },
-      { name: "uchtepa", value: 0 },
       { name: "tashkent", value: 0 },
-      { name: "yakkasaray", value: 0 },
-      { name: "almazar", value: 0 },
-      { name: "shaykhantokhur", value: 0 },
-      { name: "yunusabad", value: 0 },
       { name: "kibray", value: 0 },
-      { name: "yashnobod", value: 0 },
-      { name: "mirabad", value: 0 },
-      { name: "mirzo ulugbek", value: 0 },
       { name: "bostanlik", value: 0 },
       { name: "chirchik", value: 0 },
       { name: "nurafshon", value: 0 },
@@ -304,6 +359,26 @@ const data = {
       { name: "parkent", value: 0 },
       { name: "angren", value: 0 },
       { name: "zangiata", value: 0 },
+    ],
+  },
+  // Toshkent shahri — respublika ahamiyatiga ega alohida ma'muriy birlik
+  // (Toshkent viloyatining tarkibiy qismi emas). Tumanlari yuqoridagi
+  // `toshkent` (viloyat) dan alohida.
+  toshkentshahri: {
+    name: "toshkentshahri",
+    path: toshkentShahriPath,
+    subData: [
+      { name: "bektemir", value: 0 },
+      { name: "sergeli", value: 0 },
+      { name: "chilanzar", value: 0 },
+      { name: "uchtepa", value: 0 },
+      { name: "yakkasaray", value: 0 },
+      { name: "almazar", value: 0 },
+      { name: "shaykhantokhur", value: 0 },
+      { name: "yunusabad", value: 0 },
+      { name: "yashnobod", value: 0 },
+      { name: "mirabad", value: 0 },
+      { name: "mirzo ulugbek", value: 0 },
     ],
   },
   xorazm: {
@@ -324,8 +399,74 @@ const data = {
   },
 };
 
+// O'rmon fondi yerlari ma'lumoti mavjud bo'lgan viloyatlar
+// (public/data/ormon/<key>.json — scripts/convert-kmz-to-geojson.mjs orqali tayyorlangan)
+const ORMON_REGION_KEYS = [
+  "buxoro", "fargona", "jizzax", "namangan", "navoiy", "qashqadaryo",
+  "qoraqalpogiston", "samarqand", "sirdaryo", "surxondaryo", "toshkent", "xorazm",
+];
+
+// Respublika miqyosidagi qo'shimcha xarita qatlamlari — har biri bitta
+// public/data/<key>.json fayl (scripts/convert-extra-layers.mjs orqali
+// kmz-source/*.kmz dan tayyorlangan). O'rmon fondidan farqli o'laroq
+// viloyatlarga bo'linmagan, shuning uchun bitta so'rov bilan yuklanadi.
+const EXTRA_LAYERS = [
+  {
+    key: "suv_omborlari",
+    label: "Suv omborlari",
+    description: "Respublika suv omborlari",
+    color: "#0369a1",
+    fillColor: "#38bdf8",
+  },
+  {
+    key: "ichimlik_suvi_konlari",
+    label: "Ichimlik suvi konlari",
+    description: "Yer osti ichimlik suvi konlari",
+    color: "#0e7490",
+    fillColor: "#22d3ee",
+  },
+  {
+    key: "smqz",
+    label: "Suv havzalari SMQZ",
+    description: "Sanitariya-muhofaza qilinadigan zonalar",
+    color: "#7c3aed",
+    fillColor: "#a78bfa",
+  },
+  {
+    key: "urmon_ov_xujaliklari",
+    label: "O'rmon-ov xo'jaliklari",
+    description: "Davlat o'rmon-ov xo'jaliklari hududlari",
+    color: "#b45309",
+    fillColor: "#fbbf24",
+  },
+];
+
+// EXTRA_LAYERS geojson xususiyatlaridagi kalitlarni popup uchun o'qiladigan
+// o'zbekcha yorliqlarga o'giradi (scripts/convert-extra-layers.mjs dagi
+// keepKeys bilan mos keladi).
+const EXTRA_FIELD_LABELS = {
+  idora: "Idora",
+  sana: "Qaror sanasi",
+  umumiyMaydon: "Umumiy maydon (ga)",
+  qishloqMaydon: "Qishloq xo'jaligi maydoni (ga)",
+  sugorilMaydon: "Sug'oriladigan maydon (ga)",
+  urmonMaydon: "O'rmon maydoni (ga)",
+  boshqaMaydon: "Boshqa maydon (ga)",
+  kadastr: "Kadastr raqami",
+  qonuniyMaydon: "Qonuniy maydon (ga)",
+  gisMaydon: "GIS maydoni (ga)",
+  viloyat: "Viloyat",
+  tuman: "Tuman",
+  royxatSana: "Ro'yxatga olingan sana",
+  huquqHolati: "Huquqiy holati",
+};
+
 // Helper functions
 const getFirstWordLowercase = (str) => {
+  // "Toshkent sh." (shahar) va "Toshkent viloyati" ikkalasi ham birinchi
+  // so'zi "Toshkent" bo'lgani uchun umumiy qoida ularni bir xil kalitga
+  // (regionKey) tenglashtirib qo'yardi — shaharni alohida ajratamiz.
+  if (str === "Toshkent sh.") return "toshkentshahri";
   let filter = str.replace(/[-',`ʻ]/g, "");
   let name = filter.split(" ")[0].toLowerCase();
   return name;
@@ -355,9 +496,20 @@ export default function XaritaPage() {
   const [selectedDistrict, setSelectedDistrict] = useState(null); // tanlangan tuman feature
   const [selectedDistrictName, setSelectedDistrictName] = useState(null); // tanlangan tuman nomi (breadcrumb uchun)
 
-  // Korxonalar (namunaviy + qo'lda qo'shilganlar) va "Yangi korxona qo'shish" modali
-  const [korxonalar, setKorxonalar] = useState(korxonalarSeed);
+  // Korxonalar (namunaviy + Toshkent shahar korxonalar jamlamasi + qo'lda
+  // qo'shilganlar) va "Yangi korxona qo'shish" modali
+  const [korxonalar, setKorxonalar] = useState(() => [...korxonalarSeed, ...tashkentKorxonalari]);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+
+  // Qidiruv orqali topilgan korxonani xaritada vaqtincha ajratib ko'rsatish
+  // (flyTo effekti tugagach popup avtomatik ochiladi)
+  const [highlightedKorxonaId, setHighlightedKorxonaId] = useState(null);
+  const korxonaMarkerRefs = useRef({});
+
+  // "Xarita qatlamlari" paneli (shamol, o'rmon fondi va qo'shimcha
+  // qatlamlarni yoqish/o'chirish) — tepada joy band qilmasligi uchun ong
+  // tarafdan ochiladigan drawer ichida
+  const [isLayersDrawerOpen, setIsLayersDrawerOpen] = useState(false);
 
   const handleAddKorxona = (newKorxona) => {
     setKorxonalar((prev) => [...prev, newKorxona]);
@@ -378,6 +530,7 @@ export default function XaritaPage() {
     }
 
     const bounds = L.polygon(found.hudud).getBounds();
+    const center = bounds.getCenter();
 
     // Qidirilgan korxona joriy ko'rinishda (masalan boshqa viloyat/tuman
     // tanlangan bo'lsa) ko'rinmay qolishi mumkin — respublika darajasiga
@@ -388,11 +541,18 @@ export default function XaritaPage() {
     setSelectedDistrict(null);
     setSelectedDistrictName(null);
     setMapKey((prev) => prev + 1);
+    setHighlightedKorxonaId(found.id);
 
+    // MapContainer yuqoridagi setMapKey tufayli qayta mount bo'ladi — bir oz
+    // kutib turib (mount tugashini kutamiz), keyin silliq "uchib borish"
+    // effekti bilan yaqinlashamiz va joyiga yetgach popup'ni o'zi ochamiz.
     setTimeout(() => {
-      if (mapRef.current) {
-        mapRef.current.fitBounds(bounds, { padding: [100, 100], maxZoom: 15 });
-      }
+      const map = mapRef.current;
+      if (!map) return;
+      map.flyTo(center, 16, { animate: true, duration: 1.6 });
+      map.once('moveend', () => {
+        korxonaMarkerRefs.current[found.id]?.openPopup();
+      });
     }, 150);
 
     message.success(`Topildi: ${found.nomi}`);
@@ -434,6 +594,175 @@ export default function XaritaPage() {
     };
   }, [windEnabled]);
 
+  // O'rmon fondi yerlari qatlami — har bir viloyat uchun alohida, katta
+  // hajmdagi GeoJSON fayl (public/data/ormon/<viloyat>.json). Respublika
+  // ko'rinishida yoqilsa, barcha viloyatlar bo'yicha bir vaqtda yuklanadi;
+  // viloyat/tuman darajasida esa faqat o'sha viloyatniki.
+  const [ormonEnabled, setOrmonEnabled] = useState(false);
+  const [ormonCache, setOrmonCache] = useState({});
+  const [ormonLoading, setOrmonLoading] = useState(false);
+  const activeOrmonRegions = useMemo(() => {
+    if (!ormonEnabled) return [];
+    if (currentLevel === "regions") return ORMON_REGION_KEYS;
+    return parentRegion ? [parentRegion] : [];
+  }, [ormonEnabled, currentLevel, parentRegion]);
+
+  useEffect(() => {
+    const toFetch = activeOrmonRegions.filter((region) => !ormonCache[region]);
+    if (toFetch.length === 0) return;
+
+    let cancelled = false;
+    setOrmonLoading(true);
+
+    Promise.all(
+      toFetch.map((region) =>
+        fetch(`/data/ormon/${region}.json`)
+          .then((res) => (res.ok ? res.json() : Promise.reject(new Error("topilmadi"))))
+          .then((geojson) => ({ region, geojson }))
+          .catch(() => ({ region, geojson: "missing" }))
+      )
+    ).then((results) => {
+      if (cancelled) return;
+      setOrmonCache((prev) => {
+        const next = { ...prev };
+        for (const { region, geojson } of results) next[region] = geojson;
+        return next;
+      });
+    }).finally(() => {
+      if (!cancelled) setOrmonLoading(false);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [activeOrmonRegions, ormonCache]);
+
+  const ormonStyle = () => ({
+    weight: 1,
+    color: "#15803d",
+    fillColor: "#22c55e",
+    fillOpacity: 0.45,
+  });
+
+  const onEachOrmonFeature = (feature, layer) => {
+    const p = feature.properties || {};
+    layer.bindPopup(`
+      <div style="font-size:12px;min-width:220px">
+        <div style="background:#15803d;color:white;padding:6px 10px;border-radius:6px;margin-bottom:8px;font-weight:700">
+          O'rmon fondi uchastkasi
+        </div>
+        <div style="display:grid;gap:4px">
+          ${p.subyekt ? `<div><b>Subyekt:</b> ${p.subyekt}</div>` : ""}
+          ${p.tuman ? `<div><b>Tuman:</b> ${p.tuman}</div>` : ""}
+          ${p.yerFondiTuri ? `<div><b>Yer turi:</b> ${p.yerFondiTuri}</div>` : ""}
+          ${p.royxatHolati ? `<div><b>Holati:</b> ${p.royxatHolati}</div>` : ""}
+          ${p.cadastralNumber ? `<div style="color:#64748b"><b>Kadastr:</b> ${p.cadastralNumber}</div>` : ""}
+        </div>
+      </div>
+    `);
+    layer.on({
+      mouseover: (e) => e.target.setStyle({ fillOpacity: 0.7 }),
+      mouseout: (e) => e.target.setStyle({ fillOpacity: 0.45 }),
+    });
+  };
+
+  // Qo'shimcha respublika miqyosidagi qatlamlar (suv omborlari, ichimlik
+  // suvi konlari, SMQZ, o'rmon-ov xo'jaliklari) — har biri o'z holicha
+  // yoqilib/o'chiriladi va faqat yoqilganda bir marta yuklab, keshlanadi.
+  const [extraLayersEnabled, setExtraLayersEnabled] = useState({});
+  const [extraLayersCache, setExtraLayersCache] = useState({});
+  const [extraLayersLoading, setExtraLayersLoading] = useState({});
+
+  const toggleExtraLayer = (key) => {
+    setExtraLayersEnabled((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  useEffect(() => {
+    const toFetch = EXTRA_LAYERS.filter(
+      (l) => extraLayersEnabled[l.key] && !extraLayersCache[l.key]
+    );
+    if (toFetch.length === 0) return;
+
+    let cancelled = false;
+    setExtraLayersLoading((prev) => {
+      const next = { ...prev };
+      for (const l of toFetch) next[l.key] = true;
+      return next;
+    });
+
+    Promise.all(
+      toFetch.map((l) =>
+        fetch(`/data/${l.key}.json`)
+          .then((res) => (res.ok ? res.json() : Promise.reject(new Error("topilmadi"))))
+          .then((geojson) => ({ key: l.key, geojson }))
+          .catch(() => ({ key: l.key, geojson: "missing" }))
+      )
+    ).then((results) => {
+      if (cancelled) return;
+      setExtraLayersCache((prev) => {
+        const next = { ...prev };
+        for (const { key, geojson } of results) next[key] = geojson;
+        return next;
+      });
+    }).finally(() => {
+      if (!cancelled) {
+        setExtraLayersLoading((prev) => {
+          const next = { ...prev };
+          for (const l of toFetch) next[l.key] = false;
+          return next;
+        });
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [extraLayersEnabled, extraLayersCache]);
+
+  const extraLayerStyle = (layerConfig) => () => ({
+    weight: 2,
+    color: layerConfig.color,
+    fillColor: layerConfig.fillColor,
+    fillOpacity: 0.35,
+  });
+
+  const extraLayerPointToLayer = (layerConfig) => (feature, latlng) =>
+    L.circleMarker(latlng, {
+      radius: 7,
+      weight: 2,
+      color: layerConfig.color,
+      fillColor: layerConfig.fillColor,
+      fillOpacity: 0.9,
+    });
+
+  const onEachExtraFeature = (layerConfig) => (feature, layer) => {
+    const p = feature.properties || {};
+    const rows = Object.entries(p)
+      .filter(([key]) => key !== "nomi")
+      .map(([key, value]) => `<div><b>${EXTRA_FIELD_LABELS[key] || key}:</b> ${value}</div>`)
+      .join("");
+    layer.bindPopup(`
+      <div style="font-size:12px;min-width:220px">
+        <div style="background:${layerConfig.color};color:white;padding:6px 10px;border-radius:6px;margin-bottom:8px;font-weight:700">
+          ${p.nomi || layerConfig.label}
+        </div>
+        <div style="display:grid;gap:4px">${rows}</div>
+      </div>
+    `);
+    if (layer.setStyle) {
+      layer.on({
+        mouseover: (e) => e.target.setStyle({ fillOpacity: 0.65 }),
+        mouseout: (e) => e.target.setStyle({ fillOpacity: 0.35 }),
+      });
+    }
+  };
+
+  // "Qatlamlar" tugmasida nechta qatlam yoqilganini ko'rsatish uchun
+  const activeLayerCount =
+    (windEnabled ? 1 : 0) +
+    (ormonEnabled ? 1 : 0) +
+    Object.values(extraLayersEnabled).filter(Boolean).length;
+
   // Viloyatlar ro'yxati (Select uchun)
   const regionsList = Object.keys(data).filter(key => key !== "regions");
 
@@ -450,6 +779,9 @@ export default function XaritaPage() {
     if (!name) return "";
     return name.charAt(0).toUpperCase() + name.slice(1);
   };
+
+  // Hudud (viloyat/shahar/respublika) uchun to'liq ko'rinadigan nom
+  const regionDisplayName = (key) => REGION_DISPLAY_NAMES[key] || `${formatName(key)} viloyati`;
 
   // Select orqali viloyat tanlash
   const handleRegionSelect = (regionName) => {
@@ -660,6 +992,10 @@ export default function XaritaPage() {
     let suvKorxonalar = 0;
     let chiqindiKorxonalar = 0;
     const categoryTotals = {};
+    // Kategoriya ichida har bir alohida modda/manba bo'yicha yig'indi
+    // ("Ingredientlar" tabida ko'rsatiladi) — categoryTotals kabi lekin
+    // moddaga bo'lib chiqilgan holda.
+    const ingredientTotals = {};
 
     visibleKorxonalar.forEach((korxona) => {
       let hasChiqindi = false;
@@ -679,6 +1015,13 @@ export default function XaritaPage() {
             categoryTotals[cat.key] = { label: cat.label, unitLabel: unit.label, value: 0 };
           }
           categoryTotals[cat.key].value += amount;
+
+          const moddaName = entry[cat.optionsField] || "Noma'lum";
+          if (!ingredientTotals[cat.key]) {
+            ingredientTotals[cat.key] = { label: cat.label, unitLabel: unit.label, items: {} };
+          }
+          ingredientTotals[cat.key].items[moddaName] =
+            (ingredientTotals[cat.key].items[moddaName] || 0) + amount;
         });
       });
 
@@ -693,6 +1036,7 @@ export default function XaritaPage() {
         chiqindi: chiqindiKorxonalar,
       },
       categoryTotals,
+      ingredientTotals,
     };
   }, [visibleKorxonalar]);
 
@@ -736,7 +1080,7 @@ export default function XaritaPage() {
             {currentLevel === "regions" ? (
               "O'zbekiston Respublikasi"
             ) : currentLevel === "region" ? (
-              `${formatName(parentRegion)} viloyati`
+              regionDisplayName(parentRegion)
             ) : (
               `${formatName(selectedDistrictName)} tumani`
             )}
@@ -800,6 +1144,7 @@ export default function XaritaPage() {
             <div style={{ display: 'flex', gap: '0.25rem', padding: '0.75rem 1rem 0' }}>
               {[
                 { key: 'chiqindilar', label: "Tashlanmalar" },
+                { key: 'ingredientlar', label: "Ingredientlar" },
                 { key: 'korxonalar', label: "Korxonalar ro'yxati" },
               ].map(tab => (
                 <button
@@ -862,6 +1207,73 @@ export default function XaritaPage() {
                         </span>
                       </div>
                     ))}
+                  </div>
+                )
+              ) : bottomPanelTab === 'ingredientlar' ? (
+                Object.keys(statistics.ingredientTotals).length === 0 ? (
+                  <div style={{
+                    textAlign: 'center',
+                    padding: '2rem',
+                    color: '#94a3b8',
+                    fontSize: '0.85rem'
+                  }}>
+                    Ingredient ma'lumotlari mavjud emas
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    {Object.entries(statistics.ingredientTotals).map(([catKey, { label, unitLabel, items }]) => {
+                      const sortedItems = Object.entries(items).sort((a, b) => b[1] - a[1]);
+                      return (
+                        <div key={catKey}>
+                          <div style={{
+                            fontSize: '0.75rem',
+                            fontWeight: '700',
+                            color: '#059669',
+                            marginBottom: '0.4rem',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.02em'
+                          }}>
+                            {label}
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                            {sortedItems.map(([modda, amount]) => (
+                              <div
+                                key={modda}
+                                style={{
+                                  display: 'flex',
+                                  justifyContent: 'space-between',
+                                  alignItems: 'center',
+                                  padding: '0.45rem 0.65rem',
+                                  background: '#f8fafc',
+                                  borderRadius: '6px',
+                                  fontSize: '0.78rem',
+                                  gap: '0.5rem'
+                                }}
+                              >
+                                <span style={{
+                                  color: '#475569',
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                  whiteSpace: 'nowrap'
+                                }}>
+                                  {modda}
+                                </span>
+                                <span style={{
+                                  flexShrink: 0,
+                                  fontWeight: '600',
+                                  color: '#1e293b',
+                                  background: '#e2e8f0',
+                                  padding: '2px 8px',
+                                  borderRadius: '4px'
+                                }}>
+                                  {amount.toLocaleString(undefined, { maximumFractionDigits: 3 })} {unitLabel}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 )
               ) : (
@@ -961,7 +1373,7 @@ export default function XaritaPage() {
                     onMouseEnter={(e) => currentLevel === "district" && (e.target.style.textDecoration = 'underline')}
                     onMouseLeave={(e) => e.target.style.textDecoration = 'none'}
                   >
-                    {formatName(parentRegion)} viloyati
+                    {regionDisplayName(parentRegion)}
                   </span>
                 </>
               )}
@@ -985,13 +1397,16 @@ export default function XaritaPage() {
                   style={{ width: '260px' }}
                 />
 
-                {/* Shamol oqimi qatlamini yoqish/o'chirish */}
+                {/* Xarita qatlamlari paneli — shamol, o'rmon fondi va qo'shimcha
+                    qatlamlar shu yerdan yoqiladi, tepada alohida-alohida
+                    tugmalar to'planib ketmasligi uchun */}
                 <Button
-                  type={windEnabled ? 'primary' : 'default'}
-                  onClick={() => setWindEnabled((prev) => !prev)}
-                  style={windEnabled ? {
-                    background: '#0284c7',
-                    borderColor: '#0284c7',
+                  icon={<Layers size={16} />}
+                  onClick={() => setIsLayersDrawerOpen(true)}
+                  style={activeLayerCount > 0 ? {
+                    background: '#ecfdf5',
+                    borderColor: '#059669',
+                    color: '#047857',
                     borderRadius: '6px',
                     fontWeight: '500'
                   } : {
@@ -999,7 +1414,7 @@ export default function XaritaPage() {
                     fontWeight: '500'
                   }}
                 >
-                  Shamol oqimi {windEnabled ? 'yoqilgan' : "o'chirilgan"}
+                  Qatlamlar{activeLayerCount > 0 ? ` (${activeLayerCount})` : ''}
                 </Button>
 
                 {/* Yangi korxona qo'shish tugmasi */}
@@ -1062,9 +1477,40 @@ export default function XaritaPage() {
                 onEachFeature={onEachFeature}
               />
 
+              {activeOrmonRegions.map((region) => {
+                const geojson = ormonCache[region];
+                if (!geojson || geojson === "missing") return null;
+                return (
+                  <GeoJSON
+                    key={region}
+                    data={geojson}
+                    style={ormonStyle}
+                    onEachFeature={onEachOrmonFeature}
+                  />
+                );
+              })}
+
+              {/* Qo'shimcha qatlamlar — suv omborlari, ichimlik suvi konlari,
+                  SMQZ, o'rmon-ov xo'jaliklari */}
+              {EXTRA_LAYERS.map((layerConfig) => {
+                if (!extraLayersEnabled[layerConfig.key]) return null;
+                const geojson = extraLayersCache[layerConfig.key];
+                if (!geojson || geojson === "missing") return null;
+                return (
+                  <GeoJSON
+                    key={layerConfig.key}
+                    data={geojson}
+                    style={extraLayerStyle(layerConfig)}
+                    pointToLayer={extraLayerPointToLayer(layerConfig)}
+                    onEachFeature={onEachExtraFeature(layerConfig)}
+                  />
+                );
+              })}
+
               {/* Korxonalar — hudud chegarasi (poligon) + markaziy nuqta */}
               {visibleKorxonalar.map((item) => {
                 const center = L.polygon(item.hudud).getBounds().getCenter();
+                const isHighlighted = item.id === highlightedKorxonaId;
                 return (
                   <Fragment key={item.id}>
                     <Polygon
@@ -1072,9 +1518,22 @@ export default function XaritaPage() {
                       pathOptions={{ color: '#ef4444', weight: 2, dashArray: '6 6', fillColor: '#ef4444', fillOpacity: 0.15 }}
                     />
                     <CircleMarker
+                      ref={(ref) => {
+                        if (ref) korxonaMarkerRefs.current[item.id] = ref;
+                        else delete korxonaMarkerRefs.current[item.id];
+                      }}
                       center={center}
-                      radius={currentLevel === "district" ? 8 : currentLevel === "region" ? 6 : 4}
-                      pathOptions={{ color: '#ef4444', weight: 2, fillColor: '#ffffff', fillOpacity: 1 }}
+                      radius={isHighlighted ? 14 : currentLevel === "district" ? 8 : currentLevel === "region" ? 6 : 4}
+                      pathOptions={
+                        isHighlighted
+                          ? { color: '#f59e0b', weight: 3, fillColor: '#fbbf24', fillOpacity: 1, className: 'korxona-marker-highlight' }
+                          : { color: '#ef4444', weight: 2, fillColor: '#ffffff', fillOpacity: 1 }
+                      }
+                      eventHandlers={{
+                        popupclose: () => {
+                          setHighlightedKorxonaId((prev) => (prev === item.id ? null : prev));
+                        },
+                      }}
                     >
                       <Popup maxWidth={340} minWidth={280}>
                         <div style={{ fontSize: '12px' }}>
@@ -1182,7 +1641,7 @@ export default function XaritaPage() {
             <option value="">Barcha viloyatlar</option>
             {regionsList.map(region => (
               <option key={region} value={region}>
-                {formatName(region)} viloyati
+                {regionDisplayName(region)}
               </option>
             ))}
           </select>
@@ -1247,6 +1706,44 @@ export default function XaritaPage() {
         regionsList={regionsList}
       />
 
+      {/* Xarita qatlamlari paneli */}
+      <Drawer
+        title="Xarita qatlamlari"
+        placement="right"
+        open={isLayersDrawerOpen}
+        onClose={() => setIsLayersDrawerOpen(false)}
+        size={340}
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+          <LayerToggleRow
+            color="#0284c7"
+            label="Shamol oqimi"
+            description="Real vaqtdagi shamol tezligi va yo'nalishi"
+            checked={windEnabled}
+            onChange={() => setWindEnabled((prev) => !prev)}
+          />
+          <LayerToggleRow
+            color="#15803d"
+            label="O'rmon fondi yerlari"
+            description="Kadastr uchastkalari bo'yicha o'rmon fondi"
+            checked={ormonEnabled}
+            loading={ormonEnabled && ormonLoading}
+            onChange={() => setOrmonEnabled((prev) => !prev)}
+          />
+          {EXTRA_LAYERS.map((layerConfig) => (
+            <LayerToggleRow
+              key={layerConfig.key}
+              color={layerConfig.color}
+              label={layerConfig.label}
+              description={layerConfig.description}
+              checked={!!extraLayersEnabled[layerConfig.key]}
+              loading={!!extraLayersEnabled[layerConfig.key] && !!extraLayersLoading[layerConfig.key]}
+              onChange={() => toggleExtraLayer(layerConfig.key)}
+            />
+          ))}
+        </div>
+      </Drawer>
+
       {/* Custom tooltip va marker styles */}
       <style>{`
         .custom-tooltip {
@@ -1285,6 +1782,16 @@ export default function XaritaPage() {
         }
         .info.legend {
           z-index: 1000;
+        }
+        /* Qidiruv orqali topilgan korxona belgisi — e'tiborni tortish uchun
+           yumshoq "nafas olish" effekti */
+        .korxona-marker-highlight {
+          animation: korxona-pulse 1.1s ease-in-out infinite;
+          filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.9));
+        }
+        @keyframes korxona-pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.55; }
         }
       `}</style>
     </div>

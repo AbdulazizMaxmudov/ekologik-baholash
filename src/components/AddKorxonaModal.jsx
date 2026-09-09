@@ -7,6 +7,10 @@ import { TASHLANMA_KATEGORIYALARI, BOSHQA_QIYMAT } from '../data/tashlanmaTurlar
 import { generateKorxonaId } from '../data/korxonalar';
 
 const getFirstWordLowercase = (str) => {
+  // "Toshkent sh." (shahar) va "Toshkent viloyati" ikkalasi ham birinchi
+  // so'zi "Toshkent" bo'lgani uchun umumiy qoida ularni bir xil kalitga
+  // tenglashtirib qo'yardi — XaritaPage.jsx dagi kabi shaharni alohida ajratamiz.
+  if (str === 'Toshkent sh.') return 'toshkentshahri';
   const filtered = str.replace(/[-',`ʻ]/g, '');
   return filtered.split(' ')[0].toLowerCase();
 };
@@ -15,6 +19,13 @@ const formatName = (name) => {
   if (!name) return '';
   return name.charAt(0).toUpperCase() + name.slice(1);
 };
+
+// XaritaPage.jsx dagi REGION_DISPLAY_NAMES bilan bir xil — Toshkent shahri
+// viloyat emas, shuning uchun "<Nom> viloyati" qolipidan istisno.
+const REGION_DISPLAY_NAMES = {
+  toshkentshahri: 'Toshkent shahri',
+};
+const regionDisplayName = (key) => REGION_DISPLAY_NAMES[key] || `${formatName(key)} viloyati`;
 
 const ModalMapClickHandler = ({ onMapClick }) => {
   useMapEvents({
@@ -302,7 +313,7 @@ export default function AddKorxonaModal({ open, onClose, onSubmit, regionsGeoJso
               <Select placeholder="Viloyatni tanlang" onChange={handleViloyatChange} showSearch optionFilterProp="children">
                 {regionsList.map((region) => (
                   <Select.Option key={region} value={region}>
-                    {formatName(region)} viloyati
+                    {regionDisplayName(region)}
                   </Select.Option>
                 ))}
               </Select>
