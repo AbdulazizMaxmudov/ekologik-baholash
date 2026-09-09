@@ -1,10 +1,10 @@
 import { useState, useRef, useEffect, useMemo, Fragment } from 'react';
-import { MapContainer, TileLayer, GeoJSON, Polygon, CircleMarker, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, GeoJSON, Polygon, Polyline, Circle, CircleMarker, Popup, Tooltip, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { PlusOutlined } from '@ant-design/icons';
-import { Button, Input, message, Drawer, Switch } from 'antd';
-import { Layers } from 'lucide-react';
+import { Button, Input, InputNumber, message, Drawer, Switch } from 'antd';
+import { Layers, Crosshair, Pencil, X, Wind } from 'lucide-react';
 import WindVelocityLayer from '../components/WindVelocityLayer';
 import WindHeatmapLayer from '../components/WindHeatmapLayer';
 import { fetchUzbekistanWindGrid } from '../utils/wind';
@@ -38,6 +38,19 @@ const MapAutoResize = () => {
     };
   }, [map]);
 
+  return null;
+};
+
+// Radius markazini belgilash yoki poligon nuqtalarini chizish uchun
+// xaritadagi bosishlarni tinglaydi — faqat shu vositalardan biri
+// yoqilganda ishlaydi (`tool` null bo'lsa hech narsa qilmaydi)
+const SpatialToolClickHandler = ({ tool, onPick }) => {
+  useMapEvents({
+    click: (e) => {
+      if (!tool) return;
+      onPick([e.latlng.lat, e.latlng.lng]);
+    },
+  });
   return null;
 };
 
@@ -472,6 +485,108 @@ const getFirstWordLowercase = (str) => {
   return name;
 };
 
+// ---------------------------------------------------------------------------
+// Hudud (radius/poligon) tahlili uchun geometriya yordamchilari
+// ---------------------------------------------------------------------------
+
+// Ikki [lat,lng] nuqta orasidagi masofa (km), Yer sharsimonligini hisobga olgan holda
+function haversineKm([lat1, lng1], [lat2, lng2]) {
+  const R = 6371;
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLng = ((lng2 - lng1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(a));
+}
+
+// Poligon markazidan eng uzoq burchak nuqtasigacha bo'lgan masofa (metrda) —
+// korxona hududi (olti burchak) ustiga uni to'liq qamrab oladigan, burchaklari
+// bo'lmagan (shuning uchun "chetiga bosilsa ham ishlamayapti" degan holat
+// yuzaga kelmaydigan) doiraviy bosish maydoni chizish uchun ishlatiladi.
+function polygonMaxRadiusMeters(center, positions) {
+  let max = 0;
+  for (const pt of positions) {
+    const d = haversineKm(center, pt) * 1000;
+    if (d > max) max = d;
+  }
+  return max;
+}
+
+// Nuqta [lat,lng] bosh burchaklari [lat,lng] massivi bo'lgan poligon ichidami
+// (ray-casting, even-odd qoida)
+function pointInPolygonLatLng([lat, lng], points) {
+  let inside = false;
+  for (let i = 0, j = points.length - 1; i < points.length; j = i++) {
+    const [yi, xi] = points[i];
+    const [yj, xj] = points[j];
+    const intersect = yi > lat !== yj > lat && lng < ((xj - xi) * (lat - yi)) / (yj - yi) + xi;
+    if (intersect) inside = !inside;
+  }
+  return inside;
+}
+
+// Berilgan boshlang'ich nuqtadan ma'lum masofa (km) va yo'nalish (kompas
+// gradusi, shimoldan soat yo'nalishi bo'yicha) bo'yicha yakuniy nuqtani topadi
+function destinationPoint([lat, lng], bearingDeg, distanceKm) {
+  const R = 6371;
+  const d = distanceKm / R;
+  const brng = (bearingDeg * Math.PI) / 180;
+  const phi1 = (lat * Math.PI) / 180;
+  const lambda1 = (lng * Math.PI) / 180;
+  const phi2 = Math.asin(Math.sin(phi1) * Math.cos(d) + Math.cos(phi1) * Math.sin(d) * Math.cos(brng));
+  const lambda2 =
+    lambda1 +
+    Math.atan2(Math.sin(brng) * Math.sin(d) * Math.cos(phi1), Math.cos(d) - Math.sin(phi1) * Math.sin(phi2));
+  return [(phi2 * 180) / Math.PI, (lambda2 * 180) / Math.PI];
+}
+
+// windData ([U-grid, V-grid], fetchUzbekistanWindGrid() formatida) ichidan
+// berilgan nuqtaga eng yaqin katakning shamol tezligi va "qayerga esishi"
+// yo'nalishini (kompas gradusi) hisoblaydi.
+function getWindVectorAt([lat, lng], windData) {
+  if (!windData || windData.length < 2) return null;
+  const [uGrid, vGrid] = windData;
+  const { la1, lo1, dx, dy, nx, ny } = uGrid.header;
+  let row = Math.round((la1 - lat) / dy);
+  let col = Math.round((lng - lo1) / dx);
+  row = Math.min(Math.max(row, 0), ny - 1);
+  col = Math.min(Math.max(col, 0), nx - 1);
+  const idx = row * nx + col;
+  const u = uGrid.data[idx];
+  const v = vGrid.data[idx];
+  if (u == null || v == null) return null;
+  const speed = Math.hypot(u, v);
+  const bearingDeg = ((Math.atan2(u, v) * 180) / Math.PI + 360) % 360;
+  return { speed, bearingDeg };
+}
+
+// Tahlil qilingan hudud ustidan chiqadigan taxminiy shamol yo'nalishi
+// "konusi" — ILMIY MODEL EMAS, faqat umumiy atmosfera tashlanmasi miqdoriga
+// qarab uzunligi o'lchamlangan, joriy shamol yo'nalishi bo'ylab cho'zilgan
+// vizual ko'rsatkich (sektor poligon).
+function buildWindConePolygon(center, bearingDeg, lengthKm, spreadDeg = 28, steps = 12) {
+  const points = [center];
+  for (let i = 0; i <= steps; i++) {
+    const angle = bearingDeg - spreadDeg / 2 + (spreadDeg * i) / steps;
+    points.push(destinationPoint(center, angle, lengthKm));
+  }
+  points.push(center);
+  return points;
+}
+
+// Foydalanuvchi qidiruv maydoniga koordinata kiritganini aniqlaydi
+// (masalan "41.31, 69.28" yoki "41.31 69.28") — [lat,lng] yoki null qaytaradi
+function parseCoordinateInput(str) {
+  const match = str.trim().match(/^(-?\d{1,3}(?:[.,]\d+)?)\s*[,\s]\s*(-?\d{1,3}(?:[.,]\d+)?)$/);
+  if (!match) return null;
+  const lat = parseFloat(match[1].replace(",", "."));
+  const lng = parseFloat(match[2].replace(",", "."));
+  if (Number.isNaN(lat) || Number.isNaN(lng)) return null;
+  if (lat < -90 || lat > 90 || lng < -180 || lng > 180) return null;
+  return [lat, lng];
+}
+
 export default function XaritaPage() {
   const [currentPath, setCurrentPath] = useState(data.regions);
   const [hoveredRegion, setHoveredRegion] = useState(null);
@@ -506,22 +621,124 @@ export default function XaritaPage() {
   const [highlightedKorxonaId, setHighlightedKorxonaId] = useState(null);
   const korxonaMarkerRefs = useRef({});
 
+  // Popup ichidagi belgi orqali tanlangan korxona — shu korxonaning
+  // taxminiy shamol tarqalish konusi xaritada ko'rsatiladi
+  const [dispersionKorxonaId, setDispersionKorxonaId] = useState(null);
+
   // "Xarita qatlamlari" paneli (shamol, o'rmon fondi va qo'shimcha
   // qatlamlarni yoqish/o'chirish) — tepada joy band qilmasligi uchun ong
   // tarafdan ochiladigan drawer ichida
   const [isLayersDrawerOpen, setIsLayersDrawerOpen] = useState(false);
+
+  // Radius / erkin chizilgan hudud bo'yicha korxonalarni ajratib tahlil
+  // qilish. `spatialTool` — hozir yoqilgan tanlash vositasi (markaz
+  // belgilash yoki poligon chizish), `spatialFilter` — YAKUNLANGAN tanlov
+  // (shundan keyin visibleKorxonalar ham shunga mos filtrlanadi).
+  const [spatialTool, setSpatialTool] = useState(null); // null | 'radius' | 'polygon'
+  const [spatialFilter, setSpatialFilter] = useState(null); // null | {type:'radius',center,radiusKm} | {type:'polygon',points}
+  const [pendingCenter, setPendingCenter] = useState(null); // radius vositasida bosilgan/kiritilgan markaz
+  const [pendingRadiusKm, setPendingRadiusKm] = useState(20);
+  const [drawingPoints, setDrawingPoints] = useState([]); // poligon chizishda hozirgacha bosilgan nuqtalar
+
+  // Har qanday hudud-tahlil vositasini o'chirib, oddiy viloyat/tuman
+  // ko'rinishiga qaytaradi (yangi tahlil boshlanganda ham chaqiriladi)
+  const clearSpatialTool = () => {
+    setSpatialTool(null);
+    setPendingCenter(null);
+    setDrawingPoints([]);
+  };
+
+  const clearSpatialFilter = () => {
+    setSpatialFilter(null);
+    clearSpatialTool();
+  };
+
+  const startRadiusTool = () => {
+    setCurrentPath(data.regions);
+    setCurrentLevel("regions");
+    setParentRegion(null);
+    setSelectedDistrict(null);
+    setSelectedDistrictName(null);
+    setSpatialFilter(null);
+    setMapKey((prev) => prev + 1);
+    setSpatialTool("radius");
+    setPendingCenter(null);
+  };
+
+  const startPolygonTool = () => {
+    setCurrentPath(data.regions);
+    setCurrentLevel("regions");
+    setParentRegion(null);
+    setSelectedDistrict(null);
+    setSelectedDistrictName(null);
+    setSpatialFilter(null);
+    setMapKey((prev) => prev + 1);
+    setSpatialTool("polygon");
+    setDrawingPoints([]);
+  };
+
+  const confirmRadiusAnalysis = () => {
+    if (!pendingCenter) return;
+    setSpatialFilter({ type: "radius", center: pendingCenter, radiusKm: pendingRadiusKm });
+    setSpatialTool(null);
+  };
+
+  const confirmPolygonAnalysis = () => {
+    if (drawingPoints.length < 3) return;
+    setSpatialFilter({ type: "polygon", points: drawingPoints });
+    setSpatialTool(null);
+  };
+
+  // Xaritada bosilganda: radius vositasida markazni belgilaydi, poligon
+  // vositasida esa navbatdagi burchak nuqtasini qo'shadi
+  const handleSpatialMapPick = (latlng) => {
+    if (spatialTool === "radius") {
+      setPendingCenter(latlng);
+    } else if (spatialTool === "polygon") {
+      setDrawingPoints((prev) => [...prev, latlng]);
+    }
+  };
 
   const handleAddKorxona = (newKorxona) => {
     setKorxonalar((prev) => [...prev, newKorxona]);
   };
 
   // INN yoki nomi bo'yicha korxonani qidirib, xaritada shu joyga fokus qilish
+  // Qidiruvda kiritilgan xom koordinataga qo'yiladigan vaqtinchalik nishon
+  const [coordinateMarker, setCoordinateMarker] = useState(null); // [lat,lng] | null
+
   const handleSearchKorxona = (query) => {
-    const q = query.trim().toLowerCase();
+    const q = query.trim();
     if (!q) return;
 
+    // Foydalanuvchi korxona nomi/INN o'rniga to'g'ridan-to'g'ri koordinata
+    // kiritgan bo'lishi mumkin ("41.31, 69.28") — shu holatda shunchaki
+    // o'sha nuqtaga fokus qilamiz, korxona qidirmaymiz.
+    const coord = parseCoordinateInput(q);
+    if (coord) {
+      clearSpatialFilter();
+      setHighlightedKorxonaId(null);
+      setCoordinateMarker(coord);
+      setCurrentPath(data.regions);
+      setCurrentLevel("regions");
+      setParentRegion(null);
+      setSelectedDistrict(null);
+      setSelectedDistrictName(null);
+      setMapKey((prev) => prev + 1);
+
+      setTimeout(() => {
+        const map = mapRef.current;
+        if (!map) return;
+        map.flyTo(coord, 14, { animate: true, duration: 1.6 });
+      }, 150);
+
+      message.success(`Koordinataga fokus qilindi: ${coord[0].toFixed(5)}, ${coord[1].toFixed(5)}`);
+      return;
+    }
+
+    const qLower = q.toLowerCase();
     const found = korxonalar.find(
-      (k) => k.inn.toLowerCase().includes(q) || k.nomi.toLowerCase().includes(q)
+      (k) => k.inn.toLowerCase().includes(qLower) || k.nomi.toLowerCase().includes(qLower)
     );
 
     if (!found) {
@@ -535,6 +752,8 @@ export default function XaritaPage() {
     // Qidirilgan korxona joriy ko'rinishda (masalan boshqa viloyat/tuman
     // tanlangan bo'lsa) ko'rinmay qolishi mumkin — respublika darajasiga
     // qaytarib, so'ng aynan shu hudud chegarasiga fokuslanamiz.
+    clearSpatialFilter();
+    setCoordinateMarker(null);
     setCurrentPath(data.regions);
     setCurrentLevel("regions");
     setParentRegion(null);
@@ -791,6 +1010,7 @@ export default function XaritaPage() {
       return;
     }
     if (data[regionName]) {
+      clearSpatialFilter();
       setCurrentPath(data[regionName]);
       setCurrentLevel("region");
       setParentRegion(regionName);
@@ -827,6 +1047,7 @@ export default function XaritaPage() {
         getFirstWordLowercase(f.properties.name) === districtName
       );
       if (feature) {
+        clearSpatialFilter();
         const singleDistrictGeoJSON = {
           type: "FeatureCollection",
           features: [feature]
@@ -895,7 +1116,14 @@ export default function XaritaPage() {
           fillColor: "#059669",
           fillOpacity: 0.12,
         });
-        layer.bringToFront();
+        // Tuman darajasida bringToFront() shart emas (bitta chegara bor,
+        // ajratib ko'rsatiladigan qo'shni feature yo'q) — va bu chegara
+        // qatlamini korxona belgilari ustiga chiqarib qo'yib, ularning
+        // hover/bosishini butunlay to'sib qo'yardi (sichqoncha shu katta
+        // chegara ichida bir marta harakatlansa kifoya edi).
+        if (currentLevel !== "district") {
+          layer.bringToFront();
+        }
         setHoveredRegion({
           name: feature.properties.name,
           value: value,
@@ -907,37 +1135,51 @@ export default function XaritaPage() {
         setHoveredRegion(null);
       },
       click: (e) => {
+        // Radius/poligon tanlash vositasi yoqilgan bo'lsa, bosish shu
+        // vositaga tegishli (markaz belgilash/nuqta qo'shish) — viloyat/
+        // tuman ichiga kirish emas.
+        if (spatialTool) return;
         if (currentLevel === "regions") {
           // 1-daraja: Viloyatni bosish -> tumanlar ko'rinadi
           const regionName = getFirstWordLowercase(feature.properties.name);
-          console.log('Clicked region:', feature.properties.name, '-> regionName:', regionName);
           if (data[regionName]) {
+            clearSpatialFilter();
             setCurrentPath(data[regionName]);
             setCurrentLevel("region");
             setParentRegion(regionName);
             setMapKey((prev) => prev + 1);
+            // MapContainer `key` o'zgargani uchun qayta mount bo'ladi —
+            // mapRef.current shu zahoti hali ESKI (endi yo'q qilinayotgan)
+            // xarita instansiyasiga ishora qiladi, shuning uchun fitBounds'ni
+            // darhol chaqirish hech narsaga ta'sir qilmasdi (viloyatga zoom
+            // qilinmagan bo'lib qolardi). Yangi xarita mount bo'lishini biroz
+            // kutib turamiz.
             const bounds = e.target.getBounds();
-            if (mapRef.current) {
-              mapRef.current.fitBounds(bounds);
-            }
+            setTimeout(() => {
+              if (mapRef.current) {
+                mapRef.current.fitBounds(bounds);
+              }
+            }, 100);
           }
         } else if (currentLevel === "region") {
           // 2-daraja: Tumanni bosish -> faqat o'sha tuman ko'rinadi
           const districtName = getFirstWordLowercase(feature.properties.name);
-          console.log('Clicked district:', feature.properties.name);
           // Faqat shu bitta feature bilan yangi GeoJSON yaratamiz
           const singleDistrictGeoJSON = {
             type: "FeatureCollection",
             features: [feature]
           };
+          clearSpatialFilter();
           setSelectedDistrict(singleDistrictGeoJSON);
           setSelectedDistrictName(districtName);
           setCurrentLevel("district");
           setMapKey((prev) => prev + 1);
           const bounds = e.target.getBounds();
-          if (mapRef.current) {
-            mapRef.current.fitBounds(bounds, { padding: [50, 50] });
-          }
+          setTimeout(() => {
+            if (mapRef.current) {
+              mapRef.current.fitBounds(bounds, { padding: [50, 50] });
+            }
+          }, 100);
         } else if (currentLevel === "district") {
           // 3-daraja: Tumanni yana bosish -> viloyatga qaytish
           backToRegion();
@@ -947,6 +1189,7 @@ export default function XaritaPage() {
   };
 
   const backToRegions = () => {
+    clearSpatialFilter();
     setCurrentPath(data.regions);
     setCurrentLevel("regions");
     setParentRegion(null);
@@ -975,6 +1218,21 @@ export default function XaritaPage() {
 
   // Joriy ko'rinishga (respublika/viloyat/tuman) mos korxonalar ro'yxati
   const visibleKorxonalar = useMemo(() => {
+    // Radius/poligon tahlili yakunlangan bo'lsa — u administrativ
+    // viloyat/tuman filtridan ustun turadi (foydalanuvchi aynan shu
+    // hudud ichidagi korxonalarni ko'rmoqchi)
+    if (spatialFilter?.type === "radius") {
+      return korxonalar.filter((item) => {
+        const center = L.polygon(item.hudud).getBounds().getCenter();
+        return haversineKm([center.lat, center.lng], spatialFilter.center) <= spatialFilter.radiusKm;
+      });
+    }
+    if (spatialFilter?.type === "polygon") {
+      return korxonalar.filter((item) => {
+        const center = L.polygon(item.hudud).getBounds().getCenter();
+        return pointInPolygonLatLng([center.lat, center.lng], spatialFilter.points);
+      });
+    }
     if (currentLevel === "region" && parentRegion) {
       return korxonalar.filter(item => item.viloyat === parentRegion);
     }
@@ -984,7 +1242,7 @@ export default function XaritaPage() {
       );
     }
     return korxonalar;
-  }, [korxonalar, currentLevel, parentRegion, selectedDistrictName]);
+  }, [korxonalar, currentLevel, parentRegion, selectedDistrictName, spatialFilter]);
 
   // Statistika va tashlanma yig'indilarini hisoblash
   const statistics = useMemo(() => {
@@ -1040,6 +1298,34 @@ export default function XaritaPage() {
     };
   }, [visibleKorxonalar]);
 
+  // Bitta tanlangan korxona (popup'dagi belgilash orqali) ustidan taxminiy
+  // shamol yo'nalishi konusi — faqat shamol qatlami yoqilgan va korxona
+  // belgilangan bo'lsa hisoblanadi. ILMIY DISPERSIYA MODELI EMAS: joriy
+  // shamol yo'nalishi bo'ylab, o'sha korxonaning atmosfera tashlanmasi
+  // miqdoriga qarab uzunligi taxminan o'lchamlangan vizual ko'rsatkich, xolos.
+  const dispersionConeInfo = useMemo(() => {
+    if (!dispersionKorxonaId || !windEnabled || !windData) return null;
+    const korxona = korxonalar.find((k) => k.id === dispersionKorxonaId);
+    if (!korxona) return null;
+    const center = L.polygon(korxona.hudud).getBounds().getCenter();
+    const centerLatLng = [center.lat, center.lng];
+    const wind = getWindVectorAt(centerLatLng, windData);
+    if (!wind || wind.speed < 0.3) return null;
+    const totalAtmosfera = (korxona.tashlanmalar?.atmosfera || []).reduce(
+      (sum, entry) => sum + (Number(entry.tonna_yiliga) || 0),
+      0
+    );
+    if (totalAtmosfera <= 0) return null;
+    const lengthKm = Math.min(25, Math.max(3, Math.sqrt(totalAtmosfera) * 1.2));
+    return {
+      korxonaId: korxona.id,
+      points: buildWindConePolygon(centerLatLng, wind.bearingDeg, lengthKm),
+      bearingDeg: wind.bearingDeg,
+      speedMs: wind.speed,
+      lengthKm,
+    };
+  }, [dispersionKorxonaId, korxonalar, windEnabled, windData]);
+
   return (
     <div style={{
       display: 'flex',
@@ -1077,7 +1363,11 @@ export default function XaritaPage() {
             fontWeight: '600',
             fontSize: '1rem'
           }}>
-            {currentLevel === "regions" ? (
+            {spatialFilter ? (
+              spatialFilter.type === 'radius'
+                ? `Radius tahlili — ${spatialFilter.radiusKm} km`
+                : "Chizilgan hudud tahlili"
+            ) : currentLevel === "regions" ? (
               "O'zbekiston Respublikasi"
             ) : currentLevel === "region" ? (
               regionDisplayName(parentRegion)
@@ -1091,6 +1381,28 @@ export default function XaritaPage() {
             <h4 style={{ margin: '0 0 0.75rem', fontSize: '0.9rem', color: '#334155' }}>
               Korxonalar statistikasi
             </h4>
+            {dispersionConeInfo && (
+              <div style={{
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '0.4rem',
+                padding: '0.5rem 0.6rem',
+                marginBottom: '0.75rem',
+                background: '#eff6ff',
+                border: '1px solid #bfdbfe',
+                borderRadius: '6px',
+                fontSize: '0.7rem',
+                color: '#1e40af',
+                lineHeight: 1.4
+              }}>
+                <Wind size={14} style={{ flexShrink: 0, marginTop: '1px' }} />
+                <span>
+                  Ko'k zona — <b>{korxonalar.find((k) => k.id === dispersionConeInfo.korxonaId)?.nomi}</b> korxonasining
+                  joriy shamol yo'nalishi bo'ylab taxminiy tarqalishi (~{dispersionConeInfo.speedMs.toFixed(1)} m/s,{' '}
+                  {dispersionConeInfo.lengthKm.toFixed(1)} km gacha). Bu ilmiy dispersiya modeli emas, faqat vizual yo'nalish.
+                </span>
+              </div>
+            )}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
               <div style={{
                 padding: '0.75rem',
@@ -1386,16 +1698,80 @@ export default function XaritaPage() {
                   </span>
                 </>
               )}
+
+              {spatialFilter && (
+                <>
+                  <span style={{ color: '#94a3b8', fontSize: '0.9rem' }}>/</span>
+                  <span style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.35rem',
+                    background: '#ecfdf5',
+                    color: '#047857',
+                    fontWeight: 'bold',
+                    fontSize: '0.85rem',
+                    padding: '2px 8px',
+                    borderRadius: '999px'
+                  }}>
+                    {spatialFilter.type === 'radius'
+                      ? `Radius tahlili — ${spatialFilter.radiusKm} km`
+                      : "Chizilgan hudud tahlili"}
+                    <X
+                      size={13}
+                      style={{ cursor: 'pointer' }}
+                      onClick={clearSpatialFilter}
+                    />
+                  </span>
+                </>
+              )}
               </div>
 
               <div style={{ display: 'flex', gap: '0.5rem' }}>
-                {/* INN yoki nomi bo'yicha korxona qidirish */}
+                {/* INN/nomi yoki koordinata ("41.31, 69.28") bo'yicha qidirish */}
                 <Input.Search
-                  placeholder="INN yoki korxona nomi bo'yicha qidirish"
+                  placeholder="INN, korxona nomi yoki koordinata"
                   allowClear
                   onSearch={handleSearchKorxona}
-                  style={{ width: '260px' }}
+                  style={{ width: '230px' }}
                 />
+
+                {/* Radius bo'yicha tahlil — markazni belgilab, radius km
+                    kiritilsa shu doira ichidagi korxonalar ajratiladi */}
+                <Button
+                  icon={<Crosshair size={16} />}
+                  onClick={() => (spatialTool === 'radius' ? clearSpatialTool() : startRadiusTool())}
+                  style={spatialTool === 'radius' || spatialFilter?.type === 'radius' ? {
+                    background: '#ecfdf5',
+                    borderColor: '#059669',
+                    color: '#047857',
+                    borderRadius: '6px',
+                    fontWeight: '500'
+                  } : {
+                    borderRadius: '6px',
+                    fontWeight: '500'
+                  }}
+                >
+                  Radius tahlili
+                </Button>
+
+                {/* Erkin hudud chizish — nuqta-nuqta bosib poligon chizib,
+                    shu poligon ichidagi korxonalarni ajratadi */}
+                <Button
+                  icon={<Pencil size={16} />}
+                  onClick={() => (spatialTool === 'polygon' ? clearSpatialTool() : startPolygonTool())}
+                  style={spatialTool === 'polygon' || spatialFilter?.type === 'polygon' ? {
+                    background: '#ecfdf5',
+                    borderColor: '#059669',
+                    color: '#047857',
+                    borderRadius: '6px',
+                    fontWeight: '500'
+                  } : {
+                    borderRadius: '6px',
+                    fontWeight: '500'
+                  }}
+                >
+                  Hudud chizish
+                </Button>
 
                 {/* Xarita qatlamlari paneli — shamol, o'rmon fondi va qo'shimcha
                     qatlamlar shu yerdan yoqiladi, tepada alohida-alohida
@@ -1457,6 +1833,113 @@ export default function XaritaPage() {
               </div>
             )}
 
+            {/* Radius/poligon tanlash vositasi paneli */}
+            {spatialTool && (
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '0.75rem',
+                  left: '0.75rem',
+                  zIndex: 1000,
+                  padding: '12px 14px',
+                  background: 'rgba(255, 255, 255, 0.97)',
+                  boxShadow: '0 4px 16px rgba(0, 0, 0, 0.18)',
+                  borderRadius: '10px',
+                  border: '1px solid #d1fae5',
+                  width: '280px'
+                }}
+              >
+                {spatialTool === 'radius' ? (
+                  <>
+                    <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#059669', marginBottom: '0.5rem' }}>
+                      Radius bo'yicha tahlil
+                    </div>
+                    <div style={{ fontSize: '0.72rem', color: '#64748b', marginBottom: '0.6rem' }}>
+                      Xaritada markazni bosing yoki koordinatani qo'lda kiriting
+                    </div>
+                    <div style={{ display: 'flex', gap: '0.4rem', marginBottom: '0.5rem' }}>
+                      <InputNumber
+                        placeholder="Kenglik"
+                        value={pendingCenter?.[0] ?? null}
+                        onChange={(v) => setPendingCenter((prev) => [v ?? 0, prev?.[1] ?? 0])}
+                        step={0.0001}
+                        style={{ flex: 1 }}
+                        size="small"
+                      />
+                      <InputNumber
+                        placeholder="Uzunlik"
+                        value={pendingCenter?.[1] ?? null}
+                        onChange={(v) => setPendingCenter((prev) => [prev?.[0] ?? 0, v ?? 0])}
+                        step={0.0001}
+                        style={{ flex: 1 }}
+                        size="small"
+                      />
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.7rem' }}>
+                      <span style={{ fontSize: '0.75rem', color: '#475569' }}>Radius:</span>
+                      <InputNumber
+                        value={pendingRadiusKm}
+                        onChange={(v) => setPendingRadiusKm(v ?? 1)}
+                        min={1}
+                        max={200}
+                        style={{ flex: 1 }}
+                        size="small"
+                      />
+                      <span style={{ fontSize: '0.75rem', color: '#475569' }}>km</span>
+                    </div>
+                    <div style={{ display: 'flex', gap: '0.4rem' }}>
+                      <Button size="small" onClick={clearSpatialTool} style={{ flex: 1 }}>
+                        Bekor qilish
+                      </Button>
+                      <Button
+                        size="small"
+                        type="primary"
+                        disabled={!pendingCenter}
+                        onClick={confirmRadiusAnalysis}
+                        style={{ flex: 1, background: '#059669', borderColor: '#059669' }}
+                      >
+                        Tahlil qilish
+                      </Button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#059669', marginBottom: '0.5rem' }}>
+                      Hudud chizish
+                    </div>
+                    <div style={{ fontSize: '0.72rem', color: '#64748b', marginBottom: '0.6rem' }}>
+                      Xaritada nuqtalarni ketma-ket bosib poligon chizing (kamida 3 nuqta), so'ng "Tugatish"ni bosing
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: '#475569', marginBottom: '0.7rem' }}>
+                      Bosilgan nuqtalar: <b>{drawingPoints.length}</b>
+                    </div>
+                    <div style={{ display: 'flex', gap: '0.4rem' }}>
+                      <Button size="small" onClick={clearSpatialTool} style={{ flex: 1 }}>
+                        Bekor qilish
+                      </Button>
+                      <Button
+                        size="small"
+                        disabled={drawingPoints.length === 0}
+                        onClick={() => setDrawingPoints((prev) => prev.slice(0, -1))}
+                        style={{ flex: 1 }}
+                      >
+                        Ortga
+                      </Button>
+                      <Button
+                        size="small"
+                        type="primary"
+                        disabled={drawingPoints.length < 3}
+                        onClick={confirmPolygonAnalysis}
+                        style={{ flex: 1, background: '#059669', borderColor: '#059669' }}
+                      >
+                        Tugatish
+                      </Button>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+
             <MapContainer
               key={mapKey}
               center={[41.3812, 64.5736]}
@@ -1465,6 +1948,7 @@ export default function XaritaPage() {
               ref={mapRef}
             >
               <MapAutoResize />
+              <SpatialToolClickHandler tool={spatialTool} onPick={handleSpatialMapPick} />
               <TileLayer
                 url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
                 maxZoom={19}
@@ -1507,14 +1991,124 @@ export default function XaritaPage() {
                 );
               })}
 
-              {/* Korxonalar — hudud chegarasi (poligon) + markaziy nuqta */}
+              {/* Qidiruvda kiritilgan xom koordinataga vaqtinchalik nishon */}
+              {coordinateMarker && (
+                <CircleMarker
+                  center={coordinateMarker}
+                  radius={9}
+                  pathOptions={{ color: '#7c3aed', weight: 3, fillColor: '#a78bfa', fillOpacity: 0.9 }}
+                >
+                  <Popup>
+                    <div style={{ fontSize: '12px' }}>
+                      <b>Belgilangan koordinata</b><br />
+                      {coordinateMarker[0].toFixed(6)}, {coordinateMarker[1].toFixed(6)}
+                    </div>
+                  </Popup>
+                </CircleMarker>
+              )}
+
+              {/* Radius vositasi: markaz hali tanlanmagan/o'zgartirilayotganda oldindan ko'rish */}
+              {spatialTool === 'radius' && pendingCenter && (
+                <>
+                  <Circle
+                    center={pendingCenter}
+                    radius={pendingRadiusKm * 1000}
+                    pathOptions={{ color: '#059669', weight: 2, dashArray: '6 6', fillColor: '#059669', fillOpacity: 0.08 }}
+                  />
+                  <CircleMarker
+                    center={pendingCenter}
+                    radius={6}
+                    pathOptions={{ color: '#059669', weight: 2, fillColor: '#ffffff', fillOpacity: 1 }}
+                  />
+                </>
+              )}
+
+              {/* Poligon vositasi: hozirgacha bosilgan nuqtalar oldindan ko'rinishi */}
+              {spatialTool === 'polygon' && drawingPoints.length > 0 && (
+                <>
+                  <Polyline
+                    positions={drawingPoints}
+                    pathOptions={{ color: '#059669', weight: 2, dashArray: '6 6' }}
+                  />
+                  {drawingPoints.map((pt, idx) => (
+                    <CircleMarker
+                      key={idx}
+                      center={pt}
+                      radius={5}
+                      pathOptions={{ color: '#059669', weight: 2, fillColor: '#ffffff', fillOpacity: 1 }}
+                    />
+                  ))}
+                </>
+              )}
+
+              {/* Yakunlangan radius/poligon tahlili chegarasi */}
+              {spatialFilter?.type === 'radius' && (
+                <Circle
+                  center={spatialFilter.center}
+                  radius={spatialFilter.radiusKm * 1000}
+                  pathOptions={{ color: '#059669', weight: 2, fillColor: '#059669', fillOpacity: 0.06 }}
+                />
+              )}
+              {spatialFilter?.type === 'polygon' && (
+                <Polygon
+                  positions={spatialFilter.points}
+                  pathOptions={{ color: '#059669', weight: 2, fillColor: '#059669', fillOpacity: 0.06 }}
+                />
+              )}
+
+              {/* Belgilangan korxonaning taxminiy shamol yo'nalishi konusi —
+                  ILMIY MODEL EMAS, faqat vizual yo'nalish ko'rsatkichi
+                  (statistika panelida va korxona popup'ida izohi bor) */}
+              {dispersionConeInfo && (
+                <Polygon
+                  positions={dispersionConeInfo.points}
+                  pathOptions={{
+                    color: '#0284c7',
+                    weight: 1,
+                    fillColor: '#38bdf8',
+                    fillOpacity: 0.22,
+                    dashArray: '4 4',
+                  }}
+                />
+              )}
+
+              {/* Korxonalar — hudud chegarasi (poligon) + markaziy nuqta.
+                  Respublika/viloyat darajasida juda ko'p (yuzlab) korxona bir
+                  vaqtda ko'rinadi va ular kichik/ustma-ust bo'lib qolishi
+                  mumkin — shu darajalarda faqat KO'RSATILADI, bosish bilan
+                  tanlanmaydi (aniq tegib bo'lmasligi mumkin). Tuman
+                  darajasida esa yetarlicha kattalashtirilgan bo'lgani uchun:
+                  ustiga olib borilganda nomi (tooltip) chiqadi, bosilsa
+                  to'liq pasport (popup) ochiladi. */}
               {visibleKorxonalar.map((item) => {
                 const center = L.polygon(item.hudud).getBounds().getCenter();
+                const centerLatLng = [center.lat, center.lng];
                 const isHighlighted = item.id === highlightedKorxonaId;
+                const isDistrictLevel = currentLevel === "district";
+                const openThisPopup = () => korxonaMarkerRefs.current[item.id]?.openPopup();
                 return (
                   <Fragment key={item.id}>
+                    {isDistrictLevel && (
+                      // Ko'zga ko'rinmas, olti burchakni to'liq qamrab
+                      // oladigan doiraviy bosish/hover maydoni — poligonning
+                      // o'z to'rtburchak chegarasi burchaklarini qoplamaydi
+                      // (hexagon geometriyasi), shuning uchun "hudud ichida
+                      // lekin tanlanmadi" holati bo'lmasligi uchun undan
+                      // sal kattaroq (1.4x) qilib olinadi. Poligondan KEYIN
+                      // (uning USTIDA) chizilib, hover/click'ni birinchi
+                      // shu ushlaydi.
+                      <Circle
+                        center={centerLatLng}
+                        radius={polygonMaxRadiusMeters(centerLatLng, item.hudud) * 1.4}
+                        pathOptions={{ stroke: false, fillOpacity: 0 }}
+                        eventHandlers={{ click: openThisPopup }}
+                      >
+                        <Tooltip direction="top" sticky>{item.nomi}</Tooltip>
+                      </Circle>
+                    )}
                     <Polygon
                       positions={item.hudud}
+                      interactive={false}
                       pathOptions={{ color: '#ef4444', weight: 2, dashArray: '6 6', fillColor: '#ef4444', fillOpacity: 0.15 }}
                     />
                     <CircleMarker
@@ -1524,6 +2118,7 @@ export default function XaritaPage() {
                       }}
                       center={center}
                       radius={isHighlighted ? 14 : currentLevel === "district" ? 8 : currentLevel === "region" ? 6 : 4}
+                      interactive={isDistrictLevel}
                       pathOptions={
                         isHighlighted
                           ? { color: '#f59e0b', weight: 3, fillColor: '#fbbf24', fillOpacity: 1, className: 'korxona-marker-highlight' }
@@ -1535,6 +2130,7 @@ export default function XaritaPage() {
                         },
                       }}
                     >
+                      {isDistrictLevel && <Tooltip direction="top" sticky>{item.nomi}</Tooltip>}
                       <Popup maxWidth={340} minWidth={280}>
                         <div style={{ fontSize: '12px' }}>
                           <div style={{
@@ -1596,6 +2192,43 @@ export default function XaritaPage() {
                               </div>
                             );
                           })}
+
+                          {/* Taxminiy shamol tarqalishi — belgilansa, shu
+                              korxonaning atmosfera tashlanmasiga qarab
+                              o'lchamlangan yo'nalish konusi xaritada chiziladi */}
+                          <div style={{ marginTop: '4px', paddingTop: '8px', borderTop: '1px dashed #e2e8f0' }}>
+                            <label style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '6px',
+                              fontSize: '11px',
+                              color: '#334155',
+                              cursor: 'pointer'
+                            }}>
+                              <input
+                                type="checkbox"
+                                checked={dispersionKorxonaId === item.id}
+                                onChange={(e) => setDispersionKorxonaId(e.target.checked ? item.id : null)}
+                              />
+                              <Wind size={13} style={{ flexShrink: 0 }} />
+                              Taxminiy shamol tarqalishini ko'rsatish
+                            </label>
+                            {dispersionKorxonaId === item.id && (
+                              !windEnabled ? (
+                                <div style={{ marginTop: '4px', fontSize: '10.5px', color: '#dc2626' }}>
+                                  Buning uchun avval "Qatlamlar" &gt; "Shamol oqimi"ni yoqing
+                                </div>
+                              ) : !dispersionConeInfo ? (
+                                <div style={{ marginTop: '4px', fontSize: '10.5px', color: '#94a3b8' }}>
+                                  Hisoblanmoqda yoki shamol/tashlanma ma'lumoti yetarli emas...
+                                </div>
+                              ) : (
+                                <div style={{ marginTop: '4px', fontSize: '10.5px', color: '#0284c7' }}>
+                                  ~{dispersionConeInfo.lengthKm.toFixed(1)} km gacha ({dispersionConeInfo.speedMs.toFixed(1)} m/s shamol bilan)
+                                </div>
+                              )
+                            )}
+                          </div>
                         </div>
                       </Popup>
                     </CircleMarker>
