@@ -2,6 +2,7 @@ import axios from 'axios'
 import { GoogleGenAI } from '@google/genai'
 import { SYSTEM_PROMPT, USER_MESSAGE } from './prompt'
 import { COMPARE_SYSTEM_PROMPT, COMPARE_USER_MESSAGE } from './comparePrompt'
+import { ARIZA_QABUL_SYSTEM_PROMPT, ARIZA_QABUL_USER_MESSAGE } from './arizaQabulPrompt'
 import { extractAttachmentLinks } from './pdfLinks'
 
 const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY })
@@ -42,7 +43,7 @@ async function fetchAttachment(url) {
 // (loyiha hujjatlari) topib yuklab, Gemini uchun bitta `parts` massivini
 // tayyorlaydi. `evaluateProject` va `compareArizalar` ikkalasi ham shu
 // mantiqni ishlatadi.
-async function buildDocumentParts(source, onProgress = () => {}) {
+export async function buildDocumentParts(source, onProgress = () => {}) {
   onProgress({ stage: 'reading' })
   const buffer = await sourceToArrayBuffer(source)
   const mainMimeType = detectMimeType(buffer)
@@ -70,6 +71,43 @@ async function buildDocumentParts(source, onProgress = () => {}) {
   onProgress({ stage: 'downloading', total: attachments.length, done: attachments.length })
 
   return parts
+}
+
+// Loyihani mazmunan ballashdan (evaluateProject) oldingi bosqich — ariza va
+// unga ilova qilingan hujjatlar to'plami 234-son qarorning ariza qabul
+// qilish talablari (17 band) bo'yicha to'liq va qabul qilinishga tayyor
+// ekanligini tekshiradi.
+export async function checkArizaAcceptance(source, onProgress = () => {}) {
+  const documentParts = await buildDocumentParts(source, onProgress)
+
+  onProgress({ stage: 'analyzing' })
+  const response = await ai.models.generateContent({
+    model: 'gemini-2.5-flash',
+    contents: [
+      {
+        role: 'user',
+        parts: [
+          { text: ARIZA_QABUL_USER_MESSAGE },
+          { text: 'Ariza hujjati va ilovalari:' },
+          ...documentParts,
+        ],
+      },
+    ],
+    config: {
+      systemInstruction: ARIZA_QABUL_SYSTEM_PROMPT,
+      responseMimeType: 'application/json',
+      temperature: 0,
+    },
+  })
+
+  const text = response.text ?? ''
+  try {
+    return JSON.parse(text)
+  } catch {
+    const match = text.match(/\{[\s\S]*\}/)
+    if (match) return JSON.parse(match[0])
+    throw new Error('AI javobi JSON formatida emas')
+  }
 }
 
 export async function evaluateProject(source, onProgress = () => {}) {

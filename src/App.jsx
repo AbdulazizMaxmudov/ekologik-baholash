@@ -5,10 +5,10 @@ import Sidebar from './components/Sidebar'
 import DashboardPage from './pages/DashboardPage'
 import CompaniesPage from './pages/CompaniesPage'
 import CompanyDetailPage from './pages/CompanyDetailPage'
-import AiPage from './pages/AiPage'
 import ArizalarPage from './pages/ArizalarPage'
 import XulosalarPage from './pages/XulosalarPage'
 import AiAssistantPage from './pages/AiAssistantPage'
+import ExpertAssistantPage from './pages/ExpertAssistantPage'
 import XaritaPage from './pages/XaritaPage'
 import AiTaqqoslashPage from './pages/AiTaqqoslashPage'
 import PresentationPage from './pages/PresentationPage'
@@ -57,10 +57,10 @@ function AppLayout() {
               <Route path="/" element={<DashboardPage />} />
               <Route path="/loyihachilar" element={<CompaniesPage />} />
               <Route path="/company/:id" element={<CompanyDetailPage />} />
-              <Route path="/ai-baholash" element={<AiPage />} />
               <Route path="/arizalar" element={<ArizalarPage />} />
               <Route path="/xulosalar" element={<XulosalarPage />} />
               <Route path="/ai-assistant" element={<AiAssistantPage />} />
+              <Route path="/expert-assistant" element={<ExpertAssistantPage />} />
               <Route path="/xarita" element={<XaritaPage />} />
               <Route path="/ai-taqqoslash" element={<AiTaqqoslashPage />} />
             </Routes>

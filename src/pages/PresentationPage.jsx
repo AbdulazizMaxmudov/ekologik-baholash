@@ -4,13 +4,13 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
-  Bot,
+  Sparkles,
   Map,
-  FileCheck2,
+  NotebookPen,
   GitCompareArrows,
-  UploadCloud,
   Link2,
   Send,
+  Paperclip,
   ListChecks,
   Calculator,
   Tag,
@@ -34,42 +34,83 @@ import {
   AlertCircle,
   BookOpenCheck,
   Languages,
-  FileUp,
   MessageCircleQuestion,
-  Users,
   Timer,
+  ClipboardList,
+  FileEdit,
 } from 'lucide-react'
 import logoMarkaz from '../assets/logo_Markaz.png'
 
 // Har bir funksiya kartasi bosilganda ochiladigan mini-taqdimot (3-4 bet).
 // Matnlarni shu yerda tahrirlang.
 const functionDetails = {
-  'ai-baholash': {
-    title: 'AI Baholash',
-    icon: Bot,
+  'ai-assistant': {
+    title: 'AI Assistant',
+    icon: Sparkles,
     pages: [
       {
-        heading: 'Hujjatni yuklash va tahlil',
+        heading: "234-sonli Qaror bo'yicha suhbat",
         bullets: [
-          { icon: UploadCloud, text: "Ariza PDF formatida yuklanadi yoki havola orqali biriktiriladi" },
-          { icon: Link2, text: "Ariza ichidagi havolalar (ilova qilingan boshqa hujjatlar) tizim tomonidan avtomatik aniqlanadi va tortib olinadi" },
-          { icon: Send, text: "Barcha hujjatlar birgalikda AI modeliga yuboriladi" },
+          { icon: BookOpenCheck, text: "Faqat qonun hujjati matni asosida javob beradi, o'zidan narsa qo'shmaydi" },
+          { icon: Languages, text: 'Foydalanuvchi qaysi tilda/yozuvda yozsa (lotin, kirill, rus), shu tilda javob qaytaradi' },
         ],
       },
       {
-        heading: '234-sonli Qaror mezonlari',
+        heading: "Bitta oynada — suhbat ham, baholash ham",
         bullets: [
-          { icon: ListChecks, text: "Har bir mezon (bo'lim) bo'yicha alohida ball qo'yiladi" },
-          { icon: Calculator, text: "Umumiy ball mezonlar yig'indisi asosida avtomatik hisoblanadi" },
-          { icon: Tag, text: "Natijaga ko'ra loyihachi korxona Yashil, Ko'k yoki Sariq toifaga ajratiladi" },
+          { icon: Paperclip, text: "Suhbat ichidan PDF ariza biriktiriladi (huddi ChatGPT'dagi kabi)" },
+          { icon: Send, text: "\"/baholash\" tugmasi bosilib, biriktirilgan hujjat AI modeliga yuboriladi" },
+          { icon: MessageSquareText, text: "Baholash natijasi xuddi shu suhbat oqimida, alohida sahifaga o'tmasdan chiqadi" },
+        ],
+      },
+      {
+        heading: 'Ikki bosqichli tekshiruv',
+        bullets: [
+          { icon: ListChecks, text: "Avval ariza 234-son qarorning 17 ta rasmiy talabi (to'liqlik) bo'yicha tekshiriladi" },
+          { icon: Calculator, text: "So'ng loyiha mazmuni 100 ballik mezonlar asosida baholanadi, umumiy ball avtomatik hisoblanadi" },
+          { icon: Tag, text: "Natijaga ko'ra loyihachi korxona Yashil, Sariq yoki Qizil toifaga ajratiladi" },
         ],
       },
       {
         heading: 'Natija va shaffoflik',
         bullets: [
-          { icon: MessageSquareText, text: "Har bir mezon bo'yicha AI'ning izohi va asoslamasi ko'rsatiladi" },
-          { icon: LayoutDashboard, text: "Natija tuzilgan (JSON) formatda saqlanib, UI'da vizual ko'rinishda chiqariladi" },
-          { icon: UserCheck, text: "Ekspert natijani ko'rib chiqib, kerak bo'lsa qayta baholashi mumkin" },
+          { icon: LayoutDashboard, text: "Har bir mezon/talab bo'yicha AI'ning izohi va asoslamasi ko'rsatiladi" },
+          { icon: UserCheck, text: "Ekspert natijani ko'rib chiqib, qabul yoki rad qilishi mumkin" },
+        ],
+      },
+    ],
+  },
+  'expert-assistant': {
+    title: 'Expert Assistant',
+    icon: NotebookPen,
+    pages: [
+      {
+        heading: 'Ariza tanlab, xulosa yozish',
+        bullets: [
+          { icon: ClipboardList, text: "Kelib tushgan arizalar ro'yxatidan (Arizalar sahifasi bilan bir xil) kerakli ariza tanlanadi" },
+          { icon: FileEdit, text: "\"Xulosa yozish\" tugmasi bosilib, shu ariza uchun alohida yozish maydoni ochiladi" },
+          { icon: NotebookPen, text: "Matn muharriri Word hujjatiga o'xshash sodda va tanish ko'rinishda" },
+        ],
+      },
+      {
+        heading: 'Yordamchi har doim yonida',
+        bullets: [
+          { icon: MessageCircleQuestion, text: "Yozish jarayonida ekranning pastki o'ng burchagidagi tugma orqali istalgan vaqtda savol berish mumkin" },
+          { icon: BookOpenCheck, text: "234-son qaror bo'yicha savollarga hujjat matni asosida javob beradi" },
+        ],
+      },
+      {
+        heading: 'Loyiha va tashlanmalar bo\'yicha bilim',
+        bullets: [
+          { icon: Link2, text: "Tanlangan arizaning o'zi va unga ilova qilingan loyiha hujjatlari yordamchiga avtomatik biriktiriladi — loyiha haqidagi savollarga ham javob beradi" },
+          { icon: BarChart3, text: "Korxonalarning tashlanmalari bo'yicha respublika miqyosidagi jamlanma ma'lumot ham mavjud — masalan, \"Toshkent shahriga qancha azot dioksidi chiqadi\" kabi savollarga javob beradi" },
+        ],
+      },
+      {
+        heading: 'Foydasi',
+        bullets: [
+          { icon: Timer, text: "Ekspert boshqa oynaga o'tmasdan, xulosa yozish jarayonida barcha kerakli ma'lumotni bir joydan oladi" },
+          { icon: ShieldCheck, text: "Qaror qabul qilishda xatoliklar va vaqt yo'qotish kamayadi" },
         ],
       },
     ],
@@ -139,40 +180,13 @@ const functionDetails = {
       },
     ],
   },
-  'ai-assistant': {
-    title: 'AI Assistant',
-    icon: FileCheck2,
-    pages: [
-      {
-        heading: "234-sonli Qaror bo'yicha chat",
-        bullets: [
-          { icon: BookOpenCheck, text: "Faqat qonun hujjati matni asosida javob beradi, o'zidan narsa qo'shmaydi" },
-          { icon: Languages, text: 'Foydalanuvchi qaysi tilda/yozuvda yozsa (lotin, kirill, rus), shu tilda javob qaytaradi' },
-        ],
-      },
-      {
-        heading: 'Ishlash tartibi',
-        bullets: [
-          { icon: FileUp, text: "234-Qaror hujjati tizimga bir marta yuklab qo'yiladi" },
-          { icon: MessageCircleQuestion, text: 'Har bir savol aynan shu hujjat konteksti asosida javoblanadi' },
-        ],
-      },
-      {
-        heading: 'Foydasi',
-        bullets: [
-          { icon: Users, text: 'Mutaxassislar va tashqi foydalanuvchilar uchun tezkor ma\'lumot manbai' },
-          { icon: Timer, text: "Qonun matnini qo'lda qidirib o'tirish shart emas" },
-        ],
-      },
-    ],
-  },
 }
 
 const functionCards = [
-  { key: 'ai-baholash', title: 'AI Baholash', desc: "Hujjatlarni yuklab, avtomatik ball qo'yish", icon: Bot },
+  { key: 'ai-assistant', title: 'AI Assistant', desc: "234-Qaror bo'yicha savol-javob va ariza baholash", icon: Sparkles },
   { key: 'ai-taqqoslash', title: 'AI Taqqoslash', desc: "Korxona hujjatlarini o'zaro solishtirish", icon: GitCompareArrows },
+  { key: 'expert-assistant', title: 'Expert Assistant', desc: "Ariza tanlab xulosa yozish va yordamchidan so'rash", icon: NotebookPen },
   { key: 'xarita', title: 'Interaktiv xarita', desc: "Tashlanmalar, shamol ta'siri va eco-pasport", icon: Map },
-  { key: 'ai-assistant', title: 'AI Assistant', desc: "234-Qaror bo'yicha savol-javob", icon: FileCheck2 },
 ]
 
 function Bullets({ items }) {

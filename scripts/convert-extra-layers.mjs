@@ -62,6 +62,23 @@ const LAYERS = [
       rrr_right: 'huquqHolati',
     },
   },
+  {
+    file: 'МЭТҲ',
+    out: 'metx',
+    keepKeys: {
+      m_nomi: 'nomi',
+      m_turi: 'turi',
+      m_toifasi: 'toifasi',
+      joyi: 'joyi',
+      sana: 'sana',
+      buysinuvi: 'buysinuvi',
+      s_maydoni: 'maydon',
+      i_mansub: 'idora',
+      id_raqami: 'idRaqami',
+      asos: 'asos',
+      region_nam: 'viloyat',
+    },
+  },
 ]
 
 function parseDescriptionTable(html, keepKeys) {

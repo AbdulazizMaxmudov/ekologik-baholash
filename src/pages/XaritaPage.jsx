@@ -433,24 +433,31 @@ const EXTRA_LAYERS = [
   },
   {
     key: "ichimlik_suvi_konlari",
-    label: "Ichimlik suvi konlari",
+    label: "Yer osti ichimlik suvlari",
     description: "Yer osti ichimlik suvi konlari",
     color: "#0e7490",
     fillColor: "#22d3ee",
   },
   {
     key: "smqz",
-    label: "Suv havzalari SMQZ",
+    label: "Sanitar muhofaza qilish zonalari",
     description: "Sanitariya-muhofaza qilinadigan zonalar",
     color: "#7c3aed",
     fillColor: "#a78bfa",
   },
   {
     key: "urmon_ov_xujaliklari",
-    label: "O'rmon-ov xo'jaliklari",
+    label: "Davlat o'rmon-ov xo'jaligi",
     description: "Davlat o'rmon-ov xo'jaliklari hududlari",
     color: "#b45309",
     fillColor: "#fbbf24",
+  },
+  {
+    key: "metx",
+    label: "Muhofaza etiladigan tabiiy hududlar",
+    description: "Davlat qo'riqxonalari va boshqa muhofaza etiladigan tabiiy hududlar",
+    color: "#15803d",
+    fillColor: "#4ade80",
   },
 ];
 
@@ -472,6 +479,13 @@ const EXTRA_FIELD_LABELS = {
   tuman: "Tuman",
   royxatSana: "Ro'yxatga olingan sana",
   huquqHolati: "Huquqiy holati",
+  turi: "Turi",
+  toifasi: "Toifasi",
+  joyi: "Joylashuvi",
+  buysinuvi: "Bo'ysunuvi",
+  maydon: "Maydoni (ga)",
+  idRaqami: "ID raqami",
+  asos: "Tashkil etish asosi",
 };
 
 // Helper functions

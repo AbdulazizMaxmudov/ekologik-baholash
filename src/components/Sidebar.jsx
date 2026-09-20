@@ -1,5 +1,5 @@
 import { Link, NavLink, useLocation } from 'react-router-dom'
-import { Leaf, Bot, ClipboardList, Sparkles, Map, FileCheck2, GitCompareArrows, Presentation } from 'lucide-react'
+import { Leaf, ClipboardList, Sparkles, NotebookPen, Map, FileCheck2, GitCompareArrows, Presentation } from 'lucide-react'
 import logoMarkaz from '../assets/logo_Markaz.png'
 
 const linkClass = ({ isActive }) =>
@@ -26,29 +26,14 @@ export default function Sidebar({ isOpen, onClose }) {
 
       {/* Nav */}
       <nav className="flex-1 px-3 py-4 space-y-1">
-        <NavLink to="/arizalar" onClick={onClose} className={linkClass}>
-          <ClipboardList className="w-4 h-4 flex-shrink-0" />
-          <span>Arizalar</span>
-        </NavLink>
-
-        <NavLink to="/xulosalar" onClick={onClose} className={linkClass}>
-          <FileCheck2 className="w-4 h-4 flex-shrink-0" />
-          <span>Xulosalar</span>
-        </NavLink>
-
-        <NavLink to="/ai-baholash" onClick={onClose} className={linkClass}>
-          <Bot className="w-4 h-4 flex-shrink-0" />
-          <span>AI baholash</span>
-        </NavLink>
-
-        <NavLink to="/ai-taqqoslash" onClick={onClose} className={linkClass}>
-          <GitCompareArrows className="w-4 h-4 flex-shrink-0" />
-          <span>AI Taqqoslash</span>
-        </NavLink>
-
         <NavLink to="/ai-assistant" onClick={onClose} className={linkClass}>
           <Sparkles className="w-4 h-4 flex-shrink-0" />
           <span>AI Assistant</span>
+        </NavLink>
+
+        <NavLink to="/arizalar" onClick={onClose} className={linkClass}>
+          <ClipboardList className="w-4 h-4 flex-shrink-0" />
+          <span>Arizalar</span>
         </NavLink>
 
         <NavLink
@@ -64,6 +49,21 @@ export default function Sidebar({ isOpen, onClose }) {
         >
           <Leaf className="w-4 h-4 flex-shrink-0" />
           <span>Loyihachi korxonalar</span>
+        </NavLink>
+
+        <NavLink to="/ai-taqqoslash" onClick={onClose} className={linkClass}>
+          <GitCompareArrows className="w-4 h-4 flex-shrink-0" />
+          <span>AI Taqqoslash</span>
+        </NavLink>
+
+        <NavLink to="/expert-assistant" onClick={onClose} className={linkClass}>
+          <NotebookPen className="w-4 h-4 flex-shrink-0" />
+          <span>Expert Assistant</span>
+        </NavLink>
+
+        <NavLink to="/xulosalar" onClick={onClose} className={linkClass}>
+          <FileCheck2 className="w-4 h-4 flex-shrink-0" />
+          <span>Xulosalar</span>
         </NavLink>
 
         <NavLink to="/xarita" onClick={onClose} className={linkClass}>

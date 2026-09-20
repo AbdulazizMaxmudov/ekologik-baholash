@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
-import { evaluateProject } from '../utils/gemini'
-import { Upload, FileText, X, Sparkles, XCircle, CheckCircle, AlertTriangle, ChevronDown, ChevronUp, RotateCcw } from 'lucide-react'
+import { evaluateProject, checkArizaAcceptance } from '../utils/gemini'
+import { Upload, FileText, X, Sparkles, XCircle, CheckCircle, CheckCircle2, HelpCircle, AlertTriangle, ChevronDown, ChevronUp, RotateCcw, ArrowRight } from 'lucide-react'
 
 function scoreColor(score, max = 20) {
   const pct = (score / max) * 100
@@ -57,7 +57,7 @@ export function UploadZone({ file, onFile, onClear }) {
   )
 }
 
-function LoadingState({ elapsed }) {
+function LoadingState({ elapsed, label }) {
   return (
     <div className="flex flex-col items-center justify-center py-16">
       <div className="relative w-20 h-20 mb-6">
@@ -67,7 +67,7 @@ function LoadingState({ elapsed }) {
           <Sparkles className="w-7 h-7 text-emerald-500" />
         </div>
       </div>
-      <p className="text-base font-semibold text-slate-800 mb-1">AI hujjatlarni tahlil qilmoqda...</p>
+      <p className="text-base font-semibold text-slate-800 mb-1">{label || 'AI hujjatlarni tahlil qilmoqda...'}</p>
       <p className="text-sm text-slate-400 mb-6">{elapsed} soniya o'tdi</p>
       <p className="text-xs text-slate-400 max-w-xs text-center">100 sahifali hujjat uchun 30–90 soniya ketishi mumkin</p>
     </div>
@@ -100,6 +100,95 @@ function CriterionRow({ item }) {
           {item.evidence_citation && <p className="text-xs text-slate-400 italic">📄 {item.evidence_citation}</p>}
         </div>
       )}
+    </div>
+  )
+}
+
+const QABUL_HOLATI = {
+  bajarilgan:       { icon: CheckCircle2, cls: 'text-emerald-600 bg-emerald-50', label: 'Bajarilgan' },
+  bajarilmagan:     { icon: XCircle,      cls: 'text-red-600 bg-red-50',        label: 'Bajarilmagan' },
+  aniqlab_bolmadi:  { icon: HelpCircle,   cls: 'text-amber-600 bg-amber-50',    label: "Aniqlab bo'lmadi" },
+}
+
+function QabulRow({ item }) {
+  const [open, setOpen] = useState(false)
+  const h = QABUL_HOLATI[item.holati] || QABUL_HOLATI.aniqlab_bolmadi
+  const Icon = h.icon
+  return (
+    <div className="border border-slate-100 rounded-lg overflow-hidden">
+      <button onClick={() => setOpen(v => !v)}
+        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors text-left">
+        <span className="w-6 h-6 flex-shrink-0 flex items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-500">
+          {item.band}
+        </span>
+        <span className="flex-1 text-sm text-slate-700">{item.talab}</span>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap ${h.cls}`}>
+            <Icon className="w-3.5 h-3.5" /> {h.label}
+          </span>
+          {open ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
+        </div>
+      </button>
+      {open && (
+        <div className="px-4 pb-4 pt-1 border-t border-slate-100 bg-slate-50/50 space-y-2">
+          <p className="text-xs text-slate-600 leading-relaxed">{item.izoh}</p>
+          {item.manba && <p className="text-xs text-slate-400 italic">📄 {item.manba}</p>}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// Ariza qabul qilish talablari (234-son qaror, 17 band) tekshiruvi natijasi —
+// loyihani mazmunan ballashdan (ResultView) oldingi dastlabki bosqich.
+function AcceptanceView({ acceptance, onProceed, onReset, onReject }) {
+  const { talablar = [], xulosa } = acceptance
+  const accepted = !!xulosa?.qabul_qilinishi_mumkin
+
+  return (
+    <div className="space-y-5">
+      <div className={`flex items-start gap-3 rounded-xl p-4 border ${
+        accepted ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200'
+      }`}>
+        {accepted
+          ? <CheckCircle className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" />
+          : <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />}
+        <div>
+          <p className={`text-sm font-semibold ${accepted ? 'text-emerald-700' : 'text-red-700'}`}>
+            {accepted ? 'Ariza qabul qilinishi mumkin' : 'Ariza qabul qilinishi mumkin emas'}
+          </p>
+          {xulosa?.umumiy_izoh && (
+            <p className={`text-xs mt-0.5 ${accepted ? 'text-emerald-600' : 'text-red-600'}`}>{xulosa.umumiy_izoh}</p>
+          )}
+        </div>
+      </div>
+
+      <div className="bg-white rounded-xl border border-slate-200">
+        <div className="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-slate-700">Ariza qabul qilish talablari</h3>
+          <span className="text-xs text-slate-400">{talablar.length} ta band</span>
+        </div>
+        <div className="p-4 space-y-2">
+          {talablar.map((item) => <QabulRow key={item.band} item={item} />)}
+        </div>
+      </div>
+
+      <div className="flex items-center gap-3">
+        {onReject && (
+          <button onClick={() => onReject(acceptance)}
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 border border-red-200 bg-white text-red-600 text-sm font-semibold rounded-lg hover:bg-red-50 transition-colors">
+            <XCircle className="w-4 h-4" /> Rad etish
+          </button>
+        )}
+        <button onClick={onProceed}
+          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-500 text-white text-sm font-semibold rounded-lg hover:bg-emerald-600 transition-colors">
+          Loyihani baholashga o'tish <ArrowRight className="w-4 h-4" />
+        </button>
+      </div>
+      <button onClick={onReset}
+        className="flex items-center gap-2 px-4 py-2.5 border border-slate-200 bg-white text-slate-600 text-sm font-medium rounded-lg hover:bg-slate-50 transition-colors">
+        <RotateCcw className="w-4 h-4" /> Yangi ariza tekshirish
+      </button>
     </div>
   )
 }
@@ -190,23 +279,43 @@ function ResultView({ result, onReset, onAccept, onReject }) {
   )
 }
 
-// Reusable evaluation flow, used standalone (AiPage) and inside a modal
-// (ArizalarPage "Tekshirish" button). If `initialFile`/`initialLink` is
-// given with `autoStart`, evaluation kicks off automatically on mount.
+// Reusable evaluation flow, used inline in AiAssistantPage's chat (after a
+// "/baholash" trigger) and inside a modal (ArizalarPage "Tekshirish" button).
+// If `initialFile`/`initialLink` is given with `autoStart`, evaluation kicks
+// off automatically on mount.
 export default function AiEvaluationPanel({ initialFile = null, initialLink = '', autoStart = false, onAccept, onReject }) {
   const hasAutoSource = autoStart && !!(initialFile || initialLink)
   const [file, setFile]     = useState(initialFile)
-  const [status, setStatus] = useState(hasAutoSource ? 'loading' : 'idle')
+  // idle -> checking (17 talab) -> checked -> loading (100 ball) -> done
+  const [status, setStatus] = useState(hasAutoSource ? 'checking' : 'idle')
+  const [acceptance, setAcceptance] = useState(null)
   const [result, setResult] = useState(null)
   const [error, setError]   = useState('')
   const [elapsed, setElapsed] = useState(0)
   const timerRef = useRef(null)
   const autoStartedRef = useRef(false)
+  // Tracks whichever source (uploaded File or initialLink URL) the acceptance
+  // check actually ran against, so "proceed to scoring" can reuse it even
+  // when auto-started from a link (file state stays null in that case).
+  const sourceRef = useRef(null)
 
   const startTimer = () => { setElapsed(0); timerRef.current = setInterval(() => setElapsed(s => s+1), 1000) }
   const stopTimer  = () => clearInterval(timerRef.current)
 
   const source = file
+
+  const runAcceptanceCheck = useCallback(async (src) => {
+    if (!src) return
+    sourceRef.current = src
+    setStatus('checking'); setAcceptance(null); setResult(null); setError(''); startTimer()
+    try {
+      const res = await checkArizaAcceptance(src)
+      setAcceptance(res); setStatus('checked')
+    } catch (err) {
+      setError(err.message || "Xatolik yuz berdi. Qaytadan urinib ko'ring.")
+      setStatus('error')
+    } finally { stopTimer() }
+  }, [])
 
   const runEvaluation = useCallback(async (src) => {
     if (!src) return
@@ -225,17 +334,32 @@ export default function AiEvaluationPanel({ initialFile = null, initialLink = ''
       const initialSource = initialFile || initialLink
       if (initialSource) {
         autoStartedRef.current = true
-        runEvaluation(initialSource)
+        runAcceptanceCheck(initialSource)
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const handleReset = () => { setFile(null); setStatus('idle'); setResult(null); setError('') }
+  const handleReset = () => { setFile(null); setStatus('idle'); setAcceptance(null); setResult(null); setError('') }
 
-  return status === 'done' && result ? <ResultView result={result} onReset={handleReset} onAccept={onAccept} onReject={onReject} /> : (
+  if (status === 'done' && result) {
+    return <ResultView result={result} onReset={handleReset} onAccept={onAccept} onReject={onReject} />
+  }
+
+  if (status === 'checked' && acceptance) {
+    return (
+      <AcceptanceView acceptance={acceptance} onReset={handleReset}
+        onProceed={() => runEvaluation(sourceRef.current)}
+        onReject={onReject ? () => onReject(acceptance) : null} />
+    )
+  }
+
+  return (
     <div className="bg-white rounded-xl border border-slate-200 p-6">
-      {status === 'loading' ? <LoadingState elapsed={elapsed} /> : (
+      {status === 'checking' || status === 'loading' ? (
+        <LoadingState elapsed={elapsed}
+          label={status === 'checking' ? 'AI arizani qabul qilish talablari bo\'yicha tekshirmoqda...' : 'AI loyihani mezonlar bo\'yicha baholamoqda...'} />
+      ) : (
         <div className="space-y-5">
           <UploadZone file={file} onFile={setFile} onClear={() => setFile(null)} />
 
@@ -244,9 +368,9 @@ export default function AiEvaluationPanel({ initialFile = null, initialLink = ''
               <AlertTriangle className="w-4 h-4 flex-shrink-0" />{error}
             </div>
           )}
-          <button onClick={() => runEvaluation(source)} disabled={!source}
+          <button onClick={() => runAcceptanceCheck(source)} disabled={!source}
             className="w-full flex items-center justify-center gap-2 py-3 bg-emerald-500 text-white text-sm font-semibold rounded-xl hover:bg-emerald-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
-            <Sparkles className="w-4 h-4" /> Baholashni boshlash
+            <Sparkles className="w-4 h-4" /> Tekshirishni boshlash
           </button>
           <p className="text-xs text-slate-400 text-center">Faqat PDF format • Maksimum 50 MB • 100 sahifagacha</p>
         </div>
