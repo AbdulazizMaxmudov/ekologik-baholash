@@ -3,6 +3,8 @@
 // (lat/lon grid) joriy shamol tezligi/yo'nalishini so'raymiz va uni
 // leaflet-velocity kutgan U/V grid (GRIB2-uslubidagi) formatga aylantiramiz.
 
+import { translate } from '../i18n';
+
 // O'zbekiston atrofidagi butun ko'rinadigan xarita maydonini (qo'shni davlatlar
 // bilan birga, standart zoom darajasida) qamrab olish uchun O'zbekiston
 // chegarasidan ancha kengroq hudud olamiz — aks holda shamol effekti faqat
@@ -66,10 +68,10 @@ async function fetchGridFromOpenMeteo() {
 
   const res = await fetch(url);
   if (res.status === 429) {
-    throw new Error("Shamol xizmati hozircha band (429 - juda ko'p so'rov). Birozdan so'ng avtomatik qayta urinib ko'riladi.");
+    throw new Error(translate("Shamol xizmati hozircha band (429 - juda ko'p so'rov). Birozdan so'ng avtomatik qayta urinib ko'riladi."));
   }
   if (!res.ok) {
-    throw new Error("Shamol ma'lumotlarini olishda xatolik yuz berdi");
+    throw new Error(translate("Shamol ma'lumotlarini olishda xatolik yuz berdi"));
   }
   const points = await res.json();
 

@@ -2,6 +2,7 @@ import { useState, useRef, useCallback, useEffect } from 'react'
 import { evaluateXulosa } from '../utils/xulosaGemini'
 import { UploadZone } from './AiEvaluationPanel'
 import { Sparkles, XCircle, CheckCircle, AlertTriangle } from 'lucide-react'
+import { useI18n, translate } from '../i18n'
 
 const SEVERITY_STYLE = {
   yuqori: { dot: 'bg-red-500', text: 'text-red-700', bg: 'bg-red-50', border: 'border-red-200' },
@@ -16,6 +17,7 @@ const RECOMMENDATION_STYLE = {
 }
 
 function LoadingState({ elapsed }) {
+  const { t } = useI18n()
   return (
     <div className="flex flex-col items-center justify-center py-16">
       <div className="relative w-20 h-20 mb-6">
@@ -25,13 +27,14 @@ function LoadingState({ elapsed }) {
           <Sparkles className="w-7 h-7 text-emerald-500" />
         </div>
       </div>
-      <p className="text-base font-semibold text-slate-800 mb-1">AI xulosani tahlil qilmoqda...</p>
-      <p className="text-sm text-slate-400">{elapsed} soniya o'tdi</p>
+      <p className="text-base font-semibold text-slate-800 mb-1">{t('AI xulosani tahlil qilmoqda...')}</p>
+      <p className="text-sm text-slate-400">{t("{n} soniya o'tdi", { n: elapsed })}</p>
     </div>
   )
 }
 
 function ResultView({ result, onAccept, onReject }) {
+  const { t } = useI18n()
   const rec = RECOMMENDATION_STYLE[result.tavsiya] ?? RECOMMENDATION_STYLE["Qo'shimcha tekshirish talab etiladi"]
   const kamchiliklar = Array.isArray(result.kamchiliklar) ? result.kamchiliklar : []
 
@@ -41,20 +44,20 @@ function ResultView({ result, onAccept, onReject }) {
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
             <span className="text-xs font-semibold px-2 py-0.5 bg-indigo-50 text-indigo-600 rounded-full">
-              Hulosa holati: {result.hulosa_holati ?? 'aniqlanmadi'}
+              {t('Hulosa holati')}: {t(result.hulosa_holati ?? 'aniqlanmadi')}
             </span>
             <p className="text-sm text-slate-600 leading-relaxed mt-3">{result.xulosa_matni_qisqacha}</p>
           </div>
           <div className={`flex-shrink-0 px-3 py-2 rounded-xl ring-2 ${rec.ring} text-center`}>
-            <p className={`text-xs font-bold ${rec.text}`}>{result.tavsiya}</p>
+            <p className={`text-xs font-bold ${rec.text}`}>{t(result.tavsiya)}</p>
           </div>
         </div>
       </div>
 
       <div className="bg-white rounded-xl border border-slate-200">
         <div className="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-slate-700">Aniqlangan kamchiliklar</h3>
-          <span className="text-xs text-slate-400">{kamchiliklar.length} ta</span>
+          <h3 className="text-sm font-semibold text-slate-700">{t('Aniqlangan kamchiliklar')}</h3>
+          <span className="text-xs text-slate-400">{t('{n} ta', { n: kamchiliklar.length })}</span>
         </div>
         {kamchiliklar.length ? (
           <div className="p-4 space-y-2">
@@ -74,7 +77,7 @@ function ResultView({ result, onAccept, onReject }) {
         ) : (
           <div className="flex flex-col items-center justify-center py-10 text-slate-400">
             <CheckCircle className="w-8 h-8 mb-2 opacity-40" />
-            <p className="text-sm">Kamchilik aniqlanmadi</p>
+            <p className="text-sm">{t('Kamchilik aniqlanmadi')}</p>
           </div>
         )}
       </div>
@@ -82,11 +85,11 @@ function ResultView({ result, onAccept, onReject }) {
       <div className="flex items-center gap-3">
         <button onClick={() => onReject?.(result)}
           className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 border border-red-200 bg-white text-red-600 text-sm font-semibold rounded-lg hover:bg-red-50 transition-colors">
-          <XCircle className="w-4 h-4" /> Rad etish
+          <XCircle className="w-4 h-4" /> {t('Rad etish')}
         </button>
         <button onClick={() => onAccept?.(result)}
           className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-500 text-white text-sm font-semibold rounded-lg hover:bg-emerald-600 transition-colors">
-          <CheckCircle className="w-4 h-4" /> Tasdiqlash
+          <CheckCircle className="w-4 h-4" /> {t('Tasdiqlash')}
         </button>
       </div>
     </div>
@@ -98,6 +101,7 @@ function ResultView({ result, onAccept, onReject }) {
 // xulosa PDF-ni qo'lda yuklaydi (hulosa_linki hujjat.uz'dagi JS-render sahifa bo'lgani
 // uchun undan to'g'ridan-to'g'ri PDF olib bo'lmaydi).
 export default function XulosaEvaluationPanel({ initialFile = null, initialLink = '', autoStart = false, onAccept, onReject }) {
+  const { t } = useI18n()
   const hasAutoSource = autoStart && !!(initialFile || initialLink)
   const [file, setFile] = useState(initialFile)
   const [status, setStatus] = useState(hasAutoSource ? 'loading' : 'idle')
@@ -117,7 +121,7 @@ export default function XulosaEvaluationPanel({ initialFile = null, initialLink 
       const res = await evaluateXulosa(src)
       setResult(res); setStatus('done')
     } catch (err) {
-      setError(err.message || "Xatolik yuz berdi. Qaytadan urinib ko'ring.")
+      setError(err.message || translate("Xatolik yuz berdi. Qaytadan urinib ko'ring."))
       setStatus('error')
     } finally { stopTimer() }
   }, [])
@@ -148,9 +152,9 @@ export default function XulosaEvaluationPanel({ initialFile = null, initialLink 
           )}
           <button onClick={() => runEvaluation(file)} disabled={!file}
             className="w-full flex items-center justify-center gap-2 py-3 bg-emerald-500 text-white text-sm font-semibold rounded-xl hover:bg-emerald-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
-            <Sparkles className="w-4 h-4" /> Xulosani tekshirish
+            <Sparkles className="w-4 h-4" /> {t('Xulosani tekshirish')}
           </button>
-          <p className="text-xs text-slate-400 text-center">Faqat PDF format • Maksimum 50 MB</p>
+          <p className="text-xs text-slate-400 text-center">{t('Faqat PDF format • Maksimum 50 MB')}</p>
         </div>
       )}
     </div>

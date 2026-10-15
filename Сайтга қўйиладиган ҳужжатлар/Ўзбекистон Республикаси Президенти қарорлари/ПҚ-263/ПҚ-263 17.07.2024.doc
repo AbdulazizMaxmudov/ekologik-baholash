@@ -1,0 +1,348 @@
+<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+<head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom><w:DoNotOptimizeForBrowser/></w:WordDocument></xml><![endif]-->
+<style>@page WordSection1 {size:210mm 297mm;margin:20mm;}div.WordSection1 {page:WordSection1;}</style>
+<style type="text/css">BODY{scrollbar-base-color:scrollbar;scrollbar-highlight-color:white;scrollbar-darkshadow-color:scrollbar;scrollbar-shadow-color:white;}#divCont DIV{border:none;white-space:normal;}#divCont IMG{float:none;vertical-align:middle;}#divCont A{text-decoration:none;}#divCont A:link{color:#008080;}#divCont A:visited{color:#008080;}#divCont A:hover{color:#ff0000;}#divCont P{margin:0px;padding:0px;line-height:1.0;}#divCont LABEL{display:none;}.aExp{text-align:left;text-indent:0px;margin:0pt 0pt 12pt 0pt;font-style:normal;color:red;font-weight:600;font-size:12pt;font-family:"Times New Roman";font-variant:normal;line-height:1.0;}.aOAD{width:100%;text-align:right;text-indent:0px;margin:0pt 0pt 12pt 0pt;font-style:italic;color:#808080;font-weight:400;font-size:10pt;font-family:"Times New Roman";font-variant:normal;line-height:1.0;}.signCont{text-align:center;margin:0pt 0pt 12pt 0px;text-indent:0pt;}.mrkup{background-color:#00008B!important;color:#FFFFFF!important;}.mrkupNav{color:#00008B!important;}.mrkupNav SPAN{font:12px Webdings!important;padding:0px 2px!important;}.iorRN{font-weight:600;}.iorVal{text-indent:0px;margin-left:1px;}.clausePrfx{display:inline;float:left;}.clauseSuff{display:block;width:100%;text-indent:0px;}@media print{.clausePrfx{float:none;}.clauseSuff{display:inline;width:auto;}}.ACCEPTING_BODY{text-align:center; text-indent:0; margin:0 0 0 0; font-style:normal; color:#000080; font-weight:normal; font-size:12pt; font-family:"Times New Roman";font-variant:normal; line-height:normal;text-transform:uppercase;}.ACT_ESSENTIAL_ELEMENTS{text-align:center; text-indent:0; margin:0 70% 0 0; font-style:normal; color:#000000; font-weight:normal; font-size:11pt; font-family:"Times New Roman"; font-variant:normal; line-height:normal;}.ACT_ESSENTIAL_ELEMENTS_NUM{text-align:center; text-indent:0; margin:0 70% 0 0; font-style:normal; color:#000000; font-weight:normal; font-size:11pt; font-family:"Times New Roman"; font-variant:normal; line-height:normal;padding-bottom: 20px;}.ACT_FORM{text-align:center; text-indent:0; margin:0; font-style:normal; color:#000080; font-weight:normal; font-size:12pt; font-family:"Times New Roman"; text-transform:uppercase; font-variant:normal; line-height:normal;}.ACT_FORM_LAW{text-align:center; text-indent:0; margin:0 0 12pt 0; font-style:normal; color:#000080; font-weight:normal; font-size:12pt; font-family:"Times New Roman"; text-transform:uppercase; font-variant:normal; line-height:normal;}.ACT_TEXT{text-align:justify;text-justify:inter-word; text-indent:15mm; margin:0; font-style:normal; color:#000000; font-weight:normal; font-size:12pt; font-family:"Times New Roman"; font-variant:normal; line-height:1.3;}.ACT_TITLE{text-align:center; text-indent:0; margin:12pt 0 6pt 0; font-style:normal; color:#000080; font-weight:bold; font-size:12pt; font-family:"Times New Roman"; text-transform:uppercase; font-variant:normal; line-height:normal;}.ACT_TITLE_APPL{text-align:center; text-indent:0; margin:0 0 6pt 0; font-style:normal; color:#000080; font-weight:bold; font-size:12pt; font-family:"Times New Roman"; font-variant:normal; line-height:normal;}.APPL_BANNER_LANDSCAPE_TEXT{text-align:center; text-indent:0pt; margin:0pt 0pt 10pt 66%; font-style:normal; color:#000080; font-weight:normal; font-size:11pt; font-family:"Times New Roman"; font-variant:normal; line-height:normal;}.APPL_BANNER_LANDSCAPE_TITLE{text-align:center; text-indent:0pt; margin:10pt 0pt 12pt 66%; font-style:normal; color:#000080; font-weight:normal; font-size:11pt; font-family:"Times New Roman"; font-variant:normal; line-height:normal;}.APPL_BANNER_PORTRAIT_TEXT{text-align:center; text-indent:0pt; margin:0pt 0pt 0pt 50%; font-style:normal; color:#000080; font-weight:normal; font-size:11pt; font-family:"Times New Roman"; font-variant:normal; line-height:normal;}.APPL_BANNER_PORTRAIT_TITLE{text-align:center; text-indent:0pt; margin:0pt 0pt 12pt 50%; font-style:normal; color:#000080; font-weight:normal; font-size:11pt; font-family:"Times New Roman"; font-variant:normal; line-height:normal;}.BY_DEFAULT{text-align:justify;text-justify:inter-word; text-indent:0; margin:0; font-style:normal; color:#000000; font-weight:normal; font-size:12pt; font-family:"Times New Roman"; font-variant:normal; line-height:1.3;}.CHANGES_ORIGINS{text-align:justify;text-justify:inter-word; text-indent:15mm; margin:0; font-style:italic; color:#800000; font-weight:normal; font-size:11pt; font-family:"Times New Roman"; font-variant:normal; line-height:1.3;}.CLAUSE_AFTER_SRC{text-align:justify;text-justify:inter-word; text-indent:0; margin:0 0 3pt 0; font-style:normal; color:#000080; font-weight:boldl; font-size:12pt; font-family:"Times New Roman"; font-variant:normal; line-height:normal;}.CLAUSE_DEFAULT{text-align:justify;text-justify:inter-word; text-indent:15mm; margin:6pt 0 3pt 0; font-style:normal; color:#000080; font-weight:bold; font-size:12pt; font-family:"Times New Roman"; font-variant:normal; line-height:normal;}.COMMENT{text-align:justify;text-justify:inter-word; text-indent:15mm; margin:3pt 0 3pt 0; font-style:italic; color:#800080; font-weight:normal; font-size:11pt; font-family:"Times New Roman"; font-variant:normal; line-height:normal;}.COMMENT_FOR_WARNING{text-align:justify;text-justify:inter-word; text-indent:15mm; margin:3pt 0 3pt 0; font-style:italic; color:#800080; font-weight:normal; font-size:11pt; font-family:"Times New Roman"; font-variant:normal; line-height:normal;}.DEPARTMENTAL{text-align:center; text-indent:0; margin:0 0 6pt 0; font-style:normal; color:#000000; font-weight:bold; font-size:12pt; font-family:"Times New Roman"; font-variant:normal; line-height:normal;}.EXPLANATION{text-align:justify;text-justify:inter-word; text-indent:15mm; margin:3pt 0 3pt 0; font-style:normal; color:#993366; font-weight:normal; font-size:11pt; font-family:"Times New Roman"; line-height:normal;}.EXTRACT{text-align:center; text-indent:0; margin:0 0 6pt 0; font-style:normal; color:#000000; font-weight:bold; font-size:12pt; font-family:"Times New Roman"; font-variant:normal; line-height:normal;}.FOOTNOTE{text-align:justify;text-justify:inter-word; text-indent:15mm; margin:0; font-style:normal; color:#339966; font-weight:normal; font-size:10pt; font-family:"Times New Roman"; font-variant:normal; line-height:normal;}.GRIF_PARLAMENT{text-align: left; text-indent:0 mm; margin:0 0 3pt 50%; font-style:normal; color:#000080; font-weight:normal; font-size:12pt; font-family:"Times New Roman"; font-variant:normal; line-height:normal;}.INDEXES_ON_REF{text-align:left;text-indent:0cm;margin:3pt 0.9cm 3pt 0.95cm;font-style:normal;color:#008000;font-weight:normal;font-size:11pt;font-family:"Times New Roman"; font-variant:normal;line-height:1.0;}.IS_TABLE_FOR_LIST_TEMP{text-align:justify;text-justify:inter-word; text-indent:15mm; margin:0; font-style:normal; color:#000000; font-weight:normal; font-size:12pt; font-family:"Times New Roman"; font-variant:normal; line-height:1.3;}.NEW_EDITION{text-align:center; text-indent:0; margin:0 0 6pt 0; font-style:normal; color:#000080; font-weight:normal; font-size:12pt; font-family:"Times New Roman"; text-transform:lowercase; font-variant:normal; line-height:normal;}.OFFICIAL_SOUR_TEXT{text-align:right; font-size:8pt; font-family:Arial, Helvetica, sans-serif; border: 1px solid #A9DBFC; background-color: #E6EDFF;}.PUBLICATION_ORIGIN{text-align:center; text-indent:0; margin:0 0 12pt 0; font-style:italic; color:#800000; font-weight:normal; font-size:11pt; font-family:"Times New Roman"; font-variant:normal; line-height:normal;}.SIGNATURE{text-align:right; text-indent:0; margin:6pt 0 6pt 0; font-style:normal; color:#000000; font-weight:bold; font-size:12pt; font-family:"Times New Roman"; font-variant:normal; line-height:normal;}.SIGNATURE_STAMPS_PLACEHOLDER{text-align:justify; text-justify:inter-word; text-indent:0; margin:4 10; vertical-align:text-top; flow:left;}.SIGNATURE_STAMP_TEXT{text-align:center; text-indent:0; margin:0; font-style:normal; color:#000080; font-weight:normal; font-size:11pt; font-family:"Times New Roman"; font-variant:normal; vertical-align:baseline!important;}.SIGNATURE_WITH_BOLD{text-align:right; text-indent:0; margin:6pt 0 6pt 0; font-style:normal; color:#000000; font-weight:normal; font-size:12pt; font-family:"Times New Roman"; font-variant:normal; line-height:normal;}.TABLE_STD{background:#ffffff;color:#000000;margin:4pt;font-size:12pt;width:100%;height:100%;overflow:visible;}.TEXT_15_LEFT{text-align: left; text-indent:30 mm; margin:0 0 3pt 0; font-style:normal; color:#000080; font-weight:normal; font-size:12pt; font-family:"Times New Roman"; font-variant:normal; line-height:normal;}.TEXT_30_LEFT{text-align: left; text-indent:45 mm; margin:0 0 3pt 0; font-style:normal; color:#000080; font-weight:normal; font-size:12pt; font-family:"Times New Roman"; font-variant:normal; line-height:normal;}.TEXT_BOLD{text-align:justify;  text-indent:0; margin:6pt 0 3pt 0; font-style:normal; color:#000080; font-weight:bold; font-size:12pt; font-family:"Times New Roman"; font-variant:normal; line-height:normal;text-indent:15mm;}.TEXT_BOLD_CENTER{text-align:center; text-indent:0; margin:6pt 0 3pt 0; font-style:normal; color:#000080; font-weight:bold; font-size:12pt; font-family:"Times New Roman"; font-variant:normal; line-height:normal;}.TEXT_BOLD_RIGHT{text-align:right; text-indent:0; margin:0 0 3pt 0; font-style:normal; color:#000000; font-weight:bold; font-size:12pt; font-family:"Times New Roman"; font-variant:normal; line-height:normal;}.TEXT_CENTER{text-align:center; text-indent:0; margin:0 0 3pt 0; font-style:normal; color:#000080; font-weight:normal; font-size:12pt; font-family:"Times New Roman"; font-variant:normal; line-height:normal;}.TEXT_HEADER_AFTER_SRC{text-align:center; text-indent:0; margin:0 0 3pt 0; font-style:normal; color:#000080; font-weight:bold; font-size:12pt; font-family:"Times New Roman"; font-variant:normal; line-height:normal;}.TEXT_HEADER_DEFAULT{text-align:center; text-indent:0; margin:6pt 0 3pt 0; font-style:normal; color:#000080; font-weight:bold; font-size:12pt; font-family:"Times New Roman"; font-variant:normal; line-height:normal;}.TEXT_ITALIC{text-align:justify; text-indent:0; margin:0; font-style:italic; color:#000080; font-weight:italic; font-size:12pt; font-family:"Times New Roman"; font-variant:normal; line-height:normal; text-indent:15mm}.TEXT_RIGHT{text-align: right; text-indent:0; margin:0 0 3pt 0; font-style:normal; color:#000080; font-weight:normal; font-size:12pt; font-family:"Times New Roman"; font-variant:normal; line-height:normal;}DIV#theSysCssID TABLE{background-color:ivory;color:#000000;border-collapse:separate;font:x-small Tahoma;table-layout:auto;position:relative;margin:0pt;top:0pt;zoom:normal;z-index:auto;}DIV#theSysCssID TABLE TD,TH{border:1px solid #000000;cursor:auto;min-height:8pt;padding:1px 1px 1px 2px;vertical-align:top;white-space:normal;word-wrap:break-word;display:block!important;visibility:visible!important;}DIV#theNormCssID TABLE{background-color:#f5f5f5;color:red;border:1px solid red;font:small Verdana;position:relative;margin:0pt;top:0pt;zoom:normal;z-index:auto;}DIV#theNormCssID TABLE TD,TH{border:1px solid red;cursor:auto;min-height:8pt;padding:2px 2px 2px 3px;vertical-align:top;white-space:normal;word-wrap:normal;display:block!important;visibility:visible!important;}DIV#theDefCssID TABLE{background-color:#ffffff;color:#000000;border:1px solid #000000;border-collapse:collapse;font:normal normal normal small/normal Times New Roman;table-layout:fixed;text-align:left;text-decoration:none;text-indent:0;text-transform:none;width:100%;word-spacing:normal;position:relative;margin:0pt;top:0pt;zoom:normal;z-index:auto;}DIV#theDefCssID TABLE TD,TH{background-color:#ffffff;color:#000000;border:1px solid #000000;cursor:auto!important;font:normal normal normal small/normal Times New Roman;min-height:8pt;padding:1px 1px 1px 2px;text-align:left;text-decoration:none;text-indent:0;text-transform:none;vertical-align:top;white-space:normal;word-wrap:break-word;word-spacing:normal;display:block!important;visibility:visible!important;}DIV#theNotCssID TABLE{position:relative;margin:0pt;top:0pt;zoom:normal;z-index:auto;}DIV#theNotCssID TABLE TD,TH,CAPTION{display:block!important;visibility:visible!important;}A#tabBoxDisable TABLE TD,TH{color:#808080;border-color:#808080;}.tabBox{display:inline-block;} .OFFICIAL_SOUR_TEXT{display:none;}</style>
+</head>
+<body lang='uz-Cyrl-UZ'><div class=WordSection1>
+﻿<div id="divCont" style="background:#ffffff;border:none;margin:auto;"><div class="ACCEPTING_BODY"><div name="7026025" id="7026025">Ўзбекистон Республикаси Президентининг</div></div><div class="ACT_FORM"><div name="7026026" id="7026026">Қарори</div></div><div class="ACT_TITLE"><div name="7026027" id="7026027">«Тиббиёт чиқиндиларидан муқобил иссиқлик энергияси ишлаб чиқариш» инвестиция лойиҳасини амалга ошириш чора-тадбирлари тўғрисида</div></div><div class="BY_DEFAULT"><div name="7026032" id="7026032"></div></div><div class="ACT_TEXT"><div name="7026035" id="7026035">Мамлакатимизда экологик вазиятни яхшилаш, чиқиндиларнинг, шу жумладан, тиббиёт чиқиндиларининг атроф-муҳитга ва аҳоли саломатлигига салбий таъсирини камайтириш, шунингдек, уларни қайта ишлаш соҳасида замонавий ечимлар ва технологияларни жорий этиш мақсадида:</div></div><div class="ACT_TEXT"><div name="7026036" id="7026036">1. Қуйидагилар:</div></div><div class="ACT_TEXT"><div name="7026038" id="7026038">а) «Sayar LLC» компанияси (Америка Қўшма Штатлари) (кейинги ўринларда — Инвестор) томонидан «Тиббиёт чиқиндиларидан муқобил иссиқлик энергияси ишлаб чиқариш» инвестиция лойиҳаси (кейинги ўринларда — Инвестиция лойиҳаси) доирасида «Sayar green» масъулияти чекланган жамияти шаклидаги хорижий корхона (кейинги ўринларда — Лойиҳа компанияси) таъсис этилганлиги;</div></div><div class="ACT_TEXT"><div name="7026039" id="7026039">б) Инвестор, Лойиҳа компанияси ва Ўзбекистон Республикаси Ҳукумати номидан Инвестициялар, саноат ва савдо вазирлиги ўртасида 2024 йил 13 апрелда инвестиция шартномаси имзоланганлиги ҳамда унга мувофиқ Инвестор ва Лойиҳа компанияси:</div></div><div class="ACT_TEXT"><div name="7026040" id="7026040">биринчи босқичда, 2024-2025 йиллар давомида 7 миллион АҚШ доллари миқдорида тўғридан-тўғри инвестицияларни жалб этиб, Тошкент шаҳри, Самарқанд ва Бухоро вилоятларининг барча турдаги тиббиёт муассасаларида йилига ҳосил бўладиган 6 минг тонна тиббиёт чиқиндиларини термик қайта ишлаб, 20 ГВт соат/йил қувватга эга ускуналарни ишга тушириши;</div></div><div class="ACT_TEXT"><div name="7026041" id="7026041">иккинчи босқичда, 2026 — 2030 йиллар давомида 108 миллион АҚШ доллари миқдорида тўғридан-тўғри инвестицияларни жалб этиб, республиканинг қолган ҳудудларида жойлашган барча турдаги тиббиёт муассасаларида йилига ҳосил бўладиган 90 минг тонна тиббиёт чиқиндиларини термик қайта ишлаб, 300 ГВт соат/йил қувватга эга ускуналарни ишга тушириши;</div></div><div class="ACT_TEXT"><div name="7026044" id="7026044">Инвесторнинг таклифларига мувофиқ Экология, атроф-муҳитни муҳофаза қилиш ва иқлим ўзгариши вазирлигига (кейинги ўринларда — Экология вазирлиги) тегишли маиший чиқинди полигонлари ҳамда махсус ташкил этиладиган жойларда фармацевтика, биологик, ветеринария чиқиндиларини юқори ҳароратда, термик қайта ишлаш марказларини ташкил этиш мажбуриятини олиши белгиланганлиги маълумот учун қабул қилинсин.</div></div><div class="ACT_TEXT"><div name="7026047" id="7026047">2. Инвестиция лойиҳасини амалга ошириш доирасида Инвестор, Лойиҳа компанияси ва Ўзбекистон Республикаси Ҳукумати номидан Инвестициялар, саноат ва савдо вазирлиги ўртасида тузилган Инвестиция шартномаси тасдиқлансин.</div></div><div class="ACT_TEXT"><div name="7026058" id="7026058">3. Соғлиқни сақлаш вазирлиги Лойиҳа компанияси билан биргаликда бир ой муддатда:</div></div><div class="ACT_TEXT"><div name="7026060" id="7026060">Инвестиция лойиҳаси амалга ошириладиган ҳудудларда жойлашган барча турдаги тиббиёт муассасаларида ҳосил бўладиган тиббиёт чиқиндилари Лойиҳа компаниясига тўлиқ етказиб берилишини;</div></div><div class="ACT_TEXT"><div name="7026064" id="7026064">тиббиёт чиқиндиларини термик қайта ишлаш ҳисобига ишлаб чиқарилган иссиқлик энергияси Инвестиция лойиҳаси амалга ошириладиган давлат тиббиёт муассасалари томонидан сотиб олинишини;</div></div><div class="ACT_TEXT"><div name="7026066" id="7026066">Инвестиция лойиҳасини амалга ошириш муддати тугагандан сўнг ушбу лойиҳа доирасида харид қилинган асбоб-ускуналар, қурилма ва жиҳозлар тегишли республика ижро этувчи ҳокимият органлари билан келишилган ҳолда, маҳаллий ҳамкор ташкилотларга бепул ўтказиб берилишини назарда тутувчи шартнома имзоланишини таъминласин.</div></div><div class="ACT_TEXT"><div name="7026070" id="7026070">4. Белгилансинки, 2024 йил 1 августдан бошлаб:</div></div><div class="ACT_TEXT"><div name="7026073" id="7026073">а) Соғлиқни сақлаш вазирлиги томонидан:</div></div><div class="ACT_TEXT"><div name="7026077" id="7026077">тиббиёт чиқиндиларидан муқобил иссиқлик энергиясини ишлаб чиқариш учун барча турдаги тиббиёт муассасаларида ҳосил бўладиган тиббиёт чиқиндилари тўлиқ ҳажмда Лойиҳа компаниясига топширилади;</div></div><div class="ACT_TEXT"><div name="7026080" id="7026080">Лойиҳа компаниясига 2048 йилга қадар Инвестиция лойиҳаси амалга ошириладиган давлат тиббиёт муассасалари ҳудудидан тиббиёт чиқиндиларини термик қайта ишлаш ҳамда иссиқлик энергияси ишлаб чиқариш қурилма ва иншоотларини қуриш учун ер майдонлари жамоат эҳтиёжлари учун ижарага берилиши таъминланади. Бунда, ер участкалари учун тўланадиган ижара ҳақи ер солиғига тенглаштирилган миқдорда ҳисобланади;</div></div><div class="ACT_TEXT"><div name="7026084" id="7026084">Лойиҳа компанияси томонидан ишлаб чиқарилган иссиқлик энергияси белгиланган тартибда тасдиқланган тарифларда тиббиёт муассасалари томонидан сотиб олиниши таъминланади. Бунда иссиқлик энергияси бошқа шахсларга ҳам белгиланган тартибда етказиб берилиши мумкин;</div></div><div class="ACT_TEXT"><div name="7026088" id="7026088">б) Инвестиция лойиҳаси амалга ошириладиган ҳудудларда жойлашган барча турдаги тиббиёт муассасаларида ҳосил бўладиган тиббиёт чиқиндиларини Лойиҳа компаниясига тўлиқ етказиб бериш бўйича талабга риоя этмаслик санитар осойишталик ва чиқиндиларни тўплаш, ташиш, жойлаштириш, зарарсизлантириш, сақлаш, утилизация қилиш, қайта ишлаш ҳамда реализация қилиш давомида табиатни муҳофаза қилиш талабларини бузганлик ҳисобланади.</div></div><div class="ACT_TEXT"><div name="7026091" id="7026091">5. Қорақалпоғистон Республикаси Вазирлар Кенгаши, вилоятлар ва Тошкент шаҳри ҳокимликлари, Соғлиқни сақлаш вазирлиги ҳамда Иқтисодиёт ва молия вазирлиги Лойиҳа компанияси билан биргаликда 2024 йил 1 сентябрдан бошлаб ҳар йили республика ва маҳаллий бюджетлар параметрлари тасдиқланишидан аввал Лойиҳа компанияси томонидан кўрсатиладиган иссиқлик таъминоти хизматлари учун тартибга солинадиган янги нархларни (тарифларни) қайта кўриб чиқиш амалиётини мазкур қарорга <a href="https://lex.uz/ru/docs/7025206#7026136">иловада</a> белгиланган схемага мувофиқ жорий этсин.</div></div><div class="ACT_TEXT"><div name="7026094" id="7026094">6. Соғлиқни сақлаш вазирлиги:</div></div><div class="ACT_TEXT"><div name="7026098" id="7026098">икки ой муддатда Экология вазирлиги билан биргаликда барча турдаги тиббиёт муассасаларида тиббиёт чиқиндиларининг ҳосил бўлиш нормалари ва морфологик таркибини аниқлашни, шунингдек, уларни утилизация қилиш корхоналарига топшириш бўйича талабларнинг тиббий фаолиятни лицензиялаш талабларига киритилишини назарда тутувчи норматив-ҳуқуқий ҳужжат лойиҳасини ишлаб чиқсин ҳамда белгиланган тартибда Вазирлар Маҳкамасига киритсин;</div></div><div class="ACT_TEXT"><div name="7026100" id="7026100">икки ҳафта муддатда Инвестиция лойиҳаси амалга ошириладиган давлат тиббиёт муассасаларининг ҳудудларидаги тегишли жойларни ижара асосида Лойиҳа компаниясига берилишини таъминласин.</div></div><div class="ACT_TEXT"><div name="7026101" id="7026101">7. Лойиҳа компаниясига Инвестиция лойиҳасининг биринчи босқичи доирасида белгиланган шаҳарсозлик нормалари ва қоидаларига риоя қилган ҳолда, параллель лойиҳалаш билан қурилиш-монтаж ишларини бажаришга рухсат этилсин.</div></div><div class="ACT_TEXT"><div name="7026103" id="7026103">8. Иқтисодиёт ва молия вазирлиги Соғлиқни сақлаш вазирлиги билан биргаликда 2024 йил 1 сентябрдан бошлаб ҳар йили тиббиёт муассасаларида ҳосил бўладиган тиббиёт чиқиндиларининг Лойиҳа компаниясига тўлиқ етказиб берилганлиги ҳамда иссиқлик энергиясининг давлат тиббиёт муассасалари томонидан сотиб олинганлиги учун тўланадиган маблағларнинг Давлат бюджети параметрларида назарда тутилишини таъминлаб борсин.</div></div><div class="ACT_TEXT"><div name="7026105" id="7026105">9. Инвестиция лойиҳаси доирасида:</div></div><div class="ACT_TEXT"><div name="7026107" id="7026107">Ташқи ишлар вазирлиги жалб қилинадиган хорижий мутахассислар учун кириш визалари, зарур ҳолларда, Ислом Каримов номидаги «Тошкент» халқаро аэропортида белгиланган тартибда расмийлаштирилишини;</div></div><div class="BY_DEFAULT"><div name="8280499" id="8280499"></div></div><div class="ACT_TEXT"><div name="8280500" id="8280500">Ички ишлар вазирлиги Лойиҳа компанияси ва жалб қилинган пудрат ташкилотларининг хорижий мутахассислари ҳамда уларнинг оила аъзоларига кўп марталик виза муддатлари узайтирилишини, шунингдек, уларнинг турган жойи бўйича рўйхатдан ўтказилишини (муддати узайтирилишини);</div></div><div class="CHANGES_ORIGINS"><label id="s1104"></label><div name="8280501" id="8280501">(9-банднинг учинчи хатбошиси Ўзбекистон Республикаси Президентининг 2026 йил 9 июндаги ПФ-109-сонли <a href="https://lex.uz/ru/docs/8260748?ONDATE=10.06.2026 00#8261789">Фармони </a>таҳририда — Қонунчилик маълумотлари миллий базаси, 10.06.2026 й., 06/26/109/0580-сон)</div></div><div class="ACT_TEXT"><div name="7026115" id="7026115">Камбағалликни қисқартириш ва бандлик вазирлиги Лойиҳа компанияси аризаларига биноан жалб этилган хорижий мутахассисларга Ўзбекистон Республикаси ҳудудида меҳнат фаолиятини амалга ошириш ҳуқуқини берувчи тасдиқномалар берилишини (муддати узайтирилишини) белгиланган тартибда таъминласин.</div></div><div class="ACT_TEXT"><div name="7026120" id="7026120">10. Ташқи савдо, инвестициялар, маҳаллий саноатни ривожлантириш ва техник жиҳатдан тартибга солиш масалалари бўйича Ҳукумат комиссиясига, зарур ҳолларда, Инвестиция лойиҳасининг мақсадли кўрсаткичларига ва техник-иқтисодий параметрларига Инвестор билан келишилган ҳолда ўзгартириш ва қўшимчалар киритиш ҳуқуқи берилсин.</div></div><div class="ACT_TEXT"><div name="7026123" id="7026123">11. Мазкур қарор ижросини самарали ташкил қилишга масъул ва шахсий жавобгар этиб экология, атроф-муҳитни муҳофаза қилиш ва иқлим ўзгариши вазири А.А. Абдухакимов ва соғлиқни сақлаш вазири вазифасини бажарувчи А.А. Худаяров белгилансин.</div></div><div class="ACT_TEXT"><div name="7026126" id="7026126">Қарор ижросини муҳокама қилиб бориш, масъул ташкилотлар фаолиятини мувофиқлаштириш ва назорат қилиш Ўзбекистон Республикасининг Бош вазири А.Н. Арипов зиммасига юклансин.</div></div><div class="SIGNATURE"><div name="7026127" id="7026127">Ўзбекистон Республикаси Президенти Ш. МИРЗИЁЕВ</div></div><div class="ACT_ESSENTIAL_ELEMENTS"><div name="7026131" id="7026131">Тошкент ш.,</div></div><div class="ACT_ESSENTIAL_ELEMENTS"><div name="7026133" id="7026133">2024 йил 17 июль,</div></div><div class="ACT_ESSENTIAL_ELEMENTS_NUM"><div name="7026134" id="7026134">ПҚ-263-сон</div></div><div class="BY_DEFAULT"><div name="7026136" id="7026136"></div></div><div class="APPL_BANNER_LANDSCAPE_TITLE"><div name="7026149" id="7026149">Ўзбекистон Республикаси Президентининг 2024 йил 17 июлдаги ПҚ-263-сон <a href="https://lex.uz/ru/docs/7025206">қарорига</a><br />
+ИЛОВА</div></div><div class="ACT_TITLE_APPL"><div name="7026158" id="7026158"><strong>Лойиҳа компанияси томонидан кўрсатиладиган иссиқлик таъминоти хизматлари учун тартибга солинадиган янги нархларни (тарифларни) қайта кўриб чиқиш</strong></div></div><div class="ACT_FORM"><div name="7026160" id="7026160"><strong>СХЕМАСИ</strong></div></div><div class="BY_DEFAULT"><div name="7026161" id="7026161"></div></div><div class="TABLE_STD2"><div name="7026162" id="7026162"><table class="Table" style="width:100.0%;border-collapse:collapse" width="100%">
+	<tbody>
+		<tr>
+			<td rowspan="2" style="border-bottom:1px solid black;width:9%;padding:0cm 4px 0cm 4px;height:19px;border-top:1px solid black;border-right:1px solid black;border-left:1px solid black">
+			<p align="center" style="text-align:center"><span style="font-size:12pt"><span style="font-family:"Times New Roman",serif"><b>Босқичлар</b></span></span></p>
+			</td>
+			<td style="border-bottom:none;width:1%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:1px solid black;border-left:none">
+			<p align="center" style="text-align:center"></p>
+			</td>
+			<td rowspan="2" style="border-bottom:1px solid black;width:23%;padding:0cm 4px 0cm 4px;height:19px;border-top:1px solid black;border-right:1px solid black;border-left:none">
+			<p align="center" style="text-align:center"><span style="font-size:12pt"><span style="font-family:"Times New Roman",serif"><b>Субъектлар</b></span></span></p>
+			</td>
+			<td style="border-bottom:none;width:1%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:1px solid black;border-left:none">
+			<p align="center" style="text-align:center"></p>
+			</td>
+			<td rowspan="2" style="border-bottom:1px solid black;width:46%;padding:0cm 4px 0cm 4px;height:19px;border-top:1px solid black;border-right:1px solid black;border-left:none">
+			<p align="center" style="text-align:center"><span style="font-size:12pt"><span style="font-family:"Times New Roman",serif"><b>Чора-тадбирлар</b></span></span></p>
+			</td>
+			<td style="border-bottom:none;width:1%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:1px solid black;border-left:none">
+			<p align="center" style="text-align:center"></p>
+			</td>
+			<td rowspan="2" style="border-bottom:1px solid black;width:15%;padding:0cm 4px 0cm 4px;height:19px;border-top:1px solid black;border-right:1px solid black;border-left:none">
+			<p align="center" style="text-align:center"><span style="font-size:12pt"><span style="font-family:"Times New Roman",serif"><b>Муддатлар</b></span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border-bottom:none;width:1%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:1px solid black;border-left:none">
+			<p align="center" style="text-align:center"></p>
+			</td>
+			<td style="border-bottom:none;width:1%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:1px solid black;border-left:none">
+			<p align="center" style="text-align:center"></p>
+			</td>
+			<td style="border-bottom:none;width:1%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:1px solid black;border-left:none">
+			<p align="center" style="text-align:center"></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border-bottom:1px solid black;width:9%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:none;border-left:none">
+			<p align="center" style="text-align:center"></p>
+			</td>
+			<td style="width:1%;padding:0cm 4px 0cm 4px;height:19px">
+			<p align="center" style="text-align:center"></p>
+			</td>
+			<td style="border-bottom:1px solid black;width:23%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:none;border-left:none">
+			<p align="center" style="text-align:center"></p>
+			</td>
+			<td style="width:1%;padding:0cm 4px 0cm 4px;height:19px">
+			<p align="center" style="text-align:center"></p>
+			</td>
+			<td style="border-bottom:1px solid black;width:46%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:none;border-left:none">
+			<p align="center" style="text-align:center"></p>
+			</td>
+			<td style="width:1%;padding:0cm 4px 0cm 4px;height:19px">
+			<p align="center" style="text-align:center"></p>
+			</td>
+			<td style="border-bottom:1px solid black;width:15%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:none;border-left:none">
+			<p align="center" style="text-align:center"></p>
+			</td>
+		</tr>
+		<tr>
+			<td rowspan="2" style="border-bottom:1px solid black;width:9%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:1px solid black;border-left:1px solid black">
+			<p align="center" style="text-align:center"><span style="font-size:12pt"><span style="font-family:"Times New Roman",serif">1-босқич</span></span></p>
+			</td>
+			<td style="border-bottom:1px solid black;width:1%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:1px solid black;border-left:none">
+			<p align="center" style="text-align:center"></p>
+			</td>
+			<td rowspan="2" style="border-bottom:1px solid black;width:23%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:1px solid black;border-left:none">
+			<p align="center" style="text-align:center"><span style="font-size:12pt"><span style="font-family:"Times New Roman",serif">Лойиҳа компанияси</span></span></p>
+			</td>
+			<td style="border-bottom:1px solid black;width:1%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:1px solid black;border-left:none">
+			<p align="center" style="text-align:center"></p>
+			</td>
+			<td rowspan="2" style="border-bottom:1px solid black;width:46%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:1px solid black;border-left:none">
+			<p style="text-align:justify;text-indent:10.2pt"><span style="font-size:12pt"><span style="font-family:"Times New Roman",serif">1. Ҳар бир туманда (шаҳарда) иссиқлик таъминоти хизматлари учун асослантирилган янги нархларни (тарифларни) ишлаб чиқади.</span></span></p>
+
+			<p style="text-align:justify;text-indent:10.2pt"><span style="font-size:12pt"><span style="font-family:"Times New Roman",serif">2. Соғлиқни сақлаш вазирлигига ҳар бир ҳудуд кесимида нархларни (тарифларни) тақдим этади.</span></span></p>
+			</td>
+			<td style="border-bottom:1px solid black;width:1%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:1px solid black;border-left:none">
+			<p align="center" style="text-align:center"></p>
+			</td>
+			<td rowspan="2" style="border-bottom:1px solid black;width:15%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:1px solid black;border-left:none">
+			<p align="center" style="text-align:center"><span style="font-size:12pt"><span style="font-family:"Times New Roman",serif">Ҳар йили 1 октябрга қадар</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border-bottom:none;width:1%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:1px solid black;border-left:none">
+			<p align="center" style="text-align:center"></p>
+			</td>
+			<td style="border-bottom:none;width:1%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:1px solid black;border-left:none">
+			<p align="center" style="text-align:center"></p>
+			</td>
+			<td style="border-bottom:none;width:1%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:1px solid black;border-left:none">
+			<p align="center" style="text-align:center"></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border-bottom:1px solid black;width:9%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:none;border-left:none">
+			<p align="center" style="text-align:center"></p>
+			</td>
+			<td style="width:1%;padding:0cm 4px 0cm 4px;height:19px">
+			<p align="center" style="text-align:center"></p>
+			</td>
+			<td style="border-bottom:1px solid black;width:23%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:none;border-left:none">
+			<p align="center" style="text-align:center"></p>
+			</td>
+			<td style="width:1%;padding:0cm 4px 0cm 4px;height:19px">
+			<p align="center" style="text-align:center"></p>
+			</td>
+			<td style="border-bottom:1px solid black;width:46%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:none;border-left:none">
+			<p style="text-align:justify;text-indent:10.2pt"></p>
+			</td>
+			<td style="width:1%;padding:0cm 4px 0cm 4px;height:19px">
+			<p align="center" style="text-align:center"></p>
+			</td>
+			<td style="border-bottom:1px solid black;width:15%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:none;border-left:none">
+			<p align="center" style="text-align:center"></p>
+			</td>
+		</tr>
+		<tr>
+			<td rowspan="2" style="border-bottom:1px solid black;width:9%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:1px solid black;border-left:1px solid black">
+			<p align="center" style="text-align:center"><span style="font-size:12pt"><span style="font-family:"Times New Roman",serif">2-босқич</span></span></p>
+			</td>
+			<td style="border-bottom:1px solid black;width:1%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:1px solid black;border-left:none">
+			<p align="center" style="text-align:center"></p>
+			</td>
+			<td rowspan="2" style="border-bottom:1px solid black;width:23%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:1px solid black;border-left:none">
+			<p align="center" style="text-align:center"><span style="font-size:12pt"><span style="font-family:"Times New Roman",serif">Соғлиқни сақлаш вазирлиги</span></span></p>
+			</td>
+			<td style="border-bottom:1px solid black;width:1%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:1px solid black;border-left:none">
+			<p align="center" style="text-align:center"></p>
+			</td>
+			<td rowspan="2" style="border-bottom:1px solid black;width:46%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:1px solid black;border-left:none">
+			<p style="text-align:justify;text-indent:10.2pt"><span style="font-size:12pt"><span style="font-family:"Times New Roman",serif">1. Лойиҳа компанияси томонидан тақдим этилган нархлар (тарифлар) асослантирилганлигини ўрганиб чиқади.</span></span></p>
+
+			<p style="text-align:justify;text-indent:10.2pt"><span style="font-size:12pt"><span style="font-family:"Times New Roman",serif">2. Лойиҳа компанияси томонидан тақдим этилган нархлар (тарифлар) тўғрисидаги маълумотларни умумлаштирган ҳолда, тегишли хулоса асосида Иқтисодиёт ва молия вазирлигининг ҳудудий органларига киритади.</span></span></p>
+
+			<p style="text-align:justify;text-indent:10.2pt"><span style="font-size:12pt"><span style="font-family:"Times New Roman",serif">3. Иқтисодиёт ва молия вазирлиги ҳудудий бўлинмалари хулосаси асосида янги нархларни (тарифларни) Қорақалпоғистон Республикаси Вазирлар Кенгаши, вилоятлар ва Тошкент шаҳар ҳокимликларига кўриб чиқиш учун киритади.</span></span></p>
+			</td>
+			<td style="border-bottom:1px solid black;width:1%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:1px solid black;border-left:none">
+			<p align="center" style="text-align:center"></p>
+			</td>
+			<td rowspan="2" style="border-bottom:1px solid black;width:15%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:1px solid black;border-left:none">
+			<p align="center" style="text-align:center"><span style="font-size:12pt"><span style="font-family:"Times New Roman",serif">Ҳар йили 1 ноябрга қадар</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border-bottom:none;width:1%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:1px solid black;border-left:none">
+			<p align="center" style="text-align:center"></p>
+			</td>
+			<td style="border-bottom:none;width:1%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:1px solid black;border-left:none">
+			<p align="center" style="text-align:center"></p>
+			</td>
+			<td style="border-bottom:none;width:1%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:1px solid black;border-left:none">
+			<p align="center" style="text-align:center"></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border-bottom:1px solid black;width:9%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:none;border-left:none">
+			<p align="center" style="text-align:center"></p>
+			</td>
+			<td style="width:1%;padding:0cm 4px 0cm 4px;height:19px">
+			<p align="center" style="text-align:center"></p>
+			</td>
+			<td style="border-bottom:1px solid black;width:23%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:none;border-left:none">
+			<p align="center" style="text-align:center"></p>
+			</td>
+			<td style="width:1%;padding:0cm 4px 0cm 4px;height:19px">
+			<p align="center" style="text-align:center"></p>
+			</td>
+			<td style="border-bottom:1px solid black;width:46%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:none;border-left:none">
+			<p style="text-align:justify;text-indent:10.2pt"></p>
+			</td>
+			<td style="width:1%;padding:0cm 4px 0cm 4px;height:19px">
+			<p align="center" style="text-align:center"></p>
+			</td>
+			<td style="border-bottom:1px solid black;width:15%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:none;border-left:none">
+			<p align="center" style="text-align:center"></p>
+			</td>
+		</tr>
+		<tr>
+			<td rowspan="2" style="border-bottom:1px solid black;width:9%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:1px solid black;border-left:1px solid black">
+			<p align="center" style="text-align:center"><span style="font-size:12pt"><span style="font-family:"Times New Roman",serif">3-босқич</span></span></p>
+			</td>
+			<td style="border-bottom:1px solid black;width:1%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:1px solid black;border-left:none">
+			<p align="center" style="text-align:center"></p>
+			</td>
+			<td rowspan="2" style="border-bottom:1px solid black;width:23%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:1px solid black;border-left:none">
+			<p align="center" style="text-align:center"><span style="font-size:12pt"><span style="font-family:"Times New Roman",serif">Қорақалпоғистон Республикаси Вазирлар Кенгаши, вилоятлар ва Тошкент шаҳар ҳокимликлари</span></span></p>
+			</td>
+			<td style="border-bottom:1px solid black;width:1%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:1px solid black;border-left:none">
+			<p align="center" style="text-align:center"></p>
+			</td>
+			<td rowspan="2" style="border-bottom:1px solid black;width:46%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:1px solid black;border-left:none">
+			<p style="text-align:justify;text-indent:10.2pt"><span style="font-size:12pt"><span style="font-family:"Times New Roman",serif">1. Янги нархларни (тарифларни) қабул қилиш ёки рад этиш асослилигини кўриб чиқади.</span></span></p>
+
+			<p style="text-align:justify;text-indent:10.2pt"><span style="font-size:12pt"><span style="font-family:"Times New Roman",serif">2. Янги нархларни (тарифларни) Иқтисодиёт ва молия вазирлиги ҳудудий бўлинмалари хулосаси асосида халқ депутатлари маҳаллий Кенгашларига кўриб чиқиш учун киритади.</span></span></p>
+			</td>
+			<td style="border-bottom:1px solid black;width:1%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:1px solid black;border-left:none">
+			<p align="center" style="text-align:center"></p>
+			</td>
+			<td rowspan="2" style="border-bottom:1px solid black;width:15%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:1px solid black;border-left:none">
+			<p align="center" style="text-align:center"><span style="font-size:12pt"><span style="font-family:"Times New Roman",serif">Ҳар йили 1 ноябрдан 20 ноябрга қадар</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border-bottom:none;width:1%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:1px solid black;border-left:none">
+			<p align="center" style="text-align:center"></p>
+			</td>
+			<td style="border-bottom:none;width:1%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:1px solid black;border-left:none">
+			<p align="center" style="text-align:center"></p>
+			</td>
+			<td style="border-bottom:none;width:1%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:1px solid black;border-left:none">
+			<p align="center" style="text-align:center"></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border-bottom:1px solid black;width:9%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:none;border-left:none">
+			<p align="center" style="text-align:center"></p>
+			</td>
+			<td style="width:1%;padding:0cm 4px 0cm 4px;height:19px">
+			<p align="center" style="text-align:center"></p>
+			</td>
+			<td style="border-bottom:1px solid black;width:23%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:none;border-left:none">
+			<p align="center" style="text-align:center"></p>
+			</td>
+			<td style="width:1%;padding:0cm 4px 0cm 4px;height:19px">
+			<p align="center" style="text-align:center"></p>
+			</td>
+			<td style="border-bottom:1px solid black;width:46%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:none;border-left:none">
+			<p style="text-align:justify;text-indent:10.2pt"></p>
+			</td>
+			<td style="width:1%;padding:0cm 4px 0cm 4px;height:19px">
+			<p align="center" style="text-align:center"></p>
+			</td>
+			<td style="border-bottom:1px solid black;width:15%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:none;border-left:none">
+			<p align="center" style="text-align:center"></p>
+			</td>
+		</tr>
+		<tr>
+			<td rowspan="2" style="border-bottom:1px solid black;width:9%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:1px solid black;border-left:1px solid black">
+			<p align="center" style="text-align:center"><span style="font-size:12pt"><span style="font-family:"Times New Roman",serif">4-босқич</span></span></p>
+			</td>
+			<td style="border-bottom:1px solid black;width:1%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:1px solid black;border-left:none">
+			<p align="center" style="text-align:center"></p>
+			</td>
+			<td rowspan="2" style="border-bottom:1px solid black;width:23%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:1px solid black;border-left:none">
+			<p align="center" style="text-align:center"><span style="font-size:12pt"><span style="font-family:"Times New Roman",serif">Халқ депутатлари туман (шаҳар) Кенгашлари</span></span></p>
+			</td>
+			<td style="border-bottom:1px solid black;width:1%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:1px solid black;border-left:none">
+			<p align="center" style="text-align:center"></p>
+			</td>
+			<td rowspan="2" style="border-bottom:1px solid black;width:46%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:1px solid black;border-left:none">
+			<p style="text-align:justify;text-indent:10.2pt"><span style="font-size:12pt"><span style="font-family:"Times New Roman",serif">Кўрсатиладиган иссиқлик таъминоти хизматлари учун тартибга солинадиган янги нархларни (тарифларни) қайта кўриб чиқади ва маъқулланган тақдирда тасдиқлайди.</span></span></p>
+			</td>
+			<td style="border-bottom:1px solid black;width:1%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:1px solid black;border-left:none">
+			<p align="center" style="text-align:center"></p>
+			</td>
+			<td rowspan="2" style="border-bottom:1px solid black;width:15%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:1px solid black;border-left:none">
+			<p align="center" style="text-align:center"><span style="font-size:12pt"><span style="font-family:"Times New Roman",serif">Ҳар йили 1 декабрга қадар</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border-bottom:none;width:1%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:1px solid black;border-left:none">
+			<p align="center" style="text-align:center"></p>
+			</td>
+			<td style="border-bottom:none;width:1%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:1px solid black;border-left:none">
+			<p align="center" style="text-align:center"></p>
+			</td>
+			<td style="border-bottom:none;width:1%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:1px solid black;border-left:none">
+			<p align="center" style="text-align:center"></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border-bottom:1px solid black;width:9%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:none;border-left:none">
+			<p align="center" style="text-align:center"></p>
+			</td>
+			<td style="width:1%;padding:0cm 4px 0cm 4px;height:19px">
+			<p align="center" style="text-align:center"></p>
+			</td>
+			<td style="border-bottom:1px solid black;width:23%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:none;border-left:none">
+			<p align="center" style="text-align:center"></p>
+			</td>
+			<td style="width:1%;padding:0cm 4px 0cm 4px;height:19px">
+			<p align="center" style="text-align:center"></p>
+			</td>
+			<td style="border-bottom:1px solid black;width:46%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:none;border-left:none">
+			<p style="text-align:justify;text-indent:10.2pt"></p>
+			</td>
+			<td style="width:1%;padding:0cm 4px 0cm 4px;height:19px">
+			<p align="center" style="text-align:center"></p>
+			</td>
+			<td style="border-bottom:1px solid black;width:15%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:none;border-left:none">
+			<p align="center" style="text-align:center"></p>
+			</td>
+		</tr>
+		<tr>
+			<td rowspan="2" style="border-bottom:1px solid black;width:9%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:1px solid black;border-left:1px solid black">
+			<p align="center" style="text-align:center"><span style="font-size:12pt"><span style="font-family:"Times New Roman",serif">5-босқич</span></span></p>
+			</td>
+			<td style="border-bottom:1px solid black;width:1%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:1px solid black;border-left:none">
+			<p align="center" style="text-align:center"></p>
+			</td>
+			<td rowspan="2" style="border-bottom:1px solid black;width:23%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:1px solid black;border-left:none">
+			<p align="center" style="text-align:center"><span style="font-size:12pt"><span style="font-family:"Times New Roman",serif">Қорақалпоғистон Республикаси Вазирлар Кенгаши, вилоятлар ва Тошкент шаҳар ҳокимликлари,</span></span></p>
+
+			<p align="center" style="text-align:center"><span style="font-size:12pt"><span style="font-family:"Times New Roman",serif">Иқтисодиёт ва молия вазирлиги</span></span></p>
+			</td>
+			<td style="border-bottom:1px solid black;width:1%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:1px solid black;border-left:none">
+			<p align="center" style="text-align:center"></p>
+			</td>
+			<td style="border-bottom:none;width:46%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:1px solid black;border-left:none">
+			<p style="text-align:justify;text-indent:10.2pt"><span style="font-size:12pt"><span style="font-family:"Times New Roman",serif">1. Халқ депутатлари туман (шаҳар) Кенгашлари томонидан тасдиқланган иссиқлик таъминоти хизматлари учун тартибга солинадиган янги нархлар (тарифлар) тўғрисидаги маълумотларни Соғлиқни сақлаш вазирлигига тақдим этади.</span></span></p>
+			</td>
+			<td style="border-bottom:1px solid black;width:1%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:1px solid black;border-left:none">
+			<p align="center" style="text-align:center"></p>
+			</td>
+			<td style="border-bottom:none;width:15%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:1px solid black;border-left:none">
+			<p align="center" style="text-align:center"><span style="font-size:12pt"><span style="font-family:"Times New Roman",serif">Ҳар йили 1 декабрга қадар</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border-bottom:none;width:1%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:1px solid black;border-left:none">
+			<p align="center" style="text-align:center"></p>
+			</td>
+			<td style="border-bottom:none;width:1%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:1px solid black;border-left:none">
+			<p align="center" style="text-align:center"></p>
+			</td>
+			<td style="border-bottom:1px solid black;width:46%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:1px solid black;border-left:none">
+			<p style="text-align:justify;text-indent:10.2pt"><span style="font-size:12pt"><span style="font-family:"Times New Roman",serif">2. Соғлиқни сақлаш вазирлиги томонидан тақдим этилган таклифлар қабул қилинмаган тақдирда, маҳаллий бюджет маблағларидан Лойиҳа компанияси зарарларини ҳар ойда қоплаш учун субсидиялар ажратиш тўғрисидаги қарорни тасдиқлайди.</span></span></p>
+			</td>
+			<td style="border-bottom:none;width:1%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:1px solid black;border-left:none">
+			<p align="center" style="text-align:center"></p>
+			</td>
+			<td style="border-bottom:1px solid black;width:15%;padding:0cm 4px 0cm 4px;height:19px;border-top:none;border-right:1px solid black;border-left:none">
+			<p align="center" style="text-align:center"><span style="font-size:12pt"><span style="font-family:"Times New Roman",serif">Ҳар йили 1 январга қадар</span></span></p>
+			</td>
+		</tr>
+	</tbody>
+</table></div></div><div class="PUBLICATION_ORIGIN"><label id="s1089"></label><div name="7026031" id="7026031">(Қонунчилик маълумотлари миллий базаси, 18.07.2024 й., 07/24/263/0527-сон; 10.06.2026 й., 06/26/109/0580-сон)</div></div></div>
+</div></body></html>

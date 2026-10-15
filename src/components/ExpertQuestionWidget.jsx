@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { sendAssistantMessage } from '../utils/assistant'
 import { buildDocumentParts } from '../utils/gemini'
 import { Bot, User, Send, MessageCircle, X } from 'lucide-react'
+import { useI18n, translate } from '../i18n'
 
 const WELCOME_BASE = "Salom! Xulosa yozish jarayonida savollaringiz bo'lsa, shu yerdan so'rang."
 const WELCOME_SOURCES = {
@@ -57,6 +58,7 @@ const makeId = () => `q-${Date.now()}-${nextId++}`
 // yuklanadi (`buildDocumentParts`) va shu sessiya davomida qayta ishlatiladi
 // — har bir xabar uchun qayta yuklab olinmaydi.
 export default function ExpertQuestionWidget({ arizaSource = null, emissionsAware = false }) {
+  const { t } = useI18n()
   const [open, setOpen] = useState(false)
   const [items, setItems] = useState([])
   const [input, setInput] = useState('')
@@ -64,12 +66,12 @@ export default function ExpertQuestionWidget({ arizaSource = null, emissionsAwar
   const bottomRef = useRef(null)
   const projectPartsRef = useRef(null)
 
-  const welcome = `${WELCOME_BASE} ${
+  const welcome = `${t(WELCOME_BASE)} ${t(
     arizaSource && emissionsAware ? WELCOME_SOURCES.withBoth
       : arizaSource ? WELCOME_SOURCES.withProject
       : emissionsAware ? WELCOME_SOURCES.withEmissions
       : WELCOME_SOURCES.base
-  }`
+  )}`
 
   useEffect(() => {
     if (open) bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -96,7 +98,7 @@ export default function ExpertQuestionWidget({ arizaSource = null, emissionsAwar
       const reply = await sendAssistantMessage(history, text, { projectParts, includeEmissions: emissionsAware })
       setItems(prev => [...prev, { id: makeId(), role: 'model', text: reply }])
     } catch (err) {
-      setItems(prev => [...prev, { id: makeId(), role: 'model', text: err.message || "Xatolik yuz berdi. Qaytadan urinib ko'ring." }])
+      setItems(prev => [...prev, { id: makeId(), role: 'model', text: err.message || translate("Xatolik yuz berdi. Qaytadan urinib ko'ring.") }])
     } finally {
       setLoading(false)
     }
@@ -116,7 +118,7 @@ export default function ExpertQuestionWidget({ arizaSource = null, emissionsAwar
           <div className="flex items-center justify-between px-4 py-3 bg-emerald-500 text-white flex-shrink-0">
             <div className="flex items-center gap-2 min-w-0">
               <Bot className="w-4 h-4 flex-shrink-0" />
-              <span className="text-sm font-semibold truncate">Yordamchi</span>
+              <span className="text-sm font-semibold truncate">{t('Yordamchi')}</span>
             </div>
             <button onClick={() => setOpen(false)} className="p-1 hover:bg-emerald-600 rounded-lg transition-colors">
               <X className="w-4 h-4" />
@@ -134,7 +136,7 @@ export default function ExpertQuestionWidget({ arizaSource = null, emissionsAwar
               onChange={e => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               rows={1}
-              placeholder="Savolingizni yozing..."
+              placeholder={t('Savolingizni yozing...')}
               className="flex-1 min-w-0 resize-none px-3 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent max-h-24"
             />
             <button onClick={handleSend} disabled={!input.trim() || loading}
@@ -144,7 +146,7 @@ export default function ExpertQuestionWidget({ arizaSource = null, emissionsAwar
           </div>
         </div>
       )}
-      <button onClick={() => setOpen(v => !v)} title="Yordamchidan so'rash"
+      <button onClick={() => setOpen(v => !v)} title={t("Yordamchidan so'rash")}
         className="fixed bottom-5 right-4 md:right-6 z-50 w-14 h-14 rounded-full bg-emerald-500 text-white shadow-lg flex items-center justify-center hover:bg-emerald-600 transition-colors">
         {open ? <X className="w-6 h-6" /> : <MessageCircle className="w-6 h-6" />}
       </button>

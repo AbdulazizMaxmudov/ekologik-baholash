@@ -6,10 +6,12 @@ import {
 import { TAQQOSLASH_KORXONALAR } from '../data/taqqoslashKorxonalar'
 import { TAQQOSLASH_FILES } from '../data/taqqoslashFiles'
 import { compareArizalar } from '../utils/gemini'
+import { useI18n, translate } from '../i18n'
 
 const PAGE_SIZE = 4
 
 function KorxonaCard({ korxona, onClick }) {
+  const { t } = useI18n()
   return (
     <button
       onClick={onClick}
@@ -23,7 +25,7 @@ function KorxonaCard({ korxona, onClick }) {
       </h3>
       <p className="text-xs text-slate-400 font-mono mb-3">INN: {korxona.inn}</p>
       <span className="inline-flex items-center gap-1 px-2 py-1 bg-slate-100 text-slate-600 rounded-md text-xs font-medium">
-        <FileText className="w-3 h-3" /> {korxona.arizalar.length} ta hulosa
+        <FileText className="w-3 h-3" /> {t('{n} ta hulosa', { n: korxona.arizalar.length })}
       </span>
     </button>
   )
@@ -32,6 +34,7 @@ function KorxonaCard({ korxona, onClick }) {
 const DAVR_LABEL = { hozirgi: 'Hozirgi', avvalgi: 'Avvalgi' }
 
 function ArizaCard({ ariza, onDragStart, disabled }) {
+  const { t } = useI18n()
   return (
     <div
       draggable={!disabled}
@@ -44,7 +47,7 @@ function ArizaCard({ ariza, onDragStart, disabled }) {
         <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
           ariza.davr === 'hozirgi' ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-600'
         }`}>
-          {DAVR_LABEL[ariza.davr] || ariza.davr}
+          {t(DAVR_LABEL[ariza.davr] || ariza.davr)}
         </span>
         <span className="text-xs text-slate-400 font-mono">№{ariza.ariza_raqami}</span>
       </div>
@@ -56,12 +59,13 @@ function ArizaCard({ ariza, onDragStart, disabled }) {
         )}
       </div>
       <p className="text-xs text-slate-400 italic mt-1.5 truncate">{ariza.statusi}</p>
-      <p className="text-[10px] text-slate-300 mt-2">⠿ Sudrab olib o'ting</p>
+      <p className="text-[10px] text-slate-300 mt-2">⠿ {t("Sudrab olib o'ting")}</p>
     </div>
   )
 }
 
 function DropSlot({ label, ariza, onDrop, onClear, dragOver, onDragOver, onDragLeave }) {
+  const { t } = useI18n()
   return (
     <div
       onDragOver={onDragOver}
@@ -75,7 +79,7 @@ function DropSlot({ label, ariza, onDrop, onClear, dragOver, onDragOver, onDragL
       {ariza ? (
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-slate-800">№{ariza.ariza_raqami} ({DAVR_LABEL[ariza.davr]})</p>
+            <p className="text-sm font-semibold text-slate-800">№{ariza.ariza_raqami} ({t(DAVR_LABEL[ariza.davr])})</p>
             <p className="text-xs text-slate-500 truncate">{ariza.ekspertiza_obyekti}</p>
           </div>
           <button onClick={onClear} className="p-1 hover:bg-emerald-100 rounded text-slate-400 hover:text-slate-600 flex-shrink-0">
@@ -83,13 +87,14 @@ function DropSlot({ label, ariza, onDrop, onClear, dragOver, onDragOver, onDragL
           </button>
         </div>
       ) : (
-        <p className="text-sm text-slate-400 text-center">Ariza kartasini shu yerga tashlang</p>
+        <p className="text-sm text-slate-400 text-center">{t('Ariza kartasini shu yerga tashlang')}</p>
       )}
     </div>
   )
 }
 
 function VerdictBadge({ verdict }) {
+  const { t } = useI18n()
   const map = {
     mos: { icon: CheckCircle2, cls: 'bg-emerald-50 text-emerald-700 border-emerald-200', label: 'Mos keladi' },
     qisman_mos: { icon: AlertCircle, cls: 'bg-amber-50 text-amber-700 border-amber-200', label: 'Qisman mos' },
@@ -99,7 +104,7 @@ function VerdictBadge({ verdict }) {
   const Icon = v.icon
   return (
     <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-sm font-semibold ${v.cls}`}>
-      <Icon className="w-4 h-4" /> {v.label}
+      <Icon className="w-4 h-4" /> {t(v.label)}
     </span>
   )
 }
@@ -111,6 +116,7 @@ const MUHIMLIK_CLS = {
 }
 
 function CompareResult({ result }) {
+  const { t } = useI18n()
   return (
     <div className="space-y-4">
       <div className="bg-white rounded-xl border border-slate-200 p-5">
@@ -120,23 +126,23 @@ function CompareResult({ result }) {
 
       {result.nomuvofiqliklar?.length > 0 && (
         <div className="bg-white rounded-xl border border-slate-200 p-5">
-          <h3 className="text-sm font-semibold text-slate-700 mb-3">Aniqlangan nomuvofiqliklar</h3>
+          <h3 className="text-sm font-semibold text-slate-700 mb-3">{t('Aniqlangan nomuvofiqliklar')}</h3>
           <div className="space-y-3">
             {result.nomuvofiqliklar.map((n, i) => (
               <div key={i} className="border border-slate-100 rounded-lg p-4">
                 <div className="flex items-center justify-between gap-2 mb-2 flex-wrap">
                   <p className="text-sm font-semibold text-slate-800">{n.mezon}</p>
                   <span className={`text-xs font-medium px-2 py-0.5 rounded-full border ${MUHIMLIK_CLS[n.muhimlik] || MUHIMLIK_CLS.past}`}>
-                    {n.muhimlik} muhimlik
+                    {t('{level} muhimlik', { level: t(n.muhimlik) })}
                   </span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2">
                   <div className="bg-slate-50 rounded-lg px-3 py-2">
-                    <p className="text-[10px] text-slate-400 uppercase tracking-wide mb-0.5">1-ariza</p>
+                    <p className="text-[10px] text-slate-400 uppercase tracking-wide mb-0.5">{t('1-ariza')}</p>
                     <p className="text-sm text-slate-700">{n.ariza_1_qiymati}</p>
                   </div>
                   <div className="bg-slate-50 rounded-lg px-3 py-2">
-                    <p className="text-[10px] text-slate-400 uppercase tracking-wide mb-0.5">2-ariza</p>
+                    <p className="text-[10px] text-slate-400 uppercase tracking-wide mb-0.5">{t('2-ariza')}</p>
                     <p className="text-sm text-slate-700">{n.ariza_2_qiymati}</p>
                   </div>
                 </div>
@@ -149,7 +155,7 @@ function CompareResult({ result }) {
 
       {result.mos_keluvchi_korsatkichlar?.length > 0 && (
         <div className="bg-white rounded-xl border border-slate-200 p-5">
-          <h3 className="text-sm font-semibold text-slate-700 mb-3">Mos keluvchi ko'rsatkichlar</h3>
+          <h3 className="text-sm font-semibold text-slate-700 mb-3">{t("Mos keluvchi ko'rsatkichlar")}</h3>
           <ul className="space-y-1.5">
             {result.mos_keluvchi_korsatkichlar.map((m, i) => (
               <li key={i} className="flex items-start gap-2 text-sm text-slate-600">
@@ -201,6 +207,7 @@ function KorxonalarList({ onSelect }) {
 }
 
 function KorxonaDetail({ korxona, onBack }) {
+  const { t } = useI18n()
   const [slotA, setSlotA] = useState(null)
   const [slotB, setSlotB] = useState(null)
   const [dragOverSlot, setDragOverSlot] = useState(null)
@@ -229,7 +236,7 @@ function KorxonaDetail({ korxona, onBack }) {
     const urlA = TAQQOSLASH_FILES[slotA.ariza_raqami]
     const urlB = TAQQOSLASH_FILES[slotB.ariza_raqami]
     if (!urlA || !urlB) {
-      setError('Ariza uchun PDF fayl topilmadi')
+      setError(translate('Ariza uchun PDF fayl topilmadi'))
       setStatus('error')
       return
     }
@@ -243,7 +250,7 @@ function KorxonaDetail({ korxona, onBack }) {
       setResult(res)
       setStatus('done')
     } catch (err) {
-      setError(err.message || "Xatolik yuz berdi. Qaytadan urinib ko'ring.")
+      setError(err.message || translate("Xatolik yuz berdi. Qaytadan urinib ko'ring."))
       setStatus('error')
     } finally {
       clearInterval(timerRef.current)
@@ -261,7 +268,7 @@ function KorxonaDetail({ korxona, onBack }) {
   return (
     <div>
       <button onClick={onBack} className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 mb-4">
-        <ArrowLeft className="w-4 h-4" /> Korxonalar ro'yxatiga qaytish
+        <ArrowLeft className="w-4 h-4" /> {t("Korxonalar ro'yxatiga qaytish")}
       </button>
 
       <div className="mb-5">
@@ -272,7 +279,7 @@ function KorxonaDetail({ korxona, onBack }) {
       {/* 2 ta drop-slot */}
       <div className="flex flex-col sm:flex-row gap-3 mb-4">
         <DropSlot
-          label="1-ariza"
+          label={t('1-ariza')}
           ariza={slotA}
           dragOver={dragOverSlot === 'A'}
           onDragOver={(e) => { e.preventDefault(); setDragOverSlot('A') }}
@@ -281,7 +288,7 @@ function KorxonaDetail({ korxona, onBack }) {
           onClear={() => setSlotA(null)}
         />
         <DropSlot
-          label="2-ariza"
+          label={t('2-ariza')}
           ariza={slotB}
           dragOver={dragOverSlot === 'B'}
           onDragOver={(e) => { e.preventDefault(); setDragOverSlot('B') }}
@@ -302,7 +309,7 @@ function KorxonaDetail({ korxona, onBack }) {
         disabled={!slotA || !slotB || status === 'loading'}
         className="w-full flex items-center justify-center gap-2 py-3 bg-emerald-500 text-white text-sm font-semibold rounded-xl hover:bg-emerald-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed mb-6"
       >
-        <ScanSearch className="w-4 h-4" /> Solishtirish
+        <ScanSearch className="w-4 h-4" /> {t('Solishtirish')}
       </button>
 
       {status === 'loading' && (
@@ -314,8 +321,8 @@ function KorxonaDetail({ korxona, onBack }) {
               <Sparkles className="w-6 h-6 text-emerald-500" />
             </div>
           </div>
-          <p className="text-sm font-semibold text-slate-700">AI ikkala arizani solishtirmoqda...</p>
-          <p className="text-xs text-slate-400 mt-1">{elapsed} soniya o'tdi</p>
+          <p className="text-sm font-semibold text-slate-700">{t('AI ikkala arizani solishtirmoqda...')}</p>
+          <p className="text-xs text-slate-400 mt-1">{t("{n} soniya o'tdi", { n: elapsed })}</p>
         </div>
       )}
 
@@ -324,12 +331,12 @@ function KorxonaDetail({ korxona, onBack }) {
           <CompareResult result={result} />
           <button onClick={handleReset}
             className="mt-4 flex items-center gap-2 px-4 py-2.5 border border-slate-200 bg-white text-slate-600 text-sm font-medium rounded-lg hover:bg-slate-50 transition-colors">
-            Yangi taqqoslash
+            {t('Yangi taqqoslash')}
           </button>
         </div>
       )}
 
-      <h3 className="text-sm font-semibold text-slate-700 mb-3">Korxonaning arizalari</h3>
+      <h3 className="text-sm font-semibold text-slate-700 mb-3">{t('Korxonaning arizalari')}</h3>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {korxona.arizalar.map((a) => (
           <ArizaCard
@@ -345,14 +352,15 @@ function KorxonaDetail({ korxona, onBack }) {
 }
 
 export default function AiTaqqoslashPage() {
+  const { t } = useI18n()
   const [selectedKorxona, setSelectedKorxona] = useState(null)
 
   return (
     <div className="p-4 md:p-6 max-w-5xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-xl font-bold text-slate-800">AI Taqqoslash</h1>
+        <h1 className="text-xl font-bold text-slate-800">{t('AI Taqqoslash')}</h1>
         <p className="text-slate-500 text-sm mt-0.5">
-          Bitta korxonaning turli davrdagi arizalarini solishtirib, ular orasidagi nomuvofiqliklarni aniqlang
+          {t('Bitta korxonaning turli davrdagi arizalarini solishtirib, ular orasidagi nomuvofiqliklarni aniqlang')}
         </p>
       </div>
 

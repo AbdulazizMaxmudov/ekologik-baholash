@@ -40,6 +40,7 @@ import {
   FileEdit,
 } from 'lucide-react'
 import logoMarkaz from '../assets/logo_Markaz.png'
+import { useI18n, LanguageSwitcher } from '../i18n'
 
 // Har bir funksiya kartasi bosilganda ochiladigan mini-taqdimot (3-4 bet).
 // Matnlarni shu yerda tahrirlang.
@@ -190,6 +191,7 @@ const functionCards = [
 ]
 
 function Bullets({ items }) {
+  const { t } = useI18n()
   return (
     <ul className="space-y-4 mt-8">
       {items.map((item) => {
@@ -202,7 +204,7 @@ function Bullets({ items }) {
             <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center flex-shrink-0">
               <Icon className="w-5 h-5 text-emerald-600" />
             </div>
-            <span className="text-xl md:text-2xl text-slate-700 leading-snug">{item.text}</span>
+            <span className="text-xl md:text-2xl text-slate-700 leading-snug">{t(item.text)}</span>
           </li>
         )
       })}
@@ -211,6 +213,7 @@ function Bullets({ items }) {
 }
 
 export default function PresentationPage() {
+  const { t } = useI18n()
   const [activeFunction, setActiveFunction] = useState(null)
   const [detailPage, setDetailPage] = useState(0)
   const navigate = useNavigate()
@@ -265,7 +268,7 @@ export default function PresentationPage() {
             className="absolute z-10 top-6 left-6 flex items-center gap-2 text-slate-500 hover:text-emerald-600 transition-colors text-sm font-medium"
           >
             <ChevronLeft className="w-4 h-4" />
-            Funksiyalar
+            {t('Funksiyalar')}
           </button>
 
           <div
@@ -284,10 +287,10 @@ export default function PresentationPage() {
                       <Icon className="w-7 h-7 text-emerald-600" />
                     </div>
                     <p className="text-emerald-600 font-semibold tracking-widest text-lg">
-                      {activeDetail.title.toUpperCase()}
+                      {t(activeDetail.title).toUpperCase()}
                     </p>
                   </div>
-                  <h2 className="text-4xl md:text-5xl font-bold text-slate-900">{page.heading}</h2>
+                  <h2 className="text-4xl md:text-5xl font-bold text-slate-900">{t(page.heading)}</h2>
                   <Bullets items={page.bullets} />
                 </div>
               )
@@ -298,7 +301,7 @@ export default function PresentationPage() {
             <button
               onClick={goPrev}
               className="absolute z-10 left-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-emerald-600 transition-colors p-2"
-              aria-label="Oldingi"
+              aria-label={t('Oldingi')}
             >
               <ChevronLeft className="w-8 h-8" />
             </button>
@@ -307,7 +310,7 @@ export default function PresentationPage() {
             <button
               onClick={goNext}
               className="absolute z-10 right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-emerald-600 transition-colors p-2"
-              aria-label="Keyingi"
+              aria-label={t('Keyingi')}
             >
               <ChevronRight className="w-8 h-8" />
             </button>
@@ -322,7 +325,7 @@ export default function PresentationPage() {
                   className={`w-2.5 h-2.5 rounded-full transition-colors ${
                     i === detailPage ? 'bg-emerald-600' : 'bg-slate-300 hover:bg-slate-400'
                   }`}
-                  aria-label={`${i + 1}-betga o'tish`}
+                  aria-label={t("{n}-betga o'tish", { n: i + 1 })}
                 />
               ))}
             </div>
@@ -339,9 +342,9 @@ export default function PresentationPage() {
               <img src={logoMarkaz} alt="Markaz logo" className="w-28 h-28 object-contain mb-8" />
               <h1 className="text-5xl md:text-6xl font-bold text-slate-900 mb-6">ECO EXPERT AI</h1>
               <p className="text-2xl md:text-3xl text-slate-600 max-w-lg leading-snug">
-                Ekologik ekspertiza arizalarini sun'iy intellekt yordamida{' '}
-                <span className="text-emerald-600 font-semibold">tezkor, shaffof va xolisona</span>{' '}
-                baholovchi platforma
+                {t("Ekologik ekspertiza arizalarini sun'iy intellekt yordamida")}{' '}
+                <span className="text-emerald-600 font-semibold">{t('tezkor, shaffof va xolisona')}</span>{' '}
+                {t('baholovchi platforma')}
               </p>
             </div>
 
@@ -358,8 +361,8 @@ export default function PresentationPage() {
                     <div className="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center mb-4">
                       <Icon className="w-7 h-7 text-emerald-600" />
                     </div>
-                    <h3 className="text-slate-900 text-2xl font-semibold mb-2">{f.title}</h3>
-                    <p className="text-slate-500 text-base">{f.desc}</p>
+                    <h3 className="text-slate-900 text-2xl font-semibold mb-2">{t(f.title)}</h3>
+                    <p className="text-slate-500 text-base">{t(f.desc)}</p>
                   </button>
                 )
               })}
@@ -368,13 +371,16 @@ export default function PresentationPage() {
         </div>
       )}
 
-      <button
-        onClick={() => navigate('/')}
-        className="absolute z-10 top-5 right-5 text-slate-400 hover:text-slate-700 transition-colors"
-        aria-label="Yopish"
-      >
-        <X className="w-6 h-6" />
-      </button>
+      <div className="absolute z-10 top-5 right-5 flex items-center gap-4">
+        <LanguageSwitcher className="w-48" />
+        <button
+          onClick={() => navigate('/')}
+          className="text-slate-400 hover:text-slate-700 transition-colors"
+          aria-label={t('Yopish')}
+        >
+          <X className="w-6 h-6" />
+        </button>
+      </div>
     </div>
   )
 }

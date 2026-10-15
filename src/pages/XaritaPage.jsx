@@ -12,6 +12,7 @@ import AddKorxonaModal from '../components/AddKorxonaModal';
 import { korxonalarSeed } from '../data/korxonalar';
 import { tashkentKorxonalari } from '../data/tashkentKorxonalari';
 import { TASHLANMA_KATEGORIYALARI } from '../data/tashlanmaTurlari';
+import { useI18n } from '../i18n';
 
 // Konteyner o'lchami o'zgarganda (ekran/oyna kengligi, sidebar) Leaflet
 // tayl'arini qayta o'lchashga majburlaydi — aks holda xarita bo'sh/buzilgan
@@ -602,6 +603,7 @@ function parseCoordinateInput(str) {
 }
 
 export default function XaritaPage() {
+  const { t, tg, lang } = useI18n();
   const [currentPath, setCurrentPath] = useState(data.regions);
   const [hoveredRegion, setHoveredRegion] = useState(null);
   const [mapKey, setMapKey] = useState(0);
@@ -746,7 +748,7 @@ export default function XaritaPage() {
         map.flyTo(coord, 14, { animate: true, duration: 1.6 });
       }, 150);
 
-      message.success(`Koordinataga fokus qilindi: ${coord[0].toFixed(5)}, ${coord[1].toFixed(5)}`);
+      message.success(t('Koordinataga fokus qilindi: {coord}', { coord: `${coord[0].toFixed(5)}, ${coord[1].toFixed(5)}` }));
       return;
     }
 
@@ -756,7 +758,7 @@ export default function XaritaPage() {
     );
 
     if (!found) {
-      message.warning("Korxona topilmadi");
+      message.warning(t("Korxona topilmadi"));
       return;
     }
 
@@ -788,7 +790,7 @@ export default function XaritaPage() {
       });
     }, 150);
 
-    message.success(`Topildi: ${found.nomi}`);
+    message.success(t('Topildi: {name}', { name: found.nomi }));
   };
 
   // Real vaqtdagi shamol oqimi qatlami (Windy uslubida)
@@ -882,14 +884,14 @@ export default function XaritaPage() {
     layer.bindPopup(`
       <div style="font-size:12px;min-width:220px">
         <div style="background:#15803d;color:white;padding:6px 10px;border-radius:6px;margin-bottom:8px;font-weight:700">
-          O'rmon fondi uchastkasi
+          ${t("O'rmon fondi uchastkasi")}
         </div>
         <div style="display:grid;gap:4px">
-          ${p.subyekt ? `<div><b>Subyekt:</b> ${p.subyekt}</div>` : ""}
-          ${p.tuman ? `<div><b>Tuman:</b> ${p.tuman}</div>` : ""}
-          ${p.yerFondiTuri ? `<div><b>Yer turi:</b> ${p.yerFondiTuri}</div>` : ""}
-          ${p.royxatHolati ? `<div><b>Holati:</b> ${p.royxatHolati}</div>` : ""}
-          ${p.cadastralNumber ? `<div style="color:#64748b"><b>Kadastr:</b> ${p.cadastralNumber}</div>` : ""}
+          ${p.subyekt ? `<div><b>${t('Subyekt')}:</b> ${p.subyekt}</div>` : ""}
+          ${p.tuman ? `<div><b>${t('Tuman')}:</b> ${p.tuman}</div>` : ""}
+          ${p.yerFondiTuri ? `<div><b>${t('Yer turi')}:</b> ${p.yerFondiTuri}</div>` : ""}
+          ${p.royxatHolati ? `<div><b>${t('Holati')}:</b> ${p.royxatHolati}</div>` : ""}
+          ${p.cadastralNumber ? `<div style="color:#64748b"><b>${t('Kadastr')}:</b> ${p.cadastralNumber}</div>` : ""}
         </div>
       </div>
     `);
@@ -972,12 +974,12 @@ export default function XaritaPage() {
     const p = feature.properties || {};
     const rows = Object.entries(p)
       .filter(([key]) => key !== "nomi")
-      .map(([key, value]) => `<div><b>${EXTRA_FIELD_LABELS[key] || key}:</b> ${value}</div>`)
+      .map(([key, value]) => `<div><b>${EXTRA_FIELD_LABELS[key] ? t(EXTRA_FIELD_LABELS[key]) : key}:</b> ${value}</div>`)
       .join("");
     layer.bindPopup(`
       <div style="font-size:12px;min-width:220px">
         <div style="background:${layerConfig.color};color:white;padding:6px 10px;border-radius:6px;margin-bottom:8px;font-weight:700">
-          ${p.nomi || layerConfig.label}
+          ${p.nomi || t(layerConfig.label)}
         </div>
         <div style="display:grid;gap:4px">${rows}</div>
       </div>
@@ -1014,7 +1016,9 @@ export default function XaritaPage() {
   };
 
   // Hudud (viloyat/shahar/respublika) uchun to'liq ko'rinadigan nom
-  const regionDisplayName = (key) => REGION_DISPLAY_NAMES[key] || `${formatName(key)} viloyati`;
+  const regionDisplayName = (key) =>
+    t(REGION_DISPLAY_NAMES[key] || `${formatName(key)} viloyati`);
+  const districtDisplayName = (key) => t('{name} tumani', { name: formatName(key) });
 
   // Select orqali viloyat tanlash
   const handleRegionSelect = (regionName) => {
@@ -1379,21 +1383,21 @@ export default function XaritaPage() {
           }}>
             {spatialFilter ? (
               spatialFilter.type === 'radius'
-                ? `Radius tahlili — ${spatialFilter.radiusKm} km`
-                : "Chizilgan hudud tahlili"
+                ? t('Radius tahlili — {n} km', { n: spatialFilter.radiusKm })
+                : t("Chizilgan hudud tahlili")
             ) : currentLevel === "regions" ? (
-              "O'zbekiston Respublikasi"
+              t("O'zbekiston Respublikasi")
             ) : currentLevel === "region" ? (
               regionDisplayName(parentRegion)
             ) : (
-              `${formatName(selectedDistrictName)} tumani`
+              districtDisplayName(selectedDistrictName)
             )}
           </div>
 
           {/* Statistika */}
           <div style={{ padding: '1rem', borderBottom: '1px solid #e2e8f0' }}>
             <h4 style={{ margin: '0 0 0.75rem', fontSize: '0.9rem', color: '#334155' }}>
-              Korxonalar statistikasi
+              {t('Korxonalar statistikasi')}
             </h4>
             {dispersionConeInfo && (
               <div style={{
@@ -1411,9 +1415,11 @@ export default function XaritaPage() {
               }}>
                 <Wind size={14} style={{ flexShrink: 0, marginTop: '1px' }} />
                 <span>
-                  Ko'k zona — <b>{korxonalar.find((k) => k.id === dispersionConeInfo.korxonaId)?.nomi}</b> korxonasining
-                  joriy shamol yo'nalishi bo'ylab taxminiy tarqalishi (~{dispersionConeInfo.speedMs.toFixed(1)} m/s,{' '}
-                  {dispersionConeInfo.lengthKm.toFixed(1)} km gacha). Bu ilmiy dispersiya modeli emas, faqat vizual yo'nalish.
+                  {t("Ko'k zona — {name} korxonasining joriy shamol yo'nalishi bo'ylab taxminiy tarqalishi (~{speed} m/s, {km} km gacha). Bu ilmiy dispersiya modeli emas, faqat vizual yo'nalish.", {
+                    name: korxonalar.find((k) => k.id === dispersionConeInfo.korxonaId)?.nomi,
+                    speed: dispersionConeInfo.speedMs.toFixed(1),
+                    km: dispersionConeInfo.lengthKm.toFixed(1),
+                  })}
                 </span>
               </div>
             )}
@@ -1427,7 +1433,7 @@ export default function XaritaPage() {
                 <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#2563eb' }}>
                   {statistics.counts.total}
                 </div>
-                <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Jami korxonalar</div>
+                <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{t('Jami korxonalar')}</div>
               </div>
               <div style={{
                 padding: '0.75rem',
@@ -1438,7 +1444,7 @@ export default function XaritaPage() {
                 <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#22c55e' }}>
                   {statistics.counts.atmosfera}
                 </div>
-                <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Atmosferaga tashlanma tashlayotgan korxonalar</div>
+                <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{t('Atmosferaga tashlanma tashlayotgan korxonalar')}</div>
               </div>
               <div style={{
                 padding: '0.75rem',
@@ -1449,7 +1455,7 @@ export default function XaritaPage() {
                 <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#0284c7' }}>
                   {statistics.counts.suv}
                 </div>
-                <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Suv resurslaridan foydalanadigan korxonalar</div>
+                <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{t('Suv resurslaridan foydalanadigan korxonalar')}</div>
               </div>
               <div style={{
                 padding: '0.75rem',
@@ -1460,7 +1466,7 @@ export default function XaritaPage() {
                 <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#ef4444' }}>
                   {statistics.counts.chiqindi}
                 </div>
-                <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Chiqindi hosil qiladigan korxonalar (oqova, xavfli, maishiy)</div>
+                <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{t('Chiqindi hosil qiladigan korxonalar (oqova, xavfli, maishiy)')}</div>
               </div>
             </div>
           </div>
@@ -1488,7 +1494,7 @@ export default function XaritaPage() {
                     cursor: 'pointer'
                   }}
                 >
-                  {tab.label}
+                  {t(tab.label)}
                 </button>
               ))}
             </div>
@@ -1502,7 +1508,7 @@ export default function XaritaPage() {
                     color: '#94a3b8',
                     fontSize: '0.85rem'
                   }}>
-                    Tashlanma ma'lumotlari mavjud emas
+                    {t("Tashlanma ma'lumotlari mavjud emas")}
                   </div>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -1520,7 +1526,7 @@ export default function XaritaPage() {
                           gap: '0.5rem'
                         }}
                       >
-                        <span style={{ color: '#475569' }}>{label}</span>
+                        <span style={{ color: '#475569' }}>{t(label)}</span>
                         <span style={{
                           flexShrink: 0,
                           fontWeight: '600',
@@ -1529,7 +1535,7 @@ export default function XaritaPage() {
                           padding: '2px 8px',
                           borderRadius: '4px'
                         }}>
-                          {value.toLocaleString()} {unitLabel}
+                          {value.toLocaleString()} {t(unitLabel)}
                         </span>
                       </div>
                     ))}
@@ -1543,7 +1549,7 @@ export default function XaritaPage() {
                     color: '#94a3b8',
                     fontSize: '0.85rem'
                   }}>
-                    Ingredient ma'lumotlari mavjud emas
+                    {t("Ingredient ma'lumotlari mavjud emas")}
                   </div>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -1559,7 +1565,7 @@ export default function XaritaPage() {
                             textTransform: 'uppercase',
                             letterSpacing: '0.02em'
                           }}>
-                            {label}
+                            {t(label)}
                           </div>
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
                             {sortedItems.map(([modda, amount]) => (
@@ -1582,7 +1588,7 @@ export default function XaritaPage() {
                                   textOverflow: 'ellipsis',
                                   whiteSpace: 'nowrap'
                                 }}>
-                                  {modda}
+                                  {t(modda)}
                                 </span>
                                 <span style={{
                                   flexShrink: 0,
@@ -1592,7 +1598,7 @@ export default function XaritaPage() {
                                   padding: '2px 8px',
                                   borderRadius: '4px'
                                 }}>
-                                  {amount.toLocaleString(undefined, { maximumFractionDigits: 3 })} {unitLabel}
+                                  {amount.toLocaleString(undefined, { maximumFractionDigits: 3 })} {t(unitLabel)}
                                 </span>
                               </div>
                             ))}
@@ -1610,7 +1616,7 @@ export default function XaritaPage() {
                     color: '#94a3b8',
                     fontSize: '0.85rem'
                   }}>
-                    Tanlangan hududda korxonalar mavjud emas
+                    {t('Tanlangan hududda korxonalar mavjud emas')}
                   </div>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -1639,7 +1645,7 @@ export default function XaritaPage() {
                             {item.nomi}
                           </p>
                           <p style={{ margin: 0, color: '#94a3b8', fontSize: '0.72rem' }}>
-                            INN: {item.inn} · {formatName(item.viloyat)}, {formatName(item.tuman)}
+                            {t('INN')}: {item.inn} · {tg(formatName(item.viloyat))}, {formatName(item.tuman)}
                           </p>
                         </div>
                       </div>
@@ -1681,7 +1687,7 @@ export default function XaritaPage() {
                 onMouseEnter={(e) => e.target.style.textDecoration = 'underline'}
                 onMouseLeave={(e) => e.target.style.textDecoration = 'none'}
               >
-                O'zbekiston Respublikasi
+                {t("O'zbekiston Respublikasi")}
               </span>
 
               {parentRegion && (
@@ -1708,7 +1714,7 @@ export default function XaritaPage() {
                 <>
                   <span style={{ color: '#94a3b8', fontSize: '0.9rem' }}>/</span>
                   <span style={{ color: '#059669', fontWeight: 'bold', fontSize: '0.9rem' }}>
-                    {formatName(selectedDistrictName)} tumani
+                    {districtDisplayName(selectedDistrictName)}
                   </span>
                 </>
               )}
@@ -1728,8 +1734,8 @@ export default function XaritaPage() {
                     borderRadius: '999px'
                   }}>
                     {spatialFilter.type === 'radius'
-                      ? `Radius tahlili — ${spatialFilter.radiusKm} km`
-                      : "Chizilgan hudud tahlili"}
+                      ? t('Radius tahlili — {n} km', { n: spatialFilter.radiusKm })
+                      : t("Chizilgan hudud tahlili")}
                     <X
                       size={13}
                       style={{ cursor: 'pointer' }}
@@ -1743,7 +1749,7 @@ export default function XaritaPage() {
               <div style={{ display: 'flex', gap: '0.5rem' }}>
                 {/* INN/nomi yoki koordinata ("41.31, 69.28") bo'yicha qidirish */}
                 <Input.Search
-                  placeholder="INN, korxona nomi yoki koordinata"
+                  placeholder={t("INN, korxona nomi yoki koordinata")}
                   allowClear
                   onSearch={handleSearchKorxona}
                   style={{ width: '230px' }}
@@ -1765,7 +1771,7 @@ export default function XaritaPage() {
                     fontWeight: '500'
                   }}
                 >
-                  Radius tahlili
+                  {t('Radius tahlili')}
                 </Button>
 
                 {/* Erkin hudud chizish — nuqta-nuqta bosib poligon chizib,
@@ -1784,7 +1790,7 @@ export default function XaritaPage() {
                     fontWeight: '500'
                   }}
                 >
-                  Hudud chizish
+                  {t('Hudud chizish')}
                 </Button>
 
                 {/* Xarita qatlamlari paneli — shamol, o'rmon fondi va qo'shimcha
@@ -1804,7 +1810,7 @@ export default function XaritaPage() {
                     fontWeight: '500'
                   }}
                 >
-                  Qatlamlar{activeLayerCount > 0 ? ` (${activeLayerCount})` : ''}
+                  {t('Qatlamlar')}{activeLayerCount > 0 ? ` (${activeLayerCount})` : ''}
                 </Button>
 
                 {/* Yangi korxona qo'shish tugmasi */}
@@ -1819,7 +1825,7 @@ export default function XaritaPage() {
                     fontWeight: '500'
                   }}
                 >
-                  Yangi korxona qo'shish
+                  {t("Yangi korxona qo'shish")}
                 </Button>
               </div>
             </div>
@@ -1842,8 +1848,8 @@ export default function XaritaPage() {
                   border: '1px solid #e2e8f0'
                 }}
               >
-                <b style={{ color: '#1e293b', fontSize: '0.85rem' }}>{hoveredRegion.name}</b><br />
-                <span style={{ color: '#64748b', fontSize: '0.8rem' }}>{hoveredRegion.value} ta</span>
+                <b style={{ color: '#1e293b', fontSize: '0.85rem' }}>{tg(hoveredRegion.name)}</b><br />
+                <span style={{ color: '#64748b', fontSize: '0.8rem' }}>{t('{n} ta', { n: hoveredRegion.value })}</span>
               </div>
             )}
 
@@ -1866,14 +1872,14 @@ export default function XaritaPage() {
                 {spatialTool === 'radius' ? (
                   <>
                     <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#059669', marginBottom: '0.5rem' }}>
-                      Radius bo'yicha tahlil
+                      {t("Radius bo'yicha tahlil")}
                     </div>
                     <div style={{ fontSize: '0.72rem', color: '#64748b', marginBottom: '0.6rem' }}>
-                      Xaritada markazni bosing yoki koordinatani qo'lda kiriting
+                      {t("Xaritada markazni bosing yoki koordinatani qo'lda kiriting")}
                     </div>
                     <div style={{ display: 'flex', gap: '0.4rem', marginBottom: '0.5rem' }}>
                       <InputNumber
-                        placeholder="Kenglik"
+                        placeholder={t("Kenglik")}
                         value={pendingCenter?.[0] ?? null}
                         onChange={(v) => setPendingCenter((prev) => [v ?? 0, prev?.[1] ?? 0])}
                         step={0.0001}
@@ -1881,7 +1887,7 @@ export default function XaritaPage() {
                         size="small"
                       />
                       <InputNumber
-                        placeholder="Uzunlik"
+                        placeholder={t("Uzunlik")}
                         value={pendingCenter?.[1] ?? null}
                         onChange={(v) => setPendingCenter((prev) => [prev?.[0] ?? 0, v ?? 0])}
                         step={0.0001}
@@ -1890,7 +1896,7 @@ export default function XaritaPage() {
                       />
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.7rem' }}>
-                      <span style={{ fontSize: '0.75rem', color: '#475569' }}>Radius:</span>
+                      <span style={{ fontSize: '0.75rem', color: '#475569' }}>{t('Radius')}:</span>
                       <InputNumber
                         value={pendingRadiusKm}
                         onChange={(v) => setPendingRadiusKm(v ?? 1)}
@@ -1899,11 +1905,11 @@ export default function XaritaPage() {
                         style={{ flex: 1 }}
                         size="small"
                       />
-                      <span style={{ fontSize: '0.75rem', color: '#475569' }}>km</span>
+                      <span style={{ fontSize: '0.75rem', color: '#475569' }}>{t('km')}</span>
                     </div>
                     <div style={{ display: 'flex', gap: '0.4rem' }}>
                       <Button size="small" onClick={clearSpatialTool} style={{ flex: 1 }}>
-                        Bekor qilish
+                        {t('Bekor qilish')}
                       </Button>
                       <Button
                         size="small"
@@ -1912,24 +1918,24 @@ export default function XaritaPage() {
                         onClick={confirmRadiusAnalysis}
                         style={{ flex: 1, background: '#059669', borderColor: '#059669' }}
                       >
-                        Tahlil qilish
+                        {t('Tahlil qilish')}
                       </Button>
                     </div>
                   </>
                 ) : (
                   <>
                     <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#059669', marginBottom: '0.5rem' }}>
-                      Hudud chizish
+                      {t('Hudud chizish')}
                     </div>
                     <div style={{ fontSize: '0.72rem', color: '#64748b', marginBottom: '0.6rem' }}>
-                      Xaritada nuqtalarni ketma-ket bosib poligon chizing (kamida 3 nuqta), so'ng "Tugatish"ni bosing
+                      {t('Xaritada nuqtalarni ketma-ket bosib poligon chizing (kamida 3 nuqta), so\'ng "Tugatish"ni bosing')}
                     </div>
                     <div style={{ fontSize: '0.75rem', color: '#475569', marginBottom: '0.7rem' }}>
-                      Bosilgan nuqtalar: <b>{drawingPoints.length}</b>
+                      {t('Bosilgan nuqtalar')}: <b>{drawingPoints.length}</b>
                     </div>
                     <div style={{ display: 'flex', gap: '0.4rem' }}>
                       <Button size="small" onClick={clearSpatialTool} style={{ flex: 1 }}>
-                        Bekor qilish
+                        {t('Bekor qilish')}
                       </Button>
                       <Button
                         size="small"
@@ -1937,7 +1943,7 @@ export default function XaritaPage() {
                         onClick={() => setDrawingPoints((prev) => prev.slice(0, -1))}
                         style={{ flex: 1 }}
                       >
-                        Ortga
+                        {t('Ortga')}
                       </Button>
                       <Button
                         size="small"
@@ -1946,7 +1952,7 @@ export default function XaritaPage() {
                         onClick={confirmPolygonAnalysis}
                         style={{ flex: 1, background: '#059669', borderColor: '#059669' }}
                       >
-                        Tugatish
+                        {t('Tugatish')}
                       </Button>
                     </div>
                   </>
@@ -1980,7 +1986,7 @@ export default function XaritaPage() {
                 if (!geojson || geojson === "missing") return null;
                 return (
                   <GeoJSON
-                    key={region}
+                    key={`${region}-${lang}`}
                     data={geojson}
                     style={ormonStyle}
                     onEachFeature={onEachOrmonFeature}
@@ -1996,7 +2002,7 @@ export default function XaritaPage() {
                 if (!geojson || geojson === "missing") return null;
                 return (
                   <GeoJSON
-                    key={layerConfig.key}
+                    key={`${layerConfig.key}-${lang}`}
                     data={geojson}
                     style={extraLayerStyle(layerConfig)}
                     pointToLayer={extraLayerPointToLayer(layerConfig)}
@@ -2014,7 +2020,7 @@ export default function XaritaPage() {
                 >
                   <Popup>
                     <div style={{ fontSize: '12px' }}>
-                      <b>Belgilangan koordinata</b><br />
+                      <b>{t('Belgilangan koordinata')}</b><br />
                       {coordinateMarker[0].toFixed(6)}, {coordinateMarker[1].toFixed(6)}
                     </div>
                   </Popup>
@@ -2155,7 +2161,7 @@ export default function XaritaPage() {
                             marginBottom: '8px'
                           }}>
                             <div style={{ fontSize: '9px', opacity: 0.85, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                              Korxona pasporti
+                              {t('Korxona pasporti')}
                             </div>
                             <div style={{ fontSize: '13px', fontWeight: 700, lineHeight: 1.3 }}>
                               {item.nomi}
@@ -2170,8 +2176,8 @@ export default function XaritaPage() {
                             color: '#475569',
                             marginBottom: '8px'
                           }}>
-                            <div><strong>INN:</strong> {item.inn}</div>
-                            <div><strong>Hudud:</strong> {formatName(item.viloyat)}, {formatName(item.tuman)}</div>
+                            <div><strong>{t('INN')}:</strong> {item.inn}</div>
+                            <div><strong>{t('Hudud')}:</strong> {tg(formatName(item.viloyat))}, {formatName(item.tuman)}</div>
                           </div>
 
                           <hr style={{ border: 'none', borderTop: '1px solid #e2e8f0', margin: '6px 0' }} />
@@ -2182,7 +2188,7 @@ export default function XaritaPage() {
                             return (
                               <div key={cat.key} style={{ marginBottom: '8px' }}>
                                 <div style={{ fontSize: '11px', fontWeight: 600, color: '#059669', marginBottom: '3px' }}>
-                                  {cat.label}
+                                  {t(cat.label)}
                                 </div>
                                 {entries.map((entry, idx) => (
                                   <div
@@ -2197,9 +2203,9 @@ export default function XaritaPage() {
                                       borderBottom: idx < entries.length - 1 ? '1px dashed #f1f5f9' : 'none'
                                     }}
                                   >
-                                    <span>{entry[cat.optionsField]}</span>
+                                    <span>{t(entry[cat.optionsField])}</span>
                                     <span style={{ fontWeight: 600, whiteSpace: 'nowrap', color: '#1e293b' }}>
-                                      {cat.units.map(u => `${entry[u.field] ?? 0} ${u.label}`).join(' / ')}
+                                      {cat.units.map(u => `${entry[u.field] ?? 0} ${t(u.label)}`).join(' / ')}
                                     </span>
                                   </div>
                                 ))}
@@ -2225,20 +2231,20 @@ export default function XaritaPage() {
                                 onChange={(e) => setDispersionKorxonaId(e.target.checked ? item.id : null)}
                               />
                               <Wind size={13} style={{ flexShrink: 0 }} />
-                              Taxminiy shamol tarqalishini ko'rsatish
+                              {t("Taxminiy shamol tarqalishini ko'rsatish")}
                             </label>
                             {dispersionKorxonaId === item.id && (
                               !windEnabled ? (
                                 <div style={{ marginTop: '4px', fontSize: '10.5px', color: '#dc2626' }}>
-                                  Buning uchun avval "Qatlamlar" &gt; "Shamol oqimi"ni yoqing
+                                  {t('Buning uchun avval "Qatlamlar" > "Shamol oqimi"ni yoqing')}
                                 </div>
                               ) : !dispersionConeInfo ? (
                                 <div style={{ marginTop: '4px', fontSize: '10.5px', color: '#94a3b8' }}>
-                                  Hisoblanmoqda yoki shamol/tashlanma ma'lumoti yetarli emas...
+                                  {t("Hisoblanmoqda yoki shamol/tashlanma ma'lumoti yetarli emas...")}
                                 </div>
                               ) : (
                                 <div style={{ marginTop: '4px', fontSize: '10.5px', color: '#0284c7' }}>
-                                  ~{dispersionConeInfo.lengthKm.toFixed(1)} km gacha ({dispersionConeInfo.speedMs.toFixed(1)} m/s shamol bilan)
+                                  {t('~{km} km gacha ({speed} m/s shamol bilan)', { km: dispersionConeInfo.lengthKm.toFixed(1), speed: dispersionConeInfo.speedMs.toFixed(1) })}
                                 </div>
                               )
                             )}
@@ -2269,7 +2275,7 @@ export default function XaritaPage() {
       }}>
         <div style={{ minWidth: '200px', flex: '1 1 200px' }}>
           <label style={{ display: 'block', fontSize: '0.8rem', color: '#64748b', marginBottom: '0.4rem' }}>
-            Viloyat
+            {t('Viloyat')}
           </label>
           <select
             value={parentRegion || ""}
@@ -2285,7 +2291,7 @@ export default function XaritaPage() {
               outline: 'none'
             }}
           >
-            <option value="">Barcha viloyatlar</option>
+            <option value="">{t('Barcha viloyatlar')}</option>
             {regionsList.map(region => (
               <option key={region} value={region}>
                 {regionDisplayName(region)}
@@ -2296,7 +2302,7 @@ export default function XaritaPage() {
 
         <div style={{ minWidth: '200px', flex: '1 1 200px' }}>
           <label style={{ display: 'block', fontSize: '0.8rem', color: '#64748b', marginBottom: '0.4rem' }}>
-            Tuman/Shahar
+            {t('Tuman/Shahar')}
           </label>
           <select
             value={selectedDistrictName || ""}
@@ -2314,10 +2320,10 @@ export default function XaritaPage() {
               color: parentRegion ? '#1e293b' : '#94a3b8'
             }}
           >
-            <option value="">{parentRegion ? "Barcha tumanlar" : "Avval viloyat tanlang"}</option>
+            <option value="">{parentRegion ? t("Barcha tumanlar") : t("Avval viloyat tanlang")}</option>
             {getDistrictsList().map(district => (
               <option key={district} value={district}>
-                {formatName(district)} tumani
+                {districtDisplayName(district)}
               </option>
             ))}
           </select>
@@ -2339,7 +2345,7 @@ export default function XaritaPage() {
           onMouseEnter={(e) => e.target.style.background = '#e2e8f0'}
           onMouseLeave={(e) => e.target.style.background = '#f1f5f9'}
         >
-          Filterlarni tozalash
+          {t('Filterlarni tozalash')}
         </button>
       </div>
 
@@ -2355,7 +2361,7 @@ export default function XaritaPage() {
 
       {/* Xarita qatlamlari paneli */}
       <Drawer
-        title="Xarita qatlamlari"
+        title={t("Xarita qatlamlari")}
         placement="right"
         open={isLayersDrawerOpen}
         onClose={() => setIsLayersDrawerOpen(false)}
@@ -2364,15 +2370,15 @@ export default function XaritaPage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
           <LayerToggleRow
             color="#0284c7"
-            label="Shamol oqimi"
-            description="Real vaqtdagi shamol tezligi va yo'nalishi"
+            label={t("Shamol oqimi")}
+            description={t("Real vaqtdagi shamol tezligi va yo'nalishi")}
             checked={windEnabled}
             onChange={() => setWindEnabled((prev) => !prev)}
           />
           <LayerToggleRow
             color="#15803d"
-            label="O'rmon fondi yerlari"
-            description="Kadastr uchastkalari bo'yicha o'rmon fondi"
+            label={t("O'rmon fondi yerlari")}
+            description={t("Kadastr uchastkalari bo'yicha o'rmon fondi")}
             checked={ormonEnabled}
             loading={ormonEnabled && ormonLoading}
             onChange={() => setOrmonEnabled((prev) => !prev)}
@@ -2381,8 +2387,8 @@ export default function XaritaPage() {
             <LayerToggleRow
               key={layerConfig.key}
               color={layerConfig.color}
-              label={layerConfig.label}
-              description={layerConfig.description}
+              label={t(layerConfig.label)}
+              description={t(layerConfig.description)}
               checked={!!extraLayersEnabled[layerConfig.key]}
               loading={!!extraLayersEnabled[layerConfig.key] && !!extraLayersLoading[layerConfig.key]}
               onChange={() => toggleExtraLayer(layerConfig.key)}

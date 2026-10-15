@@ -1,6 +1,11 @@
 import { useState } from 'react'
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { Menu } from 'lucide-react'
+import { ConfigProvider } from 'antd'
+import ruRU from 'antd/locale/ru_RU'
+import enUS from 'antd/locale/en_US'
+import uzUZ from 'antd/locale/uz_UZ'
+import { useI18n } from './i18n'
 import Sidebar from './components/Sidebar'
 import DashboardPage from './pages/DashboardPage'
 import CompaniesPage from './pages/CompaniesPage'
@@ -13,11 +18,18 @@ import XaritaPage from './pages/XaritaPage'
 import AiTaqqoslashPage from './pages/AiTaqqoslashPage'
 import PresentationPage from './pages/PresentationPage'
 
+// antd komponentlarining ichki matnlari (Modal, Select "ma'lumot yo'q" va h.k.)
+// uchun — qoraqalpoq tili uchun antd'da lokal yo'q, o'zbekchasi ishlatiladi.
+const ANTD_LOCALES = { uz: uzUZ, kaa: uzUZ, ru: ruRU, en: enUS }
+
 export default function App() {
+  const { lang } = useI18n()
   return (
-    <BrowserRouter>
-      <AppLayout />
-    </BrowserRouter>
+    <ConfigProvider locale={ANTD_LOCALES[lang] || uzUZ}>
+      <BrowserRouter>
+        <AppLayout />
+      </BrowserRouter>
+    </ConfigProvider>
   )
 }
 

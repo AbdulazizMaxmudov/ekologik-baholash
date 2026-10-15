@@ -6,6 +6,7 @@ import {
   Star, ChevronRight,
   ChevronLeft, ArrowUpDown,
 } from 'lucide-react'
+import { useI18n } from '../i18n'
 
 const SORT_OPTIONS = [
   { key: 'total',  label: 'Arizalar soni'   },
@@ -14,6 +15,7 @@ const SORT_OPTIONS = [
 ]
 
 function CompanyCard({ company, rank, onClick }) {
+  const { t } = useI18n()
   const pct = company.ijobiy_pct ?? 0
   const ratingBadge = r =>
     r >= 70 ? 'bg-emerald-100 text-emerald-700' :
@@ -40,7 +42,7 @@ function CompanyCard({ company, rank, onClick }) {
 
       <div className="mb-3">
         <div className="flex justify-between text-xs text-slate-500 mb-1">
-          <span>Ijobiylik ko'rsatkichi</span>
+          <span>{t("Ijobiylik ko'rsatkichi")}</span>
           <span className="font-medium text-slate-700">{pct}%</span>
         </div>
         <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
@@ -50,7 +52,7 @@ function CompanyCard({ company, rank, onClick }) {
 
       <div className="flex items-center gap-2 text-xs flex-wrap">
         <span className="flex items-center gap-1 px-2 py-1 bg-slate-100 text-slate-600 rounded-md font-medium">
-          <Building2 className="w-3 h-3" />{company.total_projects} ta
+          <Building2 className="w-3 h-3" />{t('{n} ta', { n: company.total_projects })}
         </span>
         <span className="flex items-center gap-1 px-2 py-1 bg-emerald-50 text-emerald-700 rounded-md font-medium">
           <CheckCircle className="w-3 h-3" />{company.ijobiy}
@@ -67,6 +69,7 @@ function CompanyCard({ company, rank, onClick }) {
 }
 
 export default function CompaniesPage() {
+  const { t } = useI18n()
   const [data, setData]         = useState(null)
   const [search, setSearch]     = useState('')
   const [inputVal, setInputVal] = useState('')
@@ -88,8 +91,8 @@ export default function CompaniesPage() {
   return (
     <div className="p-4 md:p-6 max-w-7xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-xl font-bold text-slate-800">Loyihachi korxonalar</h1>
-        <p className="text-slate-500 text-sm mt-0.5">Ekologik ekspertiza loyihalarini tayyorlovchi tashkilotlar</p>
+        <h1 className="text-xl font-bold text-slate-800">{t('Loyihachi korxonalar')}</h1>
+        <p className="text-slate-500 text-sm mt-0.5">{t('Ekologik ekspertiza loyihalarini tayyorlovchi tashkilotlar')}</p>
       </div>
 
       {/* Search + Sort */}
@@ -98,30 +101,30 @@ export default function CompaniesPage() {
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input type="text" value={inputVal} onChange={e => setInputVal(e.target.value)}
-              placeholder="Korxona nomi yoki PIN..."
+              placeholder={t('Korxona nomi yoki PIN...')}
               className="pl-9 pr-4 py-2 border border-slate-200 bg-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent w-full" />
           </div>
           <button type="submit" className="px-4 py-2 bg-emerald-500 text-white text-sm font-medium rounded-lg hover:bg-emerald-600 transition-colors whitespace-nowrap">
-            Qidirish
+            {t('Qidirish')}
           </button>
           {search && (
             <button type="button" onClick={() => { setInputVal(''); setSearch(''); setPage(1) }}
               className="px-4 py-2 border border-slate-200 bg-white text-slate-500 text-sm rounded-lg hover:bg-slate-50 whitespace-nowrap">
-              Tozalash
+              {t('Tozalash')}
             </button>
           )}
         </form>
 
         <div className="flex items-center gap-1.5 flex-wrap">
           <span className="text-xs text-slate-400 flex items-center gap-1">
-            <ArrowUpDown className="w-3.5 h-3.5" /> Saralash:
+            <ArrowUpDown className="w-3.5 h-3.5" /> {t('Saralash')}:
           </span>
           {SORT_OPTIONS.map(opt => (
             <button key={opt.key} onClick={() => handleSort(opt.key)}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                 sortBy === opt.key ? 'bg-slate-800 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
               }`}>
-              {opt.label}
+              {t(opt.label)}
             </button>
           ))}
         </div>
@@ -129,8 +132,8 @@ export default function CompaniesPage() {
 
       {data && (
         <p className="text-xs text-slate-500 mb-4">
-          Jami <span className="font-semibold text-slate-700">{data.total}</span> ta loyihachi
-          {search && <> — "<span className="text-emerald-600">{search}</span>" bo'yicha</>}
+          {t('Jami loyihachilar')}: <span className="font-semibold text-slate-700">{data.total}</span>
+          {search && <> — {t("so'rov")}: "<span className="text-emerald-600">{search}</span>"</>}
         </p>
       )}
 
@@ -141,7 +144,7 @@ export default function CompaniesPage() {
       ) : !data?.items?.length ? (
         <div className="flex flex-col items-center justify-center py-24 text-slate-400">
           <Building2 className="w-12 h-12 mb-3 opacity-30" />
-          <p className="text-sm">Korxona topilmadi</p>
+          <p className="text-sm">{t('Korxona topilmadi')}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -154,7 +157,7 @@ export default function CompaniesPage() {
 
       {data?.total_pages > 1 && (
         <div className="mt-8 flex items-center justify-between">
-          <p className="text-sm text-slate-500">{page}-sahifa / {data.total_pages} sahifa</p>
+          <p className="text-sm text-slate-500">{t('{page}-sahifa / {total} sahifa', { page, total: data.total_pages })}</p>
           <div className="flex items-center gap-2">
             <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
               className="p-2 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed">

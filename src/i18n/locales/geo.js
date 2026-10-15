@@ -1,0 +1,41 @@
+// Viloyat nomlari. Ma'lumotlarda krill yozuvida kelgan nomlar
+// ("Самарқанд") translateGeo() orqali avval lotinga o'giriladi, shuning
+// uchun kalitlar lotin yozuvida. Tuman nomlari tarjima qilinmaydi.
+const e = (ru, en, kaa) => ({ ru, en, kaa })
+
+export default {
+  "Andijon": e("Андижан", "Andijan", "Ándijan"),
+  "Andijon viloyati": e("Андижанская область", "Andijan Region", "Ándijan wálayatı"),
+  "Buxoro": e("Бухара", "Bukhara", "Buxara"),
+  "Buxoro viloyati": e("Бухарская область", "Bukhara Region", "Buxara wálayatı"),
+  "Fargona": e("Фергана", "Fergana", "Ferǵana"),
+  "Fargona viloyati": e("Ферганская область", "Fergana Region", "Ferǵana wálayatı"),
+  "Farg'ona": e("Фергана", "Fergana", "Ferǵana"),
+  "Farg'ona viloyati": e("Ферганская область", "Fergana Region", "Ferǵana wálayatı"),
+  "Jizzax": e("Джизак", "Jizzakh", "Jizzaq"),
+  "Jizzax viloyati": e("Джизакская область", "Jizzakh Region", "Jizzaq wálayatı"),
+  "Namangan": e("Наманган", "Namangan", "Namangan"),
+  "Namangan viloyati": e("Наманганская область", "Namangan Region", "Namangan wálayatı"),
+  "Navoiy": e("Навои", "Navoi", "Nawayı"),
+  "Navoiy viloyati": e("Навоийская область", "Navoi Region", "Nawayı wálayatı"),
+  "Qashqadaryo": e("Кашкадарья", "Kashkadarya", "Qashqadárya"),
+  "Qashqadaryo viloyati": e("Кашкадарьинская область", "Kashkadarya Region", "Qashqadárya wálayatı"),
+  "Samarqand": e("Самарканд", "Samarkand", "Samarqand"),
+  "Samarqand viloyati": e("Самаркандская область", "Samarkand Region", "Samarqand wálayatı"),
+  "Sirdaryo": e("Сырдарья", "Syrdarya", "Sırdárya"),
+  "Sirdaryo viloyati": e("Сырдарьинская область", "Syrdarya Region", "Sırdárya wálayatı"),
+  "Surxondaryo": e("Сурхандарья", "Surkhandarya", "Surxandárya"),
+  "Surxondaryo viloyati": e("Сурхандарьинская область", "Surkhandarya Region", "Surxandárya wálayatı"),
+  "Toshkent": e("Ташкент", "Tashkent", "Tashkent"),
+  "Toshkent viloyati": e("Ташкентская область", "Tashkent Region", "Tashkent wálayatı"),
+  "Xorazm": e("Хорезм", "Khorezm", "Xorezm"),
+  "Xorazm viloyati": e("Хорезмская область", "Khorezm Region", "Xorezm wálayatı"),
+  "Qoraqalpogiston": e("Каракалпакстан", "Karakalpakstan", "Qaraqalpaqstan"),
+  "Qoraqalpogiston viloyati": e("Республика Каракалпакстан", "Republic of Karakalpakstan", "Qaraqalpaqstan Respublikası"),
+  "Qoraqalpogʻiston Respublikasi": e("Республика Каракалпакстан", "Republic of Karakalpakstan", "Qaraqalpaqstan Respublikası"),
+  "Qoraqalpog'iston": e("Каракалпакстан", "Karakalpakstan", "Qaraqalpaqstan"),
+  "Qoraqalpog'iston Res.": e("Респ. Каракалпакстан", "Rep. of Karakalpakstan", "Qaraqalpaqstan Resp."),
+  "Toshkent shahri": e("город Ташкент", "Tashkent city", "Tashkent qalası"),
+  "Toshkentshahri": e("город Ташкент", "Tashkent city", "Tashkent qalası"),
+  "Toshkent sh.": e("г. Ташкент", "Tashkent city", "Tashkent q."),
+}

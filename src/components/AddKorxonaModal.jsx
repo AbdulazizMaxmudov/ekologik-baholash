@@ -5,6 +5,7 @@ import { Modal, Steps, Form, Input, Select, InputNumber, Button, message } from 
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { TASHLANMA_KATEGORIYALARI, BOSHQA_QIYMAT } from '../data/tashlanmaTurlari';
 import { generateKorxonaId } from '../data/korxonalar';
+import { useI18n } from '../i18n';
 
 const getFirstWordLowercase = (str) => {
   // "Toshkent sh." (shahar) va "Toshkent viloyati" ikkalasi ham birinchi
@@ -25,7 +26,6 @@ const formatName = (name) => {
 const REGION_DISPLAY_NAMES = {
   toshkentshahri: 'Toshkent shahri',
 };
-const regionDisplayName = (key) => REGION_DISPLAY_NAMES[key] || `${formatName(key)} viloyati`;
 
 const ModalMapClickHandler = ({ onMapClick }) => {
   useMapEvents({
@@ -54,6 +54,9 @@ const resolveBoshqa = (field) => (entry) => {
 // (2) 5 turdagi tashlanma (har biri bir nechta yozuvga ega bo'lishi mumkin),
 // (3) viloyat/tuman tanlab, xaritada korxona hududini (poligon) chizish.
 export default function AddKorxonaModal({ open, onClose, onSubmit, regionsGeoJson, regionsData, regionsList }) {
+  const { t } = useI18n();
+  const regionDisplayName = (key) =>
+    t(REGION_DISPLAY_NAMES[key] || `${formatName(key)} viloyati`);
   const [form] = Form.useForm();
   const [step, setStep] = useState(0);
   const [selectedViloyat, setSelectedViloyat] = useState(undefined);
@@ -144,11 +147,11 @@ export default function AddKorxonaModal({ open, onClose, onSubmit, regionsGeoJso
       const values = await form.validateFields();
 
       if (!selectedViloyat || !selectedTuman) {
-        message.error('Viloyat va tumanni tanlang');
+        message.error(t('Viloyat va tumanni tanlang'));
         return;
       }
       if (huduPoints.length < 3) {
-        message.error("Korxona hududini xaritada belgilang (kamida 3 ta nuqta)");
+        message.error(t("Korxona hududini xaritada belgilang (kamida 3 ta nuqta)"));
         return;
       }
 
@@ -168,7 +171,7 @@ export default function AddKorxonaModal({ open, onClose, onSubmit, regionsGeoJso
       };
 
       onSubmit(korxona);
-      message.success("Korxona muvaffaqiyatli qo'shildi");
+      message.success(t("Korxona muvaffaqiyatli qo'shildi"));
       resetAll();
       onClose();
     } catch {
@@ -180,7 +183,7 @@ export default function AddKorxonaModal({ open, onClose, onSubmit, regionsGeoJso
     <Modal
       title={
         <div style={{ fontSize: '1.1rem', fontWeight: 600, color: '#059669', borderBottom: '2px solid #059669', paddingBottom: '0.5rem' }}>
-          Yangi korxona qo'shish
+          {t("Yangi korxona qo'shish")}
         </div>
       }
       open={open}
@@ -196,9 +199,9 @@ export default function AddKorxonaModal({ open, onClose, onSubmit, regionsGeoJso
         size="small"
         style={{ marginBottom: '1.5rem' }}
         items={[
-          { title: 'Asosiy ma\'lumotlar' },
-          { title: 'Tashlanmalar' },
-          { title: 'Joylashuv' },
+          { title: t("Asosiy ma'lumotlar") },
+          { title: t('Tashlanmalar') },
+          { title: t('Joylashuv') },
         ]}
       />
 
@@ -208,20 +211,20 @@ export default function AddKorxonaModal({ open, onClose, onSubmit, regionsGeoJso
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <Form.Item
               name="inn"
-              label="INN (STIR)"
+              label={t('INN (STIR)')}
               rules={[
-                { required: true, message: 'INN kiriting!' },
-                { pattern: /^\d{9,14}$/, message: 'INN 9-14 xonali raqamdan iborat bo\'lishi kerak' },
+                { required: true, message: t('INN kiriting!') },
+                { pattern: /^\d{9,14}$/, message: t("INN 9-14 xonali raqamdan iborat bo'lishi kerak") },
               ]}
             >
-              <Input placeholder="Masalan: 305137061" />
+              <Input placeholder={t('Masalan: {v}', { v: '305137061' })} />
             </Form.Item>
             <Form.Item
               name="nomi"
-              label="Korxona nomi"
-              rules={[{ required: true, message: 'Korxona nomini kiriting!' }]}
+              label={t('Korxona nomi')}
+              rules={[{ required: true, message: t('Korxona nomini kiriting!') }]}
             >
-              <Input placeholder="Korxona nomi" />
+              <Input placeholder={t('Korxona nomi')} />
             </Form.Item>
           </div>
         </div>
@@ -233,7 +236,7 @@ export default function AddKorxonaModal({ open, onClose, onSubmit, regionsGeoJso
               key={cat.key}
               style={{ background: '#f8fafc', padding: '1rem', borderRadius: '8px', marginBottom: '1rem', border: '1px solid #e2e8f0' }}
             >
-              <h4 style={{ margin: '0 0 1rem', color: '#334155', fontSize: '0.95rem' }}>{cat.label}</h4>
+              <h4 style={{ margin: '0 0 1rem', color: '#334155', fontSize: '0.95rem' }}>{t(cat.label)}</h4>
               <Form.List name={cat.key}>
                 {(fields, { add, remove }) => (
                   <div>
@@ -242,17 +245,17 @@ export default function AddKorxonaModal({ open, onClose, onSubmit, regionsGeoJso
                         <Form.Item
                           {...field}
                           name={[field.name, cat.optionsField]}
-                          label={cat.optionLabel}
-                          rules={[{ required: true, message: 'Tanlang' }]}
+                          label={t(cat.optionLabel)}
+                          rules={[{ required: true, message: t('Tanlang') }]}
                           style={{ flex: '2 1 220px', marginBottom: 0 }}
                         >
                           <Select
-                            placeholder="Tanlang"
+                            placeholder={t('Tanlang')}
                             showSearch
-                            optionFilterProp="children"
+                            optionFilterProp="label"
                             options={[
-                              ...cat.options.map((o) => ({ value: o, label: o })),
-                              { value: BOSHQA_QIYMAT, label: "Boshqa (qo'lda kiritish)" },
+                              ...cat.options.map((o) => ({ value: o, label: t(o) })),
+                              { value: BOSHQA_QIYMAT, label: t("Boshqa (qo'lda kiritish)") },
                             ]}
                           />
                         </Form.Item>
@@ -265,11 +268,11 @@ export default function AddKorxonaModal({ open, onClose, onSubmit, regionsGeoJso
                               <Form.Item
                                 {...field}
                                 name={[field.name, 'boshqa_nomi']}
-                                label="Nomi (qo'lda)"
-                                rules={[{ required: true, message: 'Nomini kiriting' }]}
+                                label={t("Nomi (qo'lda)")}
+                                rules={[{ required: true, message: t('Nomini kiriting') }]}
                                 style={{ flex: '2 1 220px', marginBottom: 0 }}
                               >
-                                <Input placeholder="Nomini kiriting" />
+                                <Input placeholder={t('Nomini kiriting')} />
                               </Form.Item>
                             );
                           }}
@@ -280,8 +283,8 @@ export default function AddKorxonaModal({ open, onClose, onSubmit, regionsGeoJso
                             key={u.field}
                             {...field}
                             name={[field.name, u.field]}
-                            label={u.label}
-                            rules={[{ required: true, message: 'Kiriting' }]}
+                            label={t(u.label)}
+                            rules={[{ required: true, message: t('Kiriting') }]}
                             style={{ flex: '1 1 120px', marginBottom: 0 }}
                           >
                             <InputNumber style={{ width: '100%' }} min={0} placeholder="0" />
@@ -297,7 +300,7 @@ export default function AddKorxonaModal({ open, onClose, onSubmit, regionsGeoJso
                       </div>
                     ))}
                     <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
-                      Qo'shish
+                      {t("Qo'shish")}
                     </Button>
                   </div>
                 )}
@@ -309,8 +312,8 @@ export default function AddKorxonaModal({ open, onClose, onSubmit, regionsGeoJso
         {/* 3-bosqich: Joylashuv va hudud chizish */}
         <div style={{ display: step === 2 ? 'block' : 'none' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-            <Form.Item name="viloyat" label="Viloyat" rules={[{ required: true, message: 'Viloyatni tanlang!' }]}>
-              <Select placeholder="Viloyatni tanlang" onChange={handleViloyatChange} showSearch optionFilterProp="children">
+            <Form.Item name="viloyat" label={t('Viloyat')} rules={[{ required: true, message: t('Viloyatni tanlang!') }]}>
+              <Select placeholder={t('Viloyatni tanlang')} onChange={handleViloyatChange} showSearch optionFilterProp="children">
                 {regionsList.map((region) => (
                   <Select.Option key={region} value={region}>
                     {regionDisplayName(region)}
@@ -318,9 +321,9 @@ export default function AddKorxonaModal({ open, onClose, onSubmit, regionsGeoJso
                 ))}
               </Select>
             </Form.Item>
-            <Form.Item name="tuman" label="Tuman/Shahar" rules={[{ required: true, message: 'Tumanni tanlang!' }]}>
+            <Form.Item name="tuman" label={t('Tuman/Shahar')} rules={[{ required: true, message: t('Tumanni tanlang!') }]}>
               <Select
-                placeholder={selectedViloyat ? 'Tumanni tanlang' : 'Avval viloyat tanlang'}
+                placeholder={selectedViloyat ? t('Tumanni tanlang') : t('Avval viloyat tanlang')}
                 disabled={!selectedViloyat}
                 onChange={handleTumanChange}
                 showSearch
@@ -336,13 +339,13 @@ export default function AddKorxonaModal({ open, onClose, onSubmit, regionsGeoJso
           </div>
 
           <label style={{ display: 'block', fontSize: '0.875rem', color: '#64748b', marginBottom: '0.5rem' }}>
-            Korxona hududini xaritada bosib belgilang (kamida 3 ta nuqta) — nuqtalar avtomatik yopiq hudud sifatida chiziladi.
+            {t('Korxona hududini xaritada bosib belgilang (kamida 3 ta nuqta) — nuqtalar avtomatik yopiq hudud sifatida chiziladi.')}
           </label>
 
           <div style={{ height: '320px', borderRadius: '8px', overflow: 'hidden', border: '2px solid #e2e8f0', position: 'relative' }}>
             {!selectedTuman ? (
               <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f1f5f9', color: '#94a3b8' }}>
-                Avval viloyat va tumanni tanlang
+                {t('Avval viloyat va tumanni tanlang')}
               </div>
             ) : (
               <MapContainer center={[41.3812, 64.5736]} zoom={6} style={{ width: '100%', height: '100%' }}>
@@ -382,17 +385,17 @@ export default function AddKorxonaModal({ open, onClose, onSubmit, regionsGeoJso
                 onClick={() => setHuduPoints((p) => p.slice(0, -1))}
                 disabled={huduPoints.length === 0}
               >
-                Oxirgi nuqtani o'chirish
+                {t("Oxirgi nuqtani o'chirish")}
               </Button>
               <Button
                 size="small"
                 onClick={() => setHuduPoints([])}
                 disabled={huduPoints.length === 0}
               >
-                Tozalash
+                {t('Tozalash')}
               </Button>
               <span style={{ background: 'rgba(255,255,255,0.9)', padding: '4px 10px', borderRadius: '4px', fontSize: '0.75rem', color: '#334155', alignSelf: 'center' }}>
-                Nuqtalar: {huduPoints.length}
+                {t('Nuqtalar')}: {huduPoints.length}
               </span>
             </div>
           </div>
@@ -400,16 +403,16 @@ export default function AddKorxonaModal({ open, onClose, onSubmit, regionsGeoJso
       </Form>
 
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: '0.75rem', paddingTop: '1.25rem', marginTop: '1rem', borderTop: '1px solid #e2e8f0' }}>
-        <Button onClick={handleCancel}>Bekor qilish</Button>
+        <Button onClick={handleCancel}>{t('Bekor qilish')}</Button>
         <div style={{ display: 'flex', gap: '0.75rem' }}>
-          {step > 0 && <Button onClick={goPrev}>Ortga</Button>}
+          {step > 0 && <Button onClick={goPrev}>{t('Ortga')}</Button>}
           {step < 2 ? (
             <Button type="primary" onClick={goNext} style={{ background: '#059669', borderColor: '#059669' }}>
-              Keyingisi
+              {t('Keyingisi')}
             </Button>
           ) : (
             <Button type="primary" onClick={handleFinish} style={{ background: '#059669', borderColor: '#059669' }}>
-              Saqlash
+              {t('Saqlash')}
             </Button>
           )}
         </div>

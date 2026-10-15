@@ -4,6 +4,8 @@ import { SYSTEM_PROMPT, USER_MESSAGE } from './prompt'
 import { COMPARE_SYSTEM_PROMPT, COMPARE_USER_MESSAGE } from './comparePrompt'
 import { ARIZA_QABUL_SYSTEM_PROMPT, ARIZA_QABUL_USER_MESSAGE } from './arizaQabulPrompt'
 import { extractAttachmentLinks } from './pdfLinks'
+import { outputLanguagePart } from './outputLanguage'
+import { translate } from '../i18n'
 
 const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY })
 
@@ -88,6 +90,7 @@ export async function checkArizaAcceptance(source, onProgress = () => {}) {
         role: 'user',
         parts: [
           { text: ARIZA_QABUL_USER_MESSAGE },
+          ...languageParts(),
           { text: 'Ariza hujjati va ilovalari:' },
           ...documentParts,
         ],
@@ -106,7 +109,7 @@ export async function checkArizaAcceptance(source, onProgress = () => {}) {
   } catch {
     const match = text.match(/\{[\s\S]*\}/)
     if (match) return JSON.parse(match[0])
-    throw new Error('AI javobi JSON formatida emas')
+    throw new Error(translate('AI javobi JSON formatida emas'))
   }
 }
 
@@ -121,6 +124,7 @@ export async function evaluateProject(source, onProgress = () => {}) {
         role: 'user',
         parts: [
           { text: USER_MESSAGE },
+          ...languageParts(),
           { text: 'Asosiy ariza hujjati:' },
           ...documentParts,
         ],
@@ -140,7 +144,7 @@ export async function evaluateProject(source, onProgress = () => {}) {
   } catch {
     const match = text.match(/\{[\s\S]*\}/)
     if (match) result = JSON.parse(match[0])
-    else throw new Error('AI javobi JSON formatida emas')
+    else throw new Error(translate('AI javobi JSON formatida emas'))
   }
 
   return normalizeScore(result)
@@ -160,6 +164,7 @@ export async function compareArizalar(sourceA, sourceB, onProgress = () => {}) {
         role: 'user',
         parts: [
           { text: COMPARE_USER_MESSAGE },
+          ...languageParts(),
           { text: '1-ARIZA hujjati va ilovalari:' },
           ...partsA,
           { text: '2-ARIZA hujjati va ilovalari:' },
@@ -180,8 +185,15 @@ export async function compareArizalar(sourceA, sourceB, onProgress = () => {}) {
   } catch {
     const match = text.match(/\{[\s\S]*\}/)
     if (match) return JSON.parse(match[0])
-    throw new Error('AI javobi JSON formatida emas')
+    throw new Error(translate('AI javobi JSON formatida emas'))
   }
+}
+
+// Tizim tili o'zbekcha bo'lmasa, erkin matnli javob maydonlarini shu tilda
+// yozish haqidagi yo'riqnoma (JSON kalitlari/enum qiymatlar o'zgarmaydi).
+function languageParts() {
+  const part = outputLanguagePart()
+  return part ? [part] : []
 }
 
 // Gemini ba'zan evaluation_matrix'dagi ballar yig'indisiga mos kelmaydigan

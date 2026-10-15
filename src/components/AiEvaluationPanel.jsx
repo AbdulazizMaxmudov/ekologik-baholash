@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { evaluateProject, checkArizaAcceptance } from '../utils/gemini'
 import { Upload, FileText, X, Sparkles, XCircle, CheckCircle, CheckCircle2, HelpCircle, AlertTriangle, ChevronDown, ChevronUp, RotateCcw, ArrowRight } from 'lucide-react'
+import { useI18n, translate } from '../i18n'
 
 function scoreColor(score, max = 20) {
   const pct = (score / max) * 100
@@ -16,6 +17,7 @@ function totalColor(score) {
 }
 
 export function UploadZone({ file, onFile, onClear }) {
+  const { t } = useI18n()
   const inputRef = useRef()
   const [drag, setDrag] = useState(false)
 
@@ -51,13 +53,14 @@ export function UploadZone({ file, onFile, onClear }) {
       <div className="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center mb-4">
         <Upload className="w-7 h-7 text-slate-400" />
       </div>
-      <p className="text-sm font-semibold text-slate-700 mb-1">PDF faylni bu yerga tashlang</p>
-      <p className="text-xs text-slate-400">yoki bosib tanlang • Maksimum 50 MB</p>
+      <p className="text-sm font-semibold text-slate-700 mb-1">{t('PDF faylni bu yerga tashlang')}</p>
+      <p className="text-xs text-slate-400">{t('yoki bosib tanlang • Maksimum 50 MB')}</p>
     </div>
   )
 }
 
 function LoadingState({ elapsed, label }) {
+  const { t } = useI18n()
   return (
     <div className="flex flex-col items-center justify-center py-16">
       <div className="relative w-20 h-20 mb-6">
@@ -67,9 +70,9 @@ function LoadingState({ elapsed, label }) {
           <Sparkles className="w-7 h-7 text-emerald-500" />
         </div>
       </div>
-      <p className="text-base font-semibold text-slate-800 mb-1">{label || 'AI hujjatlarni tahlil qilmoqda...'}</p>
-      <p className="text-sm text-slate-400 mb-6">{elapsed} soniya o'tdi</p>
-      <p className="text-xs text-slate-400 max-w-xs text-center">100 sahifali hujjat uchun 30–90 soniya ketishi mumkin</p>
+      <p className="text-base font-semibold text-slate-800 mb-1">{label || t('AI hujjatlarni tahlil qilmoqda...')}</p>
+      <p className="text-sm text-slate-400 mb-6">{t("{n} soniya o'tdi", { n: elapsed })}</p>
+      <p className="text-xs text-slate-400 max-w-xs text-center">{t('100 sahifali hujjat uchun 30–90 soniya ketishi mumkin')}</p>
     </div>
   )
 }
@@ -111,6 +114,7 @@ const QABUL_HOLATI = {
 }
 
 function QabulRow({ item }) {
+  const { t } = useI18n()
   const [open, setOpen] = useState(false)
   const h = QABUL_HOLATI[item.holati] || QABUL_HOLATI.aniqlab_bolmadi
   const Icon = h.icon
@@ -124,7 +128,7 @@ function QabulRow({ item }) {
         <span className="flex-1 text-sm text-slate-700">{item.talab}</span>
         <div className="flex items-center gap-2 flex-shrink-0">
           <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap ${h.cls}`}>
-            <Icon className="w-3.5 h-3.5" /> {h.label}
+            <Icon className="w-3.5 h-3.5" /> {t(h.label)}
           </span>
           {open ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
         </div>
@@ -144,6 +148,7 @@ function QabulRow({ item }) {
 function AcceptanceView({ acceptance, onProceed, onReset, onReject }) {
   const { talablar = [], xulosa } = acceptance
   const accepted = !!xulosa?.qabul_qilinishi_mumkin
+  const { t } = useI18n()
 
   return (
     <div className="space-y-5">
@@ -155,7 +160,7 @@ function AcceptanceView({ acceptance, onProceed, onReset, onReject }) {
           : <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />}
         <div>
           <p className={`text-sm font-semibold ${accepted ? 'text-emerald-700' : 'text-red-700'}`}>
-            {accepted ? 'Ariza qabul qilinishi mumkin' : 'Ariza qabul qilinishi mumkin emas'}
+            {accepted ? t('Ariza qabul qilinishi mumkin') : t('Ariza qabul qilinishi mumkin emas')}
           </p>
           {xulosa?.umumiy_izoh && (
             <p className={`text-xs mt-0.5 ${accepted ? 'text-emerald-600' : 'text-red-600'}`}>{xulosa.umumiy_izoh}</p>
@@ -165,8 +170,8 @@ function AcceptanceView({ acceptance, onProceed, onReset, onReject }) {
 
       <div className="bg-white rounded-xl border border-slate-200">
         <div className="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-slate-700">Ariza qabul qilish talablari</h3>
-          <span className="text-xs text-slate-400">{talablar.length} ta band</span>
+          <h3 className="text-sm font-semibold text-slate-700">{t('Ariza qabul qilish talablari')}</h3>
+          <span className="text-xs text-slate-400">{t('{n} ta band', { n: talablar.length })}</span>
         </div>
         <div className="p-4 space-y-2">
           {talablar.map((item) => <QabulRow key={item.band} item={item} />)}
@@ -177,17 +182,17 @@ function AcceptanceView({ acceptance, onProceed, onReset, onReject }) {
         {onReject && (
           <button onClick={() => onReject(acceptance)}
             className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 border border-red-200 bg-white text-red-600 text-sm font-semibold rounded-lg hover:bg-red-50 transition-colors">
-            <XCircle className="w-4 h-4" /> Rad etish
+            <XCircle className="w-4 h-4" /> {t('Rad etish')}
           </button>
         )}
         <button onClick={onProceed}
           className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-500 text-white text-sm font-semibold rounded-lg hover:bg-emerald-600 transition-colors">
-          Loyihani baholashga o'tish <ArrowRight className="w-4 h-4" />
+          {t("Loyihani baholashga o'tish")} <ArrowRight className="w-4 h-4" />
         </button>
       </div>
       <button onClick={onReset}
         className="flex items-center gap-2 px-4 py-2.5 border border-slate-200 bg-white text-slate-600 text-sm font-medium rounded-lg hover:bg-slate-50 transition-colors">
-        <RotateCcw className="w-4 h-4" /> Yangi ariza tekshirish
+        <RotateCcw className="w-4 h-4" /> {t('Yangi ariza tekshirish')}
       </button>
     </div>
   )
@@ -195,6 +200,7 @@ function AcceptanceView({ acceptance, onProceed, onReset, onReject }) {
 
 function ResultView({ result, onReset, onAccept, onReject }) {
   const { project_identification: pi, evaluation_matrix: matrix, summary } = result
+  const { t } = useI18n()
   const tc  = totalColor(summary.total_score)
   const pct = summary.total_score
 
@@ -204,7 +210,7 @@ function ResultView({ result, onReset, onAccept, onReject }) {
         <div className="flex items-start gap-3 bg-red-50 border border-red-200 rounded-xl p-4">
           <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
           <div>
-            <p className="text-sm font-semibold text-red-700">Jiddiy qoidabuzarlik aniqlandi — 0 ball</p>
+            <p className="text-sm font-semibold text-red-700">{t('Jiddiy qoidabuzarlik aniqlandi — 0 ball')}</p>
             <p className="text-xs text-red-600 mt-0.5">{pi.critical_violation_reason}</p>
           </div>
         </div>
@@ -214,7 +220,7 @@ function ResultView({ result, onReset, onAccept, onReject }) {
         <div className="flex flex-col sm:flex-row sm:items-start gap-5">
           <div className="flex-1 min-w-0">
             <span className="text-xs font-semibold px-2 py-0.5 bg-indigo-50 text-indigo-600 rounded-full">
-              Loyiha turi: {pi?.project_type}
+              {t('Loyiha turi')}: {pi?.project_type}
             </span>
             <h2 className="text-base font-bold text-slate-800 leading-snug mt-2 mb-1">{pi?.project_title}</h2>
             {pi?.developer_name && <p className="text-xs text-slate-500">{pi.developer_name}</p>}
@@ -227,7 +233,7 @@ function ResultView({ result, onReset, onAccept, onReject }) {
         <div className="mt-4">
           <div className="flex justify-between text-xs text-slate-500 mb-1.5">
             <span>{summary.category}</span>
-            <span className={`font-semibold ${tc.text}`}>{tc.label}</span>
+            <span className={`font-semibold ${tc.text}`}>{t(tc.label)}</span>
           </div>
           <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
             <div className={`h-full rounded-full transition-all duration-700 ${pct>=80?'bg-emerald-500':pct>=50?'bg-amber-400':'bg-red-400'}`}
@@ -238,7 +244,7 @@ function ResultView({ result, onReset, onAccept, onReject }) {
 
       <div className="bg-white rounded-xl border border-slate-200">
         <div className="px-5 py-3.5 border-b border-slate-100">
-          <h3 className="text-sm font-semibold text-slate-700">Mezonlar bo'yicha baholash</h3>
+          <h3 className="text-sm font-semibold text-slate-700">{t("Mezonlar bo'yicha baholash")}</h3>
         </div>
         <div className="p-4 space-y-2">
           {(matrix||[]).map((item,idx) => <CriterionRow key={idx} item={item} />)}
@@ -247,7 +253,7 @@ function ResultView({ result, onReset, onAccept, onReject }) {
 
       {summary?.main_deficiencies?.length > 0 && (
         <div className="bg-white rounded-xl border border-slate-200 p-5">
-          <h3 className="text-sm font-semibold text-slate-700 mb-3">Asosiy kamchiliklar</h3>
+          <h3 className="text-sm font-semibold text-slate-700 mb-3">{t('Asosiy kamchiliklar')}</h3>
           <ul className="space-y-2">
             {summary.main_deficiencies.map((d,i) => (
               <li key={i} className="flex items-start gap-2 text-sm text-slate-600">
@@ -262,17 +268,17 @@ function ResultView({ result, onReset, onAccept, onReject }) {
         <div className="flex items-center gap-3">
           <button onClick={() => onReject?.(result)}
             className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 border border-red-200 bg-white text-red-600 text-sm font-semibold rounded-lg hover:bg-red-50 transition-colors">
-            <XCircle className="w-4 h-4" /> Rad etish
+            <XCircle className="w-4 h-4" /> {t('Rad etish')}
           </button>
           <button onClick={() => onAccept?.(result)}
             className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-500 text-white text-sm font-semibold rounded-lg hover:bg-emerald-600 transition-colors">
-            <CheckCircle className="w-4 h-4" /> Qabul qilish
+            <CheckCircle className="w-4 h-4" /> {t('Qabul qilish')}
           </button>
         </div>
       ) : (
         <button onClick={onReset}
           className="flex items-center gap-2 px-4 py-2.5 border border-slate-200 bg-white text-slate-600 text-sm font-medium rounded-lg hover:bg-slate-50 transition-colors">
-          <RotateCcw className="w-4 h-4" /> Yangi loyiha baholash
+          <RotateCcw className="w-4 h-4" /> {t('Yangi loyiha baholash')}
         </button>
       )}
     </div>
@@ -284,6 +290,7 @@ function ResultView({ result, onReset, onAccept, onReject }) {
 // If `initialFile`/`initialLink` is given with `autoStart`, evaluation kicks
 // off automatically on mount.
 export default function AiEvaluationPanel({ initialFile = null, initialLink = '', autoStart = false, onAccept, onReject }) {
+  const { t } = useI18n()
   const hasAutoSource = autoStart && !!(initialFile || initialLink)
   const [file, setFile]     = useState(initialFile)
   // idle -> checking (17 talab) -> checked -> loading (100 ball) -> done
@@ -312,7 +319,7 @@ export default function AiEvaluationPanel({ initialFile = null, initialLink = ''
       const res = await checkArizaAcceptance(src)
       setAcceptance(res); setStatus('checked')
     } catch (err) {
-      setError(err.message || "Xatolik yuz berdi. Qaytadan urinib ko'ring.")
+      setError(err.message || translate("Xatolik yuz berdi. Qaytadan urinib ko'ring."))
       setStatus('error')
     } finally { stopTimer() }
   }, [])
@@ -324,7 +331,7 @@ export default function AiEvaluationPanel({ initialFile = null, initialLink = ''
       const res = await evaluateProject(src)
       setResult(res); setStatus('done')
     } catch (err) {
-      setError(err.message || "Xatolik yuz berdi. Qaytadan urinib ko'ring.")
+      setError(err.message || translate("Xatolik yuz berdi. Qaytadan urinib ko'ring."))
       setStatus('error')
     } finally { stopTimer() }
   }, [])
@@ -358,7 +365,7 @@ export default function AiEvaluationPanel({ initialFile = null, initialLink = ''
     <div className="bg-white rounded-xl border border-slate-200 p-6">
       {status === 'checking' || status === 'loading' ? (
         <LoadingState elapsed={elapsed}
-          label={status === 'checking' ? 'AI arizani qabul qilish talablari bo\'yicha tekshirmoqda...' : 'AI loyihani mezonlar bo\'yicha baholamoqda...'} />
+          label={status === 'checking' ? t("AI arizani qabul qilish talablari bo'yicha tekshirmoqda...") : t("AI loyihani mezonlar bo'yicha baholamoqda...")} />
       ) : (
         <div className="space-y-5">
           <UploadZone file={file} onFile={setFile} onClear={() => setFile(null)} />
@@ -370,9 +377,9 @@ export default function AiEvaluationPanel({ initialFile = null, initialLink = ''
           )}
           <button onClick={() => runAcceptanceCheck(source)} disabled={!source}
             className="w-full flex items-center justify-center gap-2 py-3 bg-emerald-500 text-white text-sm font-semibold rounded-xl hover:bg-emerald-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
-            <Sparkles className="w-4 h-4" /> Tekshirishni boshlash
+            <Sparkles className="w-4 h-4" /> {t('Tekshirishni boshlash')}
           </button>
-          <p className="text-xs text-slate-400 text-center">Faqat PDF format • Maksimum 50 MB • 100 sahifagacha</p>
+          <p className="text-xs text-slate-400 text-center">{t('Faqat PDF format • Maksimum 50 MB • 100 sahifagacha')}</p>
         </div>
       )}
     </div>

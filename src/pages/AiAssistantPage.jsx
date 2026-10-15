@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import { sendAssistantMessage } from '../utils/assistant'
 import AiEvaluationPanel from '../components/AiEvaluationPanel'
 import { Bot, User, Send, Sparkles, FileText, Paperclip, X } from 'lucide-react'
+import { useI18n, translate } from '../i18n'
 
 const WELCOME = "Salom! Men 234-son qaror bo'yicha yordamchi AI'man. Savolingizni yozing, yoki PDF ariza biriktirib \"/baholash\" tugmasini bosing — loyihani mezonlar bo'yicha baholayman."
 
@@ -40,12 +41,13 @@ function TypingIndicator() {
 // tomonidan yuborilgan fayl (o'ng tomonda) va uning ostida AiEvaluationPanel (17 talab
 // tekshiruvi + 100 ballik baholash), xuddi shu faylni chatda "yubordi" deb ko'rsatiladi.
 function EvaluationEntry({ file }) {
+  const { t } = useI18n()
   return (
     <div className="space-y-3">
       <div className="flex justify-end">
         <div className="max-w-[75%] rounded-2xl rounded-tr-sm px-4 py-3 bg-slate-800 text-white text-sm flex items-center gap-2">
           <FileText className="w-4 h-4 flex-shrink-0" />
-          <span className="truncate">{file?.name || 'Ariza fayli'}</span>
+          <span className="truncate">{file?.name || t('Ariza fayli')}</span>
           <span className="text-slate-400 font-mono text-xs">/baholash</span>
         </div>
       </div>
@@ -62,6 +64,7 @@ export default function AiAssistantPage() {
   // sent to the API — it didn't come from Gemini). Two item kinds share one
   // ordered list so evaluations appear inline where the user triggered them:
   // { kind: 'text', role, text } and { kind: 'evaluation', file }.
+  const { t } = useI18n()
   const [items, setItems] = useState([])
   const [input, setInput] = useState('')
   const [attachedFile, setAttachedFile] = useState(null)
@@ -85,7 +88,7 @@ export default function AiAssistantPage() {
       const reply = await sendAssistantMessage(history, text)
       setItems(prev => [...prev, { id: makeId(), kind: 'text', role: 'model', text: reply }])
     } catch (err) {
-      setItems(prev => [...prev, { id: makeId(), kind: 'text', role: 'model', text: err.message || "Xatolik yuz berdi. Qaytadan urinib ko'ring." }])
+      setItems(prev => [...prev, { id: makeId(), kind: 'text', role: 'model', text: err.message || translate("Xatolik yuz berdi. Qaytadan urinib ko'ring.") }])
     } finally {
       setLoading(false)
     }
@@ -115,16 +118,16 @@ export default function AiAssistantPage() {
           <Sparkles className="w-4.5 h-4.5 text-white" />
         </div>
         <div className="min-w-0">
-          <h1 className="text-sm font-bold text-slate-800">AI Assistant</h1>
+          <h1 className="text-sm font-bold text-slate-800">{t('AI Assistant')}</h1>
           <p className="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
-            <FileText className="w-3 h-3" /> 234-son qaror bo'yicha savol-javob va ariza baholash
+            <FileText className="w-3 h-3" /> {t("234-son qaror bo'yicha savol-javob va ariza baholash")}
           </p>
         </div>
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 md:px-6 py-5">
         <div className="max-w-3xl mx-auto space-y-5">
-          <Message role="model" text={WELCOME} />
+          <Message role="model" text={t(WELCOME)} />
           {items.map(it => it.kind === 'evaluation'
             ? <EvaluationEntry key={it.id} file={it.file} />
             : <Message key={it.id} role={it.role} text={it.text} />
@@ -148,7 +151,7 @@ export default function AiAssistantPage() {
           <div className="flex items-end gap-2">
             <input ref={fileInputRef} type="file" accept=".pdf" className="hidden"
               onChange={e => { if (e.target.files[0]) handleAttach(e.target.files[0]); e.target.value = '' }} />
-            <button onClick={() => fileInputRef.current?.click()} title="PDF fayl biriktirish"
+            <button onClick={() => fileInputRef.current?.click()} title={t('PDF fayl biriktirish')}
               className="flex-shrink-0 w-11 h-11 flex items-center justify-center border border-slate-200 text-slate-500 rounded-xl hover:bg-slate-50 hover:text-slate-700 transition-colors">
               <Paperclip className="w-4 h-4" />
             </button>
@@ -157,11 +160,11 @@ export default function AiAssistantPage() {
               onChange={e => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               rows={1}
-              placeholder="234-son qaror bo'yicha savolingizni yozing..."
+              placeholder={t("234-son qaror bo'yicha savolingizni yozing...")}
               className="flex-1 min-w-0 resize-none px-4 py-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent max-h-32"
             />
             <button onClick={handleBaholash} disabled={!attachedFile}
-              title="Biriktirilgan arizani AI orqali baholash"
+              title={t('Biriktirilgan arizani AI orqali baholash')}
               className="flex-shrink-0 h-11 px-3 flex items-center justify-center gap-1.5 border border-emerald-300 text-emerald-600 text-xs font-mono font-semibold rounded-xl hover:bg-emerald-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap">
               /baholash
             </button>

@@ -1,6 +1,8 @@
 import { GoogleGenAI } from '@google/genai'
 import { XULOSA_SYSTEM_PROMPT, XULOSA_USER_MESSAGE } from './xulosaPrompt'
 import { sourceToArrayBuffer, arrayBufferToBase64, detectMimeType } from './gemini'
+import { outputLanguagePart } from './outputLanguage'
+import { translate } from '../i18n'
 
 const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY })
 
@@ -28,6 +30,7 @@ export async function evaluateXulosa(source) {
         role: 'user',
         parts: [
           { text: userMessage },
+          ...[outputLanguagePart()].filter(Boolean),
           { inlineData: { mimeType, data: base64Data } },
         ],
       },
@@ -45,6 +48,6 @@ export async function evaluateXulosa(source) {
   } catch {
     const match = text.match(/\{[\s\S]*\}/)
     if (match) return JSON.parse(match[0])
-    throw new Error('AI javobi JSON formatida emas')
+    throw new Error(translate('AI javobi JSON formatida emas'))
   }
 }

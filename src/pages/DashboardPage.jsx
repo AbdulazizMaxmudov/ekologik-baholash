@@ -13,6 +13,7 @@ import { ARIZALAR } from '../data/arizalar'
 import { XULOSALAR } from '../data/xulosalar'
 import { korxonalarSeed } from '../data/korxonalar'
 import { tashkentKorxonalari } from '../data/tashkentKorxonalari'
+import { useI18n } from '../i18n'
 
 // XulosalarPage.jsx dagi bilan bir xil kalit — foydalanuvchi u yerda
 // ko'rib chiqqan xulosalarni shu yerda ham "kutilayotgan" hisobidan
@@ -77,6 +78,7 @@ function QuickListCard({ title, icon, to, ctaLabel, items, emptyLabel, renderIte
 }
 
 export default function DashboardPage() {
+  const { t, tg, fmt } = useI18n()
   const [totalHujjatlar, setTotalHujjatlar] = useState(null)
   useEffect(() => { getDashboardData().then(d => setTotalHujjatlar(d.total)) }, [])
 
@@ -107,12 +109,13 @@ export default function DashboardPage() {
     const chart = Object.values(byViloyat).sort((a, b) => b.count - a.count).slice(0, 8)
     return { atmosfera, xavfli, chart }
   }, [])
+  const viloyatChart = pollution.chart.map(c => ({ ...c, viloyat: tg(c.viloyat) }))
 
   return (
     <div className="p-4 md:p-6 max-w-7xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-xl font-bold text-slate-800">Boshqaruv paneli</h1>
-        <p className="text-slate-500 text-sm mt-0.5">Ekologik ekspertiza tizimi bo'yicha umumiy ko'rinish</p>
+        <h1 className="text-xl font-bold text-slate-800">{t('Boshqaruv paneli')}</h1>
+        <p className="text-slate-500 text-sm mt-0.5">{t("Ekologik ekspertiza tizimi bo'yicha umumiy ko'rinish")}</p>
       </div>
 
       {/* KPI cards */}
@@ -121,44 +124,44 @@ export default function DashboardPage() {
           to="/arizalar"
           icon={<ClipboardList className="w-4.5 h-4.5 text-white" />} iconBg="#3b82f6"
           value={ARIZALAR.length}
-          label="Kutilayotgan arizalar"
-          sub={shoshilinchCount > 0 ? `${shoshilinchCount} tasi shoshilinch` : undefined}
+          label={t('Kutilayotgan arizalar')}
+          sub={shoshilinchCount > 0 ? t('{n} tasi shoshilinch', { n: shoshilinchCount }) : undefined}
         />
         <KpiCard
           to="/xulosalar"
           icon={<FileCheck2 className="w-4.5 h-4.5 text-white" />} iconBg="#8b5cf6"
           value={pendingXulosalarCount}
-          label="Ko'rib chiqilishi kerak xulosalar"
+          label={t("Ko'rib chiqilishi kerak xulosalar")}
         />
         <KpiCard
           to="/loyihachilar"
           icon={<Leaf className="w-4.5 h-4.5 text-white" />} iconBg="#10b981"
-          value={totalHujjatlar != null ? totalHujjatlar.toLocaleString() : '…'}
-          label="Jami ariza/xulosa hujjati"
+          value={totalHujjatlar != null ? fmt(totalHujjatlar) : '…'}
+          label={t('Jami ariza/xulosa hujjati')}
         />
         <KpiCard
           to="/xarita"
           icon={<Map className="w-4.5 h-4.5 text-white" />} iconBg="#f59e0b"
-          value={ALL_KORXONALAR.length.toLocaleString()}
-          label="Kuzatilayotgan korxonalar"
+          value={fmt(ALL_KORXONALAR.length)}
+          label={t('Kuzatilayotgan korxonalar')}
         />
         <KpiCard
           to="/xarita"
           icon={<Wind className="w-4.5 h-4.5 text-white" />} iconBg="#ef4444"
-          value={`${Math.round(pollution.atmosfera).toLocaleString()} t`}
-          label="Atmosferaga tashlanma/yil"
+          value={`${fmt(Math.round(pollution.atmosfera))} ${t('t')}`}
+          label={t('Atmosferaga tashlanma/yil')}
         />
       </div>
 
       {/* Quick access: urgent arizalar + pending xulosalar */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-6">
         <QuickListCard
-          title="Shoshilinch arizalar"
+          title={t('Shoshilinch arizalar')}
           icon={<AlertTriangle className="w-4 h-4 text-amber-500" />}
           to="/arizalar"
-          ctaLabel="Barchasini ko'rish"
+          ctaLabel={t("Barchasini ko'rish")}
           items={urgentArizalar}
-          emptyLabel="Kutilayotgan ariza yo'q"
+          emptyLabel={t("Kutilayotgan ariza yo'q")}
           renderItem={a => (
             <div key={a.orderNum} className="px-5 py-3 flex items-center justify-between gap-3">
               <div className="min-w-0">
@@ -168,28 +171,28 @@ export default function DashboardPage() {
               <span className={`flex-shrink-0 px-2 py-1 rounded-md text-xs font-semibold whitespace-nowrap ${
                 a.daysLeft <= 2 ? 'bg-red-50 text-red-600' : 'bg-amber-50 text-amber-700'
               }`}>
-                {a.daysLeft} kun qoldi
+                {t('{n} kun qoldi', { n: a.daysLeft })}
               </span>
             </div>
           )}
         />
         <QuickListCard
-          title="Ko'rib chiqilishi kerak xulosalar"
+          title={t("Ko'rib chiqilishi kerak xulosalar")}
           icon={<FileCheck2 className="w-4 h-4 text-purple-500" />}
           to="/xulosalar"
-          ctaLabel="Barchasini ko'rish"
+          ctaLabel={t("Barchasini ko'rish")}
           items={pendingXulosalar}
-          emptyLabel="Ko'rib chiqilishi kerak xulosa yo'q"
+          emptyLabel={t("Ko'rib chiqilishi kerak xulosa yo'q")}
           renderItem={x => (
             <div key={x.ariza_raqami} className="px-5 py-3 flex items-center justify-between gap-3">
               <div className="min-w-0">
                 <p className="text-sm font-medium text-slate-700 truncate">{x.buyurtmachi_nomi}</p>
-                <p className="text-xs text-slate-400 mt-0.5">{x.viloyat}, {x.tuman}</p>
+                <p className="text-xs text-slate-400 mt-0.5">{tg(x.viloyat)}, {tg(x.tuman)}</p>
               </div>
               <span className={`flex-shrink-0 px-2 py-1 rounded-md text-xs font-semibold whitespace-nowrap capitalize ${
                 x.hulosa_turi === 'ijobiy' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-600'
               }`}>
-                {x.hulosa_turi}
+                {t(x.hulosa_turi)}
               </span>
             </div>
           )}
@@ -198,16 +201,16 @@ export default function DashboardPage() {
 
       {/* Loyihachilar reytingi va hujjatlar statistikasi */}
       <div className="mb-6">
-        <h2 className="text-sm font-semibold text-slate-600 mb-3">Loyihachilar va hujjatlar</h2>
+        <h2 className="text-sm font-semibold text-slate-600 mb-3">{t('Loyihachilar va hujjatlar')}</h2>
         <DashboardTab />
       </div>
 
       {/* Ekologik monitoring (Xarita) */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm font-semibold text-slate-600">Ekologik monitoring</h2>
+          <h2 className="text-sm font-semibold text-slate-600">{t('Ekologik monitoring')}</h2>
           <Link to="/xarita" className="text-xs text-emerald-600 hover:text-emerald-700 font-medium flex items-center gap-1">
-            Xaritada ko'rish <ArrowRight className="w-3 h-3" />
+            {t("Xaritada ko'rish")} <ArrowRight className="w-3 h-3" />
           </Link>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
@@ -217,8 +220,8 @@ export default function DashboardPage() {
                 <Wind className="w-5 h-5 text-red-500" />
               </span>
               <div>
-                <p className="text-lg font-bold text-slate-800">{Math.round(pollution.atmosfera).toLocaleString()} t/yil</p>
-                <p className="text-xs text-slate-500">Atmosferaga chiqariladigan ifloslantiruvchi moddalar</p>
+                <p className="text-lg font-bold text-slate-800">{fmt(Math.round(pollution.atmosfera))} {t('t/yil')}</p>
+                <p className="text-xs text-slate-500">{t('Atmosferaga chiqariladigan ifloslantiruvchi moddalar')}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -226,20 +229,20 @@ export default function DashboardPage() {
                 <Trash2 className="w-5 h-5 text-amber-600" />
               </span>
               <div>
-                <p className="text-lg font-bold text-slate-800">{Math.round(pollution.xavfli).toLocaleString()} t/yil</p>
-                <p className="text-xs text-slate-500">Xavfli chiqindilar miqdori</p>
+                <p className="text-lg font-bold text-slate-800">{fmt(Math.round(pollution.xavfli))} {t('t/yil')}</p>
+                <p className="text-xs text-slate-500">{t('Xavfli chiqindilar miqdori')}</p>
               </div>
             </div>
           </div>
 
           <div className="bg-white rounded-xl border border-slate-200 p-5 lg:col-span-2">
-            <h3 className="text-sm font-semibold text-slate-700 mb-4">Viloyat bo'yicha kuzatilayotgan korxonalar</h3>
+            <h3 className="text-sm font-semibold text-slate-700 mb-4">{t("Viloyat bo'yicha kuzatilayotgan korxonalar")}</h3>
             <ResponsiveContainer width="100%" height={260}>
-              <BarChart data={pollution.chart} layout="vertical" margin={{ top: 4, right: 24, left: 8, bottom: 4 }}>
+              <BarChart data={viloyatChart} layout="vertical" margin={{ top: 4, right: 24, left: 8, bottom: 4 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" horizontal={false} />
                 <XAxis type="number" tick={{ fontSize: 11, fill: '#64748b' }} />
                 <YAxis type="category" dataKey="viloyat" width={110} tick={{ fontSize: 11, fill: '#334155' }} />
-                <Tooltip formatter={v => [`${v} ta`, 'Korxona']} contentStyle={{ borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 12 }} />
+                <Tooltip formatter={v => [t('{n} ta', { n: v }), t('Korxona')]} contentStyle={{ borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 12 }} />
                 <Bar dataKey="count" radius={[0, 4, 4, 0]}>
                   {pollution.chart.map((_, i) => <Cell key={i} fill={VILOYAT_COLORS[i % VILOYAT_COLORS.length]} />)}
                 </Bar>

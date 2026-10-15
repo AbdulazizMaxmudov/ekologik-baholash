@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { getCompanyProjects } from '../utils/dataUtils'
 import { ArrowLeft, ExternalLink, FileText, CheckCircle, XCircle, Clock, ChevronLeft, ChevronRight } from 'lucide-react'
+import { useI18n } from '../i18n'
 
 const PAGE_SIZE = 50
 
@@ -23,24 +24,26 @@ const STATUS_MAP = {
 }
 
 function StatusBadge({ status }) {
+  const { t } = useI18n()
   const s = STATUS_MAP[status] ?? { label: status, color: 'bg-slate-100 text-slate-600' }
-  return <span className={`inline-flex px-2 py-0.5 rounded-md text-xs font-medium whitespace-nowrap ${s.color}`}>{s.label}</span>
+  return <span className={`inline-flex px-2 py-0.5 rounded-md text-xs font-medium whitespace-nowrap ${s.color}`}>{t(s.label)}</span>
 }
 
 function FinalStatus({ label }) {
+  const { t } = useI18n()
   if (label === 'ijobiy') return (
     <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-semibold">
-      <CheckCircle className="w-3 h-3" /> Ijobiy
+      <CheckCircle className="w-3 h-3" /> {t('Ijobiy')}
     </span>
   )
   if (label === 'salbiy') return (
     <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-red-100 text-red-700 rounded-full text-xs font-semibold">
-      <XCircle className="w-3 h-3" /> Salbiy
+      <XCircle className="w-3 h-3" /> {t('Salbiy')}
     </span>
   )
   return (
     <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-slate-100 text-slate-500 rounded-full text-xs font-semibold">
-      <Clock className="w-3 h-3" /> Jarayonda
+      <Clock className="w-3 h-3" /> {t('Jarayonda')}
     </span>
   )
 }
@@ -60,6 +63,7 @@ function RatingBar({ value }) {
 }
 
 export default function CompanyDetailPage() {
+  const { t } = useI18n()
   const { id } = useParams()
   const navigate = useNavigate()
   const [data, setData]       = useState(null)
@@ -77,8 +81,8 @@ export default function CompanyDetailPage() {
   )
   if (!data) return (
     <div className="flex flex-col items-center justify-center h-full text-slate-400">
-      <p className="mb-3">Korxona topilmadi</p>
-      <button onClick={() => navigate('/loyihachilar')} className="text-emerald-500 text-sm hover:underline">Orqaga</button>
+      <p className="mb-3">{t('Korxona topilmadi')}</p>
+      <button onClick={() => navigate('/loyihachilar')} className="text-emerald-500 text-sm hover:underline">{t('Orqaga')}</button>
     </div>
   )
 
@@ -93,7 +97,7 @@ export default function CompanyDetailPage() {
       <button onClick={() => navigate('/loyihachilar')}
         className="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-800 transition-colors mb-5 group">
         <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
-        Loyihachilar ro'yxatiga qaytish
+        {t("Loyihachilar ro'yxatiga qaytish")}
       </button>
 
       {/* Header card */}
@@ -116,7 +120,7 @@ export default function CompanyDetailPage() {
           ].map(s => (
             <div key={s.label} className={`${s.bg} rounded-lg px-5 py-3 text-center`}>
               <p className={`text-2xl font-bold ${s.text}`}>{s.value}</p>
-              <p className="text-xs text-slate-500 mt-0.5">{s.label}</p>
+              <p className="text-xs text-slate-500 mt-0.5">{t(s.label)}</p>
             </div>
           ))}
         </div>
@@ -125,10 +129,10 @@ export default function CompanyDetailPage() {
       {/* Table */}
       <div className="bg-white rounded-xl border border-slate-200">
         <div className="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between">
-          <h2 className="font-semibold text-slate-700 text-sm">Loyihalar ro'yxati</h2>
+          <h2 className="font-semibold text-slate-700 text-sm">{t("Loyihalar ro'yxati")}</h2>
           <div className="flex items-center gap-3">
-            <span className="text-xs text-slate-400">{data.projects.length} ta ariza</span>
-            {totalPages > 1 && <span className="text-xs text-slate-400">{projPage}/{totalPages}-sahifa</span>}
+            <span className="text-xs text-slate-400">{t('{n} ta ariza', { n: data.projects.length })}</span>
+            {totalPages > 1 && <span className="text-xs text-slate-400">{t('{page}/{total}-sahifa', { page: projPage, total: totalPages })}</span>}
           </div>
         </div>
         <div className="overflow-x-auto">
@@ -136,7 +140,7 @@ export default function CompanyDetailPage() {
             <thead>
               <tr className="border-b border-slate-100">
                 {['#','Ariza №','Hulosa №','Toifa','Material','Ekspert bahosi','Qabul bahosi','Holat','Natija'].map(h => (
-                  <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wide whitespace-nowrap">{h}</th>
+                  <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wide whitespace-nowrap">{t(h)}</th>
                 ))}
               </tr>
             </thead>
@@ -160,7 +164,7 @@ export default function CompanyDetailPage() {
                   </td>
                   <td className="px-4 py-3.5">
                     <span className="inline-flex px-2 py-0.5 bg-indigo-50 text-indigo-600 rounded text-xs font-medium whitespace-nowrap">
-                      {p.application_type}
+                      {t(p.application_type)}
                     </span>
                   </td>
                   <td className="px-4 py-3.5">
@@ -187,7 +191,7 @@ export default function CompanyDetailPage() {
         {totalPages > 1 && (
           <div className="flex items-center justify-between px-5 py-3.5 border-t border-slate-100">
             <p className="text-xs text-slate-500">
-              {(projPage-1)*PAGE_SIZE+1}–{Math.min(projPage*PAGE_SIZE, data.projects.length)} / {data.projects.length} ta
+              {(projPage-1)*PAGE_SIZE+1}–{Math.min(projPage*PAGE_SIZE, data.projects.length)} / {t('{n} ta', { n: data.projects.length })}
             </p>
             <div className="flex items-center gap-1.5">
               <button onClick={() => setProjPage(p => Math.max(1, p-1))} disabled={projPage===1}

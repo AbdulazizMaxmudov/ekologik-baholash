@@ -62,3 +62,11 @@ Extra map layers (forest fund, water reservoirs, sanitary zones, protected areas
 
 ### Language
 UI copy, data field values, and all Gemini prompts are in Uzbek (mix of Latin/Cyrillic script depending on context) — match the existing script/language when adding user-facing strings or model instructions rather than defaulting to English.
+
+### i18n (uz / kaa / ru / en)
+The UI is translatable into Uzbek (source), Karakalpak (Latin), Russian and English via a small in-house module in `src/i18n/` (no library). Keys are the **Uzbek source strings themselves** — `t("Arizalar")`, `t('{n} ta ariza', { n })` — so `uz` needs no dictionary and a missing translation falls back to the Uzbek text. Translations live in `src/i18n/locales/*.js` as `{ "<uz key>": { ru, en, kaa } }`, merged in `core.js`; placeholders (`{n}`) must match across languages.
+- In components: `const { t, tg, fmt, lang } = useI18n()`. `tg()` translates place names (data sometimes has Cyrillic `"Самарқанд"` → kept for `ru`, transliterated via `toLatin()` then looked up in `locales/geo.js` otherwise). Wrap data-enum values (`'I toifa'`, `'ijobiy'`, status labels, emission categories) in `t()` at render time, not in the data modules.
+- Outside React (utils, error messages): `translate(key, vars)` / `getCurrentLang()` from `src/i18n`.
+- Language is persisted in `localStorage` (`app-lang`); switcher is `LanguageSwitcher` (Sidebar footer + PresentationPage). `App.jsx` maps the language to an antd `ConfigProvider` locale (kaa → uz_UZ).
+- Gemini: JSON-returning calls append `outputLanguagePart()` (`utils/outputLanguage.js`) — free-text fields in the UI language, but JSON keys and enum values (`bajarilgan`, `yuqori`, `Tasdiqlash mumkin`, …) stay Uzbek because components compare against them and translate for display. The chat assistant still mirrors the user's own language/script; `interfaceLanguageHint()` is only a fallback.
+- When adding UI text: write it in Uzbek inside `t()` and add the `ru`/`en`/`kaa` entry to the matching locale file.

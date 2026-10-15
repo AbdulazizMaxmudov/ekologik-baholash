@@ -1,6 +1,7 @@
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { Leaf, ClipboardList, Sparkles, NotebookPen, Map, FileCheck2, GitCompareArrows, Presentation } from 'lucide-react'
 import logoMarkaz from '../assets/logo_Markaz.png'
+import { useI18n, LanguageSwitcher } from '../i18n'
 
 const linkClass = ({ isActive }) =>
   `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
@@ -11,6 +12,7 @@ const linkClass = ({ isActive }) =>
 
 export default function Sidebar({ isOpen, onClose }) {
   const location = useLocation()
+  const { t } = useI18n()
   const isCompanies =
     location.pathname === '/loyihachilar' || location.pathname.startsWith('/company/')
 
@@ -28,12 +30,12 @@ export default function Sidebar({ isOpen, onClose }) {
       <nav className="flex-1 px-3 py-4 space-y-1">
         <NavLink to="/ai-assistant" onClick={onClose} className={linkClass}>
           <Sparkles className="w-4 h-4 flex-shrink-0" />
-          <span>AI Assistant</span>
+          <span>{t("AI Assistant")}</span>
         </NavLink>
 
         <NavLink to="/arizalar" onClick={onClose} className={linkClass}>
           <ClipboardList className="w-4 h-4 flex-shrink-0" />
-          <span>Arizalar</span>
+          <span>{t("Arizalar")}</span>
         </NavLink>
 
         <NavLink
@@ -48,37 +50,38 @@ export default function Sidebar({ isOpen, onClose }) {
           }
         >
           <Leaf className="w-4 h-4 flex-shrink-0" />
-          <span>Loyihachi korxonalar</span>
+          <span>{t("Loyihachi korxonalar")}</span>
         </NavLink>
 
         <NavLink to="/ai-taqqoslash" onClick={onClose} className={linkClass}>
           <GitCompareArrows className="w-4 h-4 flex-shrink-0" />
-          <span>AI Taqqoslash</span>
+          <span>{t("AI Taqqoslash")}</span>
         </NavLink>
 
         <NavLink to="/expert-assistant" onClick={onClose} className={linkClass}>
           <NotebookPen className="w-4 h-4 flex-shrink-0" />
-          <span>Expert Assistant</span>
+          <span>{t("Expert Assistant")}</span>
         </NavLink>
 
         <NavLink to="/xulosalar" onClick={onClose} className={linkClass}>
           <FileCheck2 className="w-4 h-4 flex-shrink-0" />
-          <span>Xulosalar</span>
+          <span>{t("Xulosalar")}</span>
         </NavLink>
 
         <NavLink to="/xarita" onClick={onClose} className={linkClass}>
           <Map className="w-4 h-4 flex-shrink-0" />
-          <span>Xarita</span>
+          <span>{t("Xarita")}</span>
         </NavLink>
 
         <NavLink to="/taqdimot" onClick={onClose} className={linkClass} target="_blank">
           <Presentation className="w-4 h-4 flex-shrink-0" />
-          <span>Taqdimot</span>
+          <span>{t("Taqdimot")}</span>
         </NavLink>
       </nav>
 
-      <div className="px-5 py-4 border-t border-slate-700">
-        <p className="text-slate-500 text-xs">© 2026 Eco Reyting</p>
+      <div className="px-3 py-4 border-t border-slate-700 space-y-3">
+        <LanguageSwitcher />
+        <p className="text-slate-500 text-xs px-2">© 2026 Eco Reyting</p>
       </div>
     </aside>
   )

@@ -1,0 +1,47 @@
+// Boshqaruv paneli (DashboardPage, DashboardTab).
+export default {
+  'Boshqaruv paneli': { ru: 'Панель управления', en: 'Dashboard', kaa: 'Basqarıw paneli' },
+  "Ekologik ekspertiza tizimi bo'yicha umumiy ko'rinish": { ru: 'Общий обзор системы экологической экспертизы', en: 'Overview of the environmental expertise system', kaa: 'Ekologiyalıq ekspertiza sisteması boyınsha ulıwma kórinis' },
+  'Kutilayotgan arizalar': { ru: 'Ожидающие заявки', en: 'Pending applications', kaa: 'Kútilip atırǵan arzalar' },
+  '{n} tasi shoshilinch': { ru: 'из них срочных: {n}', en: '{n} urgent', kaa: '{n} danası tez' },
+  "Ko'rib chiqilishi kerak xulosalar": { ru: 'Заключения на рассмотрение', en: 'Conclusions to review', kaa: 'Kórip shıǵılıwı kerek juwmaqlar' },
+  'Jami ariza/xulosa hujjati': { ru: 'Всего документов заявок/заключений', en: 'Total application/conclusion documents', kaa: 'Jámi arza/juwmaq hújjeti' },
+  'Kuzatilayotgan korxonalar': { ru: 'Отслеживаемые предприятия', en: 'Monitored enterprises', kaa: 'Baqlanıp atırǵan kárxanalar' },
+  'Atmosferaga tashlanma/yil': { ru: 'Выбросы в атмосферу/год', en: 'Air emissions/year', kaa: 'Atmosferaǵa shıǵındı/jıl' },
+  't': { ru: 'т', en: 't', kaa: 't' },
+  't/yil': { ru: 'т/год', en: 't/year', kaa: 't/jıl' },
+  'Shoshilinch arizalar': { ru: 'Срочные заявки', en: 'Urgent applications', kaa: 'Tez arzalar' },
+  "Kutilayotgan ariza yo'q": { ru: 'Нет ожидающих заявок', en: 'No pending applications', kaa: 'Kútilip atırǵan arza joq' },
+  '{n} kun qoldi': { ru: 'осталось {n} дн.', en: '{n} days left', kaa: '{n} kún qaldı' },
+  "Ko'rib chiqilishi kerak xulosa yo'q": { ru: 'Нет заключений на рассмотрение', en: 'No conclusions to review', kaa: 'Kórip shıǵılıwı kerek juwmaq joq' },
+  'Loyihachilar va hujjatlar': { ru: 'Проектировщики и документы', en: 'Designers and documents', kaa: 'Joybarlawshılar hám hújjetler' },
+  'Ekologik monitoring': { ru: 'Экологический мониторинг', en: 'Environmental monitoring', kaa: 'Ekologiyalıq monitoring' },
+  "Xaritada ko'rish": { ru: 'Смотреть на карте', en: 'View on map', kaa: 'Kartada kóriw' },
+  'Atmosferaga chiqariladigan ifloslantiruvchi moddalar': { ru: 'Загрязняющие вещества, выбрасываемые в атмосферу', en: 'Pollutants emitted into the atmosphere', kaa: 'Atmosferaǵa shıǵarılatuǵın pataslawshı zatlar' },
+  'Xavfli chiqindilar miqdori': { ru: 'Объём опасных отходов', en: 'Amount of hazardous waste', kaa: 'Qáwipli shıǵındılar muǵdarı' },
+  "Viloyat bo'yicha kuzatilayotgan korxonalar": { ru: 'Отслеживаемые предприятия по областям', en: 'Monitored enterprises by region', kaa: 'Wálayatlar boyınsha baqlanıp atırǵan kárxanalar' },
+  'Korxona': { ru: 'Предприятие', en: 'Enterprise', kaa: 'Kárxana' },
+
+  // DashboardTab
+  "Loyihachilar reytingi bo'yicha taqsimoti": { ru: 'Распределение проектировщиков по рейтингу', en: 'Distribution of designers by rating', kaa: 'Joybarlawshılardıń reyting boyınsha bólistiriliwi' },
+  'Jami loyihachilar soni': { ru: 'Всего проектировщиков', en: 'Total designers', kaa: 'Jámi joybarlawshılar sanı' },
+  "Toifalarga ko'ra ruxsat etilgan faoliyat turlari": { ru: 'Разрешённые виды деятельности по категориям', en: 'Permitted activity types by category', kaa: 'Kategoriyalarǵa qaray ruqsat etilgen iskerlik túrleri' },
+  '{label} toifa': { ru: 'Категория «{label}»', en: '{label} category', kaa: '{label} kategoriya' },
+  "Atrof-muhitga ta'sir ko'rsatishning barcha toifalariga (I, II, III toifa) mansub faoliyat turlari bo'yicha loyiha hujjatlarini ishlab chiqishi mumkin.": {
+    ru: 'Может разрабатывать проектную документацию по видам деятельности всех категорий воздействия на окружающую среду (I, II, III категории).',
+    en: 'May prepare project documentation for activities in all environmental impact categories (I, II, III).',
+    kaa: 'Qorshaǵan ortalıqqa tásir kórsetiwdiń barlıq kategoriyalarına (I, II, III kategoriya) tiyisli iskerlik túrleri boyınsha joybar hújjetlerin islep shıǵıwı múmkin.',
+  },
+  "Atrof-muhitga ta'sir ko'rsatishning II va III toifalariga mansub faoliyat turlari bo'yicha loyiha hujjatlarini ishlab chiqishi mumkin.": {
+    ru: 'Может разрабатывать проектную документацию по видам деятельности II и III категорий воздействия на окружающую среду.',
+    en: 'May prepare project documentation for activities in environmental impact categories II and III.',
+    kaa: 'Qorshaǵan ortalıqqa tásir kórsetiwdiń II hám III kategoriyalarına tiyisli iskerlik túrleri boyınsha joybar hújjetlerin islep shıǵıwı múmkin.',
+  },
+  "Atrof-muhitga ta'sir ko'rsatishning faqat III toifasiga mansub faoliyat turlari bo'yicha loyiha hujjatlarini ishlab chiqishi mumkin.": {
+    ru: 'Может разрабатывать проектную документацию только по видам деятельности III категории воздействия на окружающую среду.',
+    en: 'May prepare project documentation only for activities in environmental impact category III.',
+    kaa: 'Qorshaǵan ortalıqqa tásir kórsetiwdiń tek III kategoriyasına tiyisli iskerlik túrleri boyınsha joybar hújjetlerin islep shıǵıwı múmkin.',
+  },
+  "Jami hulosalar — material turlari bo'yicha": { ru: 'Всего заключений — по типам материалов', en: 'Total conclusions — by material type', kaa: 'Jámi juwmaqlar — material túrleri boyınsha' },
+  "Ijobiy / Salbiy — toifalar bo'yicha": { ru: 'Положительные / Отрицательные — по категориям', en: 'Positive / Negative — by category', kaa: 'Unamlı / Unamsız — kategoriyalar boyınsha' },
+}
